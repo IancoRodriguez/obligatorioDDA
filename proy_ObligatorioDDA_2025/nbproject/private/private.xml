@@ -3,11 +3,22 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/usuar/OneDrive/Desktop/Agus/DDA/ObligatorioDDA-2025/src/Dominio/Cliente.java</file>
-            <file>file:/C:/Users/usuar/OneDrive/Desktop/Agus/DDA/ObligatorioDDA-2025/src/Dominio/Dispositivo.java</file>
-            <file>file:/C:/Users/usuar/OneDrive/Desktop/Agus/DDA/ObligatorioDDA-2025/src/Dominio/Ingrediente.java</file>
-            <file>file:/C:/Users/usuar/OneDrive/Desktop/Agus/DDA/ObligatorioDDA-2025/src/Dominio/Gestor.java</file>
-            <file>file:/C:/Users/usuar/OneDrive/Desktop/Agus/DDA/ObligatorioDDA-2025/src/Dominio/Pedido.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Servicios/ServicioUsuarios.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Dominio/Cliente.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Servicios/ServicioServicios.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Dominio/Gestor.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/UI/VentanaLogin.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Dominio/Usuario.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Dominio/TipoCliente.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Dominio/Pedido.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/UI/VentanaPrincipal.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/UI/VentanaLoginCliente.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Servicios/Fachada.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/UI/ClienteUI.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/Servicios/ServicioPedidos.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/UI/VentanaLoginGestor.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/UI/GestorUI.java</file>
+            <file>file:/C:/Users/usuar/OneDrive/Documents/GitHub/obligatorioDDA/proy_ObligatorioDDA_2025/src/obligatoriodda/pkg2025/ObligatorioDDA2025.java</file>
         </group>
     </open-files>
 </project-private>

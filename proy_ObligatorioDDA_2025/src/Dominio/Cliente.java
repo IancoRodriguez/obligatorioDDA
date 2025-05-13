@@ -1,12 +1,18 @@
 package Dominio;
 
-public class Cliente {
+public class Cliente extends Usuario {
 
-	private int numero;
+    private String numero;
 
-	private String contrasena;
+    public Cliente(String nombreCompleto, String contrasena, String numero) {
+        super(nombreCompleto, contrasena);
+        this.numero = numero;
+    }
+    
+     @Override
+    public String getLoginId() {
+        return this.numero;
+    }
+    
 
-	private String nombreCompleto;
-
-	
 }

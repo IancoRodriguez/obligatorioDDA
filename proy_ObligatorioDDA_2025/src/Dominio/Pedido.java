@@ -1,6 +1,6 @@
 package Dominio;
 
-public class Pedido extends Gestor {
+public class Pedido   {
 
 	private String comentario;
 
