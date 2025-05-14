@@ -4,7 +4,9 @@
  */
 package Servicios;
 
+import Dominio.Cliente;
 import Dominio.Dispositivo;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,6 +16,23 @@ import java.util.List;
 public class ServicioDispositivos {
     
     private List<Dispositivo> dispositivos;
+
+    public ServicioDispositivos() {
+        this.dispositivos = new ArrayList();
+    }
+    
+    
+    
+    public boolean agregar(Dispositivo d) {
+        dispositivos.add(d);
+        return true;
+    }
+
+    
+    //Getters y Setters 
+    public List<Dispositivo> getDispositivos() {
+        return dispositivos;
+    }
     
     
 }

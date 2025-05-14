@@ -8,6 +8,10 @@ package Dominio;
  *
  * @author usuar
  */
-public class Comun {
+public class Comun extends TipoCliente {
+    
+    public Comun(String nombre) {
+        super(nombre);
+    }
     
 }

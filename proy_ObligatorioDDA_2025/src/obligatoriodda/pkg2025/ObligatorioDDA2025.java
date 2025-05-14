@@ -5,23 +5,42 @@
 package obligatoriodda.pkg2025;
 
 import Dominio.Cliente;
+import Dominio.Dispositivo;
 import Dominio.Gestor;
 import Servicios.Fachada;
+import UI.VentanaLoginCliente;
 import UI.VentanaPrincipal;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- *
- * @author usuar
- */
+
 public class ObligatorioDDA2025 {
 
     
     public static void main(String[] args) {
+        
+        Fachada f = Fachada.getInstancia();
         cargarDatosPrueba();
         new VentanaPrincipal().setVisible(true);
+        
+        for (Dispositivo d: f.getDispositivos()){
+            new VentanaLoginCliente().setVisible(true);
+        }
     }
     
     private static void cargarDatosPrueba() {
+        
+        List<Dispositivo> dispositivos = new ArrayList<>();
+
+        // Crear 5 dispositivos con IDs autoincrementales
+        for (int i = 0; i < 5; i++) {
+            Dispositivo d = new Dispositivo();
+            Fachada.getInstancia().agregar(d);
+        }
+
+      
+        
+        
         Cliente usuario1 = new Cliente("diego", "123", "444");
         Cliente usuario2 = new Cliente("maria", "321", "555");
         

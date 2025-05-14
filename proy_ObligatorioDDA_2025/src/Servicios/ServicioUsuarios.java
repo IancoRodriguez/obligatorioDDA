@@ -53,5 +53,17 @@ public class ServicioUsuarios {
         
         return null;
     }
+
+    
+    // Geters y Setters 
+    
+    public List<Cliente> getClientes() {
+        return clientes;
+    }
+
+    public List<Gestor> getGestores() {
+        return gestores;
+    }
+    
     
 }

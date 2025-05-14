@@ -8,6 +8,10 @@ package Dominio;
  *
  * @author usuar
  */
-public class Frecuente {
+public class Frecuente extends TipoCliente{
+    
+    public Frecuente(String nombre) {
+        super(nombre);
+    }
     
 }

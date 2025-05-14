@@ -8,6 +8,10 @@ package Dominio;
  *
  * @author usuar
  */
-public class DeLaCasa {
+public class DeLaCasa extends TipoCliente {
+    
+    public DeLaCasa(String nombre) {
+        super(nombre);
+    }
     
 }
