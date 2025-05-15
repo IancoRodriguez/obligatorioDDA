@@ -1,5 +1,6 @@
 package Dominio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Item {
@@ -9,7 +10,7 @@ public class Item {
     private UnidadProcesadora unidadProcesadora;
     private List<Ingrediente> ingredientes;
 
-    public Item(String Nombre, float precioUnitario,UnidadProcesadora unidadProcesadora, List<Ingrediente> ingredientes) {
+    public Item(String Nombre, float precioUnitario,UnidadProcesadora unidadProcesadora) {
 
         // Validaciones 
         if (Nombre == null || Nombre.trim().isEmpty()) {
@@ -26,7 +27,43 @@ public class Item {
         this.Nombre = Nombre;
         this.precioUnitario = precioUnitario;
         this.unidadProcesadora = unidadProcesadora;
+        this.ingredientes = new ArrayList();
+    }
 
-        
+    public String getNombre() {
+        return Nombre;
+    }
+
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
+    }
+
+    public float getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(float precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
+
+    public UnidadProcesadora getUnidadProcesadora() {
+        return unidadProcesadora;
+    }
+
+    public void setUnidadProcesadora(UnidadProcesadora unidadProcesadora) {
+        this.unidadProcesadora = unidadProcesadora;
+    }
+
+    public List<Ingrediente> getIngredientes() {
+        return ingredientes;
+    }
+
+    public void setIngredientes(List<Ingrediente> ingredientes) {
+        this.ingredientes = ingredientes;
+    }
+    
+    
+    public void agregarIngrediente(Ingrediente ingrediente) {
+        ingredientes.add(ingrediente);
     }
 }

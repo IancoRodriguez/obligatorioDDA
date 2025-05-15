@@ -1,8 +1,11 @@
 package Servicios;
 
+import Dominio.Categoria;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
 import Dominio.Gestor;
+import Dominio.Item;
+import Dominio.Menu;
 import java.util.List;
 
 public class Fachada {
@@ -11,11 +14,13 @@ public class Fachada {
     private ServicioUsuarios sUsuarios;
     private ServicioServicios sServicios;
     private ServicioDispositivos sDispositivos;
+    private ServicioMenus sMenus;
 
     private Fachada() {
         this.sUsuarios = new ServicioUsuarios();
         this.sServicios = new ServicioServicios();
         this.sDispositivos = new ServicioDispositivos();
+        this.sMenus = new ServicioMenus();
     }
 
     public static Fachada getInstancia() {
@@ -50,7 +55,40 @@ public class Fachada {
     }
     
     
+    // Servicio Menus 
+
+    public void setMenuActivo(Menu menu) {
+        sMenus.setMenuActivo(menu);
+    }
+
+    public Menu getMenuActivo() {
+        return sMenus.getMenuActivo();
+    }
+
+    public List<Menu> getMenus() {
+        return sMenus.getMenus();
+    }
+
+    public void agregarMenu(Menu menu) {
+        sMenus.agregarMenu(menu);
+    }
+
+    public List<Categoria> obtenerCategorias() {
+        return sMenus.obtenerCategorias();
+    }
+
+    public List<Item> obtenerItemsDeCategoria(String nombreCategoria) {
+        return sMenus.obtenerItemsDeCategoria(nombreCategoria);
+    }
+
+    public void agregarItem(String nombreCategoria, Item item) {
+        sMenus.agregarItem(nombreCategoria, item);
+    }
     
+    
+    
+    
+    //Getters y setters 
 
     public List<Dispositivo> getDispositivos() {
         return sDispositivos.getDispositivos();

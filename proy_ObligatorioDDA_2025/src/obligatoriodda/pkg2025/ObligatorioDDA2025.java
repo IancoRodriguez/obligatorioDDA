@@ -4,14 +4,21 @@
  */
 package obligatoriodda.pkg2025;
 
+import Dominio.Categoria;
 import Dominio.Cliente;
 import Dominio.Comun;
 import Dominio.DeLaCasa;
 import Dominio.Dispositivo;
 import Dominio.Frecuente;
 import Dominio.Gestor;
+import Dominio.Ingrediente;
+import Dominio.Insumo;
+import Dominio.Item;
+import Dominio.Menu;
 import Dominio.TipoCliente;
+import Dominio.UnidadProcesadora;
 import Servicios.Fachada;
+import Servicios.ServicioMenus;
 import UI.VentanaLoginCliente;
 import UI.VentanaPrincipal;
 import java.util.ArrayList;
@@ -22,45 +29,85 @@ public class ObligatorioDDA2025 {
 
     public static void main(String[] args) {
         // Inicializar la Fachada y cargar datos de prueba
-        Fachada fachada = Fachada.getInstancia();
-        cargarDatosPrueba(fachada);
+        Fachada f = Fachada.getInstancia();
+        cargarDatosPrueba(f);
 
         SwingUtilities.invokeLater(() -> {
             // 1. Ventana principal del gestor
             new VentanaPrincipal().setVisible(true);
 
             // 2. Ventanas de login para cada dispositivo
-            for (Dispositivo dispositivo : fachada.getDispositivos()) {
+            for (Dispositivo dispositivo : f.getDispositivos()) {
                 new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
             }
         });
 
     }
 
-    private static void cargarDatosPrueba(Fachada fachada) {
+    private static void cargarDatosPrueba(Fachada f) {
 
-        List<Dispositivo> dispositivos = new ArrayList<>();
-
-        // Crear 5 dispositivos con IDs autoincrementales
+        // Crear dispositivos
         for (int i = 0; i < 5; i++) {
             Dispositivo d = new Dispositivo();
-            Fachada.getInstancia().agregar(d);
+            f.agregar(d);
         }
-        
+
+        // Tipos de cliente
         TipoCliente comun = new Comun("comun");
         TipoCliente frecuente = new Frecuente("frecuente");
         TipoCliente deLaCasa = new DeLaCasa("deLaCasa");
 
+        // Clientes
         Cliente usuario1 = new Cliente("diego", "123", "444", comun);
         Cliente usuario2 = new Cliente("maria", "321", "555", frecuente);
+        f.agregar(usuario1);
+        f.agregar(usuario2);
 
+        // Gestores
         Gestor diegoAdmin = new Gestor("diego", "123", "Diego Gregoraz");
         Gestor admin1 = new Gestor("admin", "123", "Administrador General del Sistema");
+        f.agregar(diegoAdmin);
+        f.agregar(admin1);
 
-        Fachada.getInstancia().agregar(diegoAdmin);
-        Fachada.getInstancia().agregar(admin1);
+        // Unidades procesadoras
+        UnidadProcesadora cocina = new UnidadProcesadora("Cocina");
+        UnidadProcesadora barra = new UnidadProcesadora("Barra");
 
-        Fachada.getInstancia().agregar(usuario1);
-        Fachada.getInstancia().agregar(usuario2);
+        // Insumos
+        Insumo pan = new Insumo("Pan", 100, 10);
+        Insumo jamon = new Insumo("Jamón", 80, 5);
+        Insumo queso = new Insumo("Queso", 60, 5);
+        Insumo tomate = new Insumo("Tomate", 50, 5);
+
+        // Ingredientes
+        Ingrediente ingPan = new Ingrediente(pan, 2);
+        Ingrediente ingJamon = new Ingrediente(jamon, 1);
+        Ingrediente ingQueso = new Ingrediente(queso, 1);
+        Ingrediente ingTomate = new Ingrediente(tomate, 1);
+
+        // Items
+        Item sandwich = new Item("Sándwich clásico", 150, cocina);
+        sandwich.agregarIngrediente(ingPan);
+        sandwich.agregarIngrediente(ingJamon);
+        sandwich.agregarIngrediente(ingQueso);
+        sandwich.agregarIngrediente(ingTomate);
+
+        Item licuado = new Item("Licuado de frutas", 120, barra);
+
+        // Categorías
+        Categoria comida = new Categoria("Comidas");
+        Categoria bebida = new Categoria("Bebidas");
+
+        comida.agregarItem(sandwich);
+        bebida.agregarItem(licuado);
+
+        // Menú
+        Menu menu = new Menu();
+        menu.agregarCategoria(comida);
+        menu.agregarCategoria(bebida);
+
+        // Agregar menú al servicio correspondiente
+        f.agregarMenu(menu);
+        f.setMenuActivo(menu); // Asignamos menú activo
     }
 }
