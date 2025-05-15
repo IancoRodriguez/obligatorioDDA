@@ -5,6 +5,7 @@
 package UI;
 
 import Dominio.Cliente;
+import Dominio.Dispositivo;
 import Dominio.Usuario;
 import Servicios.Fachada;
 
@@ -12,6 +13,11 @@ import Servicios.Fachada;
 
 
 public class VentanaLoginCliente extends VentanaLogin{
+    private final Dispositivo dispositivo;
+
+    public VentanaLoginCliente(Dispositivo dispositivo) {
+        this.dispositivo = dispositivo;
+    }
     
 
     @Override
