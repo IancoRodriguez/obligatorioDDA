@@ -9,33 +9,78 @@ import Dominio.Cliente;
 import Dominio.Usuario;
 import Servicios.Fachada;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
-/**
- *
- * @author bruno
- */
 public class ClienteUI extends javax.swing.JFrame {
 
     private Cliente cliente;
-    private JList<Categoria> jListCategorias;
     private Fachada f;
-    private DefaultListModel<Categoria> modeloCategorias;
+    private DefaultListModel<Categoria> modeloCategorias = new DefaultListModel<>();
 
     public ClienteUI(Cliente cliente) {
         initComponents();
-        this.cliente = cliente;
         this.f = Fachada.getInstancia();
-        configurarUI();
+
+        /*
+        // Configuración básica
+        setTitle("Realizar Pedidos - Cliente: " + cliente.getNombreCompleto());
+        setSize(1600, 1200);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        // Configurar lista y modelo
+        jList2 = new JList<>(modeloCategorias); 
+        jList2.setCellRenderer(new CategoriaListCellRenderer()); // Renderizador correcto
+
+        // Añadir al layout
+        JScrollPane scrollCategorias = new JScrollPane(jList2);
+        scrollCategorias.setPreferredSize(new Dimension(150, 80));
+        getContentPane().add(scrollCategorias, BorderLayout.WEST);
+        getContentPane().add(jTable2, BorderLayout.WEST);
+        
+         */
+        // Cargar datos
+        jList2 = new JList<>(); // ✅ Inicialización
+        modeloCategorias = new DefaultListModel<>(); // Si no está inicializado
+        jList2.setModel(modeloCategorias); // 
+
         cargarCategorias();
+        setVisible(true);
+        
+    }
+
+    private void cargarCategorias() {
+        // Añadir objetos Categoria (no Strings)
+
+        modeloCategorias.clear(); // Limpiar modelo
+
+        List<Categoria> categorias = f.obtenerCategorias();
+        if (categorias == null) {
+            JOptionPane.showMessageDialog(this, "Error: No hay categorías disponibles.");
+            return;
+        }
+
+        // Añadir todas las categorías al modelo
+        for (Categoria c : categorias) {
+            modeloCategorias.addElement(c);
+        }
+
+        
+
+        //modeloCategorias.addElement(new Categoria("Entradas"));
+        //modeloCategorias.addElement(new Categoria("Platos principales"));
     }
 
     @SuppressWarnings("unchecked")
@@ -133,7 +178,7 @@ public class ClienteUI extends javax.swing.JFrame {
                                 .addComponent(jButton2)
                                 .addGap(18, 18, 18)
                                 .addComponent(jButton3)))
-                        .addGap(0, 140, Short.MAX_VALUE)))
+                        .addGap(0, 142, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jDesktopPane1Layout.setVerticalGroup(
@@ -161,11 +206,6 @@ public class ClienteUI extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jList1);
 
-        jList2.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane2.setViewportView(jList2);
 
         jDesktopPane2.setLayer(jDesktopPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -298,9 +338,9 @@ public class ClienteUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton4)
                     .addComponent(jButton5))
-                .addGap(49, 49, 49)
+                .addGap(21, 21, 21)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(121, Short.MAX_VALUE))
+                .addContainerGap(149, Short.MAX_VALUE))
         );
 
         pack();
@@ -338,7 +378,7 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JList<String> jList1;
-    private javax.swing.JList<String> jList2;
+    private javax.swing.JList<Categoria> jList2;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -352,57 +392,36 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
-    private void configurarUI() {
-        setTitle("Realizar Pedidos");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        modeloCategorias = new DefaultListModel<>();
-        jListCategorias = new JList<>(modeloCategorias);
-        jListCategorias.setCellRenderer(new CategoriaListCellRenderer());
-
-        JScrollPane scrollCategorias = new JScrollPane(jListCategorias);
-
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(scrollCategorias, BorderLayout.CENTER);
-    }
-
-    private void cargarCategorias() {
-        List<Categoria> categorias = f.obtenerCategorias();
-
-        modeloCategorias.clear();
-        for (Categoria c : categorias) {
-            modeloCategorias.addElement(c);
-        }
-    }
-
-    public class CategoriaListCellRenderer extends JLabel implements ListCellRenderer<Categoria> {
+    // Renderizador personalizado para categorías
+    /*private static class CategoriaListCellRenderer extends JLabel implements ListCellRenderer<Categoria> {
 
         public CategoriaListCellRenderer() {
             setOpaque(true);
+            setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Espaciado interno
         }
 
         @Override
         public Component getListCellRendererComponent(
                 JList<? extends Categoria> list,
-                Categoria value,
+                Categoria categoria,
                 int index,
                 boolean isSelected,
                 boolean cellHasFocus) {
 
-            setText(value.getNombre());
+            // Establecer el texto como el nombre de la categoría
+            setText(categoria.getNombre());
 
+            // Configurar colores de fondo y texto
             if (isSelected) {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
+                setBackground(new Color(200, 220, 255)); // Azul claro para selección
+                setForeground(Color.BLACK);
             } else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
+                setBackground(Color.WHITE);
+                setForeground(Color.BLACK);
             }
 
             return this;
         }
     }
-
+     */
 }

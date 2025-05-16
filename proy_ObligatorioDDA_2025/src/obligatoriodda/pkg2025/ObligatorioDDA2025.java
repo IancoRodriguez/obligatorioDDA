@@ -32,15 +32,13 @@ public class ObligatorioDDA2025 {
         Fachada f = Fachada.getInstancia();
         cargarDatosPrueba(f);
 
-        SwingUtilities.invokeLater(() -> {
-            // 1. Ventana principal del gestor
-            new VentanaPrincipal().setVisible(true);
+        // 1. Ventana principal del gestor
+        new VentanaPrincipal().setVisible(true);
 
-            // 2. Ventanas de login para cada dispositivo
-            for (Dispositivo dispositivo : f.getDispositivos()) {
-                new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
-            }
-        });
+        // 2. Ventanas de login para cada dispositivo
+        for (Dispositivo dispositivo : f.getDispositivos()) {
+            new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
+        }
 
     }
 
@@ -111,3 +109,19 @@ public class ObligatorioDDA2025 {
         f.setMenuActivo(menu); // Asignamos menú activo
     }
 }
+    
+    
+    
+    
+
+/*
+   SwingUtilities.invokeLater(() -> {
+            // 1. Ventana principal del gestor
+            new VentanaPrincipal().setVisible(true);
+
+            // 2. Ventanas de login para cada dispositivo
+            for (Dispositivo dispositivo : f.getDispositivos()) {
+                new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
+            }
+        });
+         */

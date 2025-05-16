@@ -7,10 +7,7 @@ package UI;
 import Dominio.Usuario;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author usuar
- */
+
 public abstract class VentanaLogin extends javax.swing.JFrame {
 
     public VentanaLogin() {
@@ -36,7 +33,6 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
 
         jLabelNombre.setText("Nombre: ");
 
-        tNombre.setText("Ingrese nombre de usuario o numero de cliente");
         tNombre.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tNombreActionPerformed(evt);
@@ -44,8 +40,6 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
         });
 
         jLabel1.setText("Contraseña:");
-
-        tContrasena.setText("jPasswordField1lllllllllllllllllllllllll");
 
         jButtonLogin.setText("Login");
         jButtonLogin.addActionListener(new java.awt.event.ActionListener() {
@@ -124,7 +118,7 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
         }
 
         this.abrirSiguienteVentana(usuarioLogueado);
-        this.dispose();
+        setVisible(false);
     }
 
     public abstract void abrirSiguienteVentana(Usuario usuarioLogueado);

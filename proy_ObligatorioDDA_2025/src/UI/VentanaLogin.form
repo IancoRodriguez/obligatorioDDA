@@ -76,9 +76,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="tNombre">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Ingrese nombre de usuario o numero de cliente"/>
-      </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tNombreActionPerformed"/>
       </Events>
@@ -89,9 +86,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JPasswordField" name="tContrasena">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jPasswordField1lllllllllllllllllllllllll"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonLogin">
       <Properties>
