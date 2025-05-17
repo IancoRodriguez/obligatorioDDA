@@ -6,6 +6,7 @@ package Servicios;
 
 import Dominio.Cliente;
 import Dominio.Gestor;
+import Dominio.Ingreso;
 import Dominio.Usuario;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +15,14 @@ import java.util.List;
 public class ServicioUsuarios {
     private List<Cliente> clientes;
     private List<Gestor> gestores;
+    private List<Ingreso> ingresos;
+    
     
     
     public ServicioUsuarios() {
         clientes = new ArrayList();
         gestores = new ArrayList();
+        ingresos = new ArrayList();
        
     }
     
@@ -47,10 +51,32 @@ public class ServicioUsuarios {
         if(nombre == null || nombre.isEmpty() || contrasena == null || contrasena.isEmpty())
             return null;
         
-        for(Usuario usuario : listaUsuarios)
-            if(usuario.getLoginId().equals(nombre) && usuario.isContrasenaValida(contrasena))
-                return usuario;
+        Usuario u = null;
+        boolean isLogueado = false;
         
+        // Busco el usuario en el listado de usuarios
+        for(Usuario usuario : listaUsuarios)
+            if(usuario.getLoginId().equals(nombre) && usuario.isContrasenaValida(contrasena)){
+                u = usuario;
+            }
+        
+        
+        // Verifico que el usuario no este logueado
+        for(Ingreso i : ingresos){
+            if(i.getCliente().equals(u)){
+                isLogueado = true;
+                break;
+            }
+        }
+        
+        // Si no esta logueado, le genero el ingreso y lo devuelvo
+        if(!isLogueado && u != null){
+            Ingreso i = new Ingreso(u);
+            ingresos.add(i);
+            return u;
+        }
+        
+        // Si el usuario no cumple las validaciones o esta logueado, devolvemos null
         return null;
     }
 

@@ -12,23 +12,23 @@ import Servicios.Fachada;
 
 
 
-public class VentanaLoginCliente extends VentanaLogin{
-    private Dispositivo dispositivo;
-
-    public VentanaLoginCliente(Dispositivo dispositivo) {
-        this.dispositivo = dispositivo;
-    }
-    
-
-    @Override
-    public void abrirSiguienteVentana(Usuario cliente) {
-        new ClienteUI( (Cliente) cliente).setVisible(true);
-    }
-
-    @Override
-    public Usuario login(String usuario, String contrasena) {
-        return Fachada.getInstancia().loginCliente(usuario, contrasena);
-        
-        
-    }
+public class VentanaLoginCliente {//extends VentanaLogin{
+//    private Dispositivo dispositivo;
+//
+//    public VentanaLoginCliente(Dispositivo dispositivo) {
+//        this.dispositivo = dispositivo;
+//    }
+//    
+//
+//    @Override
+//    public void abrirSiguienteVentana(Usuario cliente) {
+//        new ClienteUI( (Cliente) cliente).setVisible(true);
+//    }
+//
+//    @Override
+//    public Usuario login(String usuario, String contrasena) {
+//        return Fachada.getInstancia().loginCliente(usuario, contrasena);
+//        
+//        
+//    }
 }

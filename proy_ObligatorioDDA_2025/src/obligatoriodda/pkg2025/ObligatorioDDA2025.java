@@ -19,6 +19,7 @@ import Dominio.TipoCliente;
 import Dominio.UnidadProcesadora;
 import Servicios.Fachada;
 import Servicios.ServicioMenus;
+import UI.ClienteUI;
 import UI.VentanaLoginCliente;
 import UI.VentanaPrincipal;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class ObligatorioDDA2025 {
 
         // 2. Ventanas de login para cada dispositivo
         for (Dispositivo dispositivo : f.getDispositivos()) {
-            new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
+            new ClienteUI(dispositivo).setVisible(true); // Pasar el dispositivo asociado
         }
 
     }

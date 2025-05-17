@@ -5,7 +5,7 @@
 package UI;
 
 import Dominio.Categoria;
-import Dominio.Cliente;
+import Dominio.Dispositivo;
 import Dominio.Usuario;
 import Servicios.Fachada;
 import java.awt.BorderLayout;
@@ -23,64 +23,45 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
+
 public class ClienteUI extends javax.swing.JFrame {
 
-    private Cliente cliente;
     private Fachada f;
-    private DefaultListModel<Categoria> modeloCategorias = new DefaultListModel<>();
+    private Dispositivo dispositivo;
+      
 
-    public ClienteUI(Cliente cliente) {
+    public ClienteUI(Dispositivo dispositivo) {
         initComponents();
+        this.dispositivo = dispositivo;
         this.f = Fachada.getInstancia();
 
-        /*
-        // Configuración básica
-        setTitle("Realizar Pedidos - Cliente: " + cliente.getNombreCompleto());
-        setSize(1600, 1200);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        // Configurar lista y modelo
-        jList2 = new JList<>(modeloCategorias); 
-        jList2.setCellRenderer(new CategoriaListCellRenderer()); // Renderizador correcto
-
-        // Añadir al layout
-        JScrollPane scrollCategorias = new JScrollPane(jList2);
-        scrollCategorias.setPreferredSize(new Dimension(150, 80));
-        getContentPane().add(scrollCategorias, BorderLayout.WEST);
-        getContentPane().add(jTable2, BorderLayout.WEST);
-        
-         */
-        // Cargar datos
-        jList2 = new JList<>(); // ✅ Inicialización
-        modeloCategorias = new DefaultListModel<>(); // Si no está inicializado
-        jList2.setModel(modeloCategorias); // 
-
-        cargarCategorias();
         setVisible(true);
         
     }
+    
+    
+    private void ingresar() {
+        String usuario = jUsuario.getText();
+        String contrasena = new String(jContrasena.getPassword());
 
-    private void cargarCategorias() {
-        // Añadir objetos Categoria (no Strings)
+        Usuario usuarioLogueado = login(usuario, contrasena);
 
-        modeloCategorias.clear(); // Limpiar modelo
-
-        List<Categoria> categorias = f.obtenerCategorias();
-        if (categorias == null) {
-            JOptionPane.showMessageDialog(this, "Error: No hay categorías disponibles.");
+        if (usuarioLogueado == null) {
+            JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Añadir todas las categorías al modelo
-        for (Categoria c : categorias) {
-            modeloCategorias.addElement(c);
-        }
+    }
+
+    public Usuario login(String usuario, String contrasena){
+        return Fachada.getInstancia().loginCliente(usuario, contrasena);
+    }
+    
+    private void cargarCategorias() {   
 
         
 
-        //modeloCategorias.addElement(new Categoria("Entradas"));
-        //modeloCategorias.addElement(new Categoria("Platos principales"));
+      
     }
 
     @SuppressWarnings("unchecked")
@@ -90,11 +71,11 @@ public class ClienteUI extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jSeparator1 = new javax.swing.JSeparator();
-        jTextField1 = new javax.swing.JTextField();
+        jUsuario = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        jBtnLogin = new javax.swing.JButton();
+        jContrasena = new javax.swing.JPasswordField();
         jDesktopPane2 = new javax.swing.JDesktopPane();
         jDesktopPane1 = new javax.swing.JDesktopPane();
         jButton3 = new javax.swing.JButton();
@@ -129,9 +110,9 @@ public class ClienteUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        jUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                jUsuarioActionPerformed(evt);
             }
         });
 
@@ -139,14 +120,12 @@ public class ClienteUI extends javax.swing.JFrame {
 
         jLabel2.setText("Contraseña");
 
-        jButton1.setText("Aceptar");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jBtnLogin.setText("Login");
+        jBtnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jBtnLoginActionPerformed(evt);
             }
         });
-
-        jPasswordField1.setText("jPasswordField1");
 
         jButton3.setText("Eliminar pedido");
 
@@ -294,13 +273,13 @@ public class ClienteUI extends javax.swing.JFrame {
                                 .addGap(29, 29, 29)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(31, 31, 31)
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton1))
+                                .addComponent(jBtnLogin))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(21, 21, 21)
                                 .addComponent(jButton4)
@@ -323,10 +302,10 @@ public class ClienteUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jButton1)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jBtnLogin)
+                    .addComponent(jContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addGap(13, 13, 13)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -346,13 +325,13 @@ public class ClienteUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void jUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jUsuarioActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_jUsuarioActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jBtnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnLoginActionPerformed
+        ingresar();
+    }//GEN-LAST:event_jBtnLoginActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
@@ -364,11 +343,12 @@ public class ClienteUI extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jBtnLogin;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JPasswordField jContrasena;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JDesktopPane jDesktopPane2;
     private javax.swing.JLabel jLabel1;
@@ -379,7 +359,6 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JList<String> jList1;
     private javax.swing.JList<Categoria> jList2;
-    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -389,7 +368,7 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jUsuario;
     // End of variables declaration//GEN-END:variables
 
     // Renderizador personalizado para categorías
