@@ -23,23 +23,23 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
-
 public class ClienteUI extends javax.swing.JFrame {
 
     private Fachada f;
     private Dispositivo dispositivo;
-      
 
     public ClienteUI(Dispositivo dispositivo) {
         initComponents();
         this.dispositivo = dispositivo;
         this.f = Fachada.getInstancia();
 
-        setVisible(true);
         
+        
+        cargarCategorias();
+        setVisible(true);
+
     }
-    
-    
+
     private void ingresar() {
         String usuario = jUsuario.getText();
         String contrasena = new String(jContrasena.getPassword());
@@ -53,15 +53,32 @@ public class ClienteUI extends javax.swing.JFrame {
 
     }
 
-    public Usuario login(String usuario, String contrasena){
+    public Usuario login(String usuario, String contrasena) {
         return Fachada.getInstancia().loginCliente(usuario, contrasena);
     }
-    
-    private void cargarCategorias() {   
 
-        
+    private void cargarCategorias() {
+        try {
+            // 1. Obtener datos desde la fachada
+            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
+            for (Categoria cat : f.obtenerCategorias()) {
+                modelo.addElement(cat);
+            }
 
-      
+            // 2. Configurar modelo y renderizador
+            lCategorias.setModel(modelo);
+            lCategorias.setCellRenderer(new RenderizadorListas<>(
+                    categoria -> categoria.getNombre()
+            ));
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar categorías: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +105,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList2 = new javax.swing.JList<>();
+        lCategorias = new javax.swing.JList<>();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
@@ -185,7 +202,7 @@ public class ClienteUI extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jList1);
 
-        jScrollPane2.setViewportView(jList2);
+        jScrollPane2.setViewportView(lCategorias);
 
         jDesktopPane2.setLayer(jDesktopPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane2.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -358,7 +375,6 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JList<String> jList1;
-    private javax.swing.JList<Categoria> jList2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -369,6 +385,7 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jUsuario;
+    private javax.swing.JList<Categoria> lCategorias;
     // End of variables declaration//GEN-END:variables
 
     // Renderizador personalizado para categorías
