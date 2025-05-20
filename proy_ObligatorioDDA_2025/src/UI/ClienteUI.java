@@ -6,6 +6,7 @@ package UI;
 
 import Dominio.Categoria;
 import Dominio.Dispositivo;
+import Dominio.Item;
 import Dominio.Usuario;
 import Servicios.Fachada;
 import java.awt.BorderLayout;
@@ -33,10 +34,15 @@ public class ClienteUI extends javax.swing.JFrame {
         this.dispositivo = dispositivo;
         this.f = Fachada.getInstancia();
 
-        
-        
         cargarCategorias();
+        cargarItems();
         setVisible(true);
+        
+        lCategorias.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                cargarItems();
+            }
+        });
 
     }
 
@@ -103,7 +109,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        lItems = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         lCategorias = new javax.swing.JList<>();
         jButton4 = new javax.swing.JButton();
@@ -195,12 +201,7 @@ public class ClienteUI extends javax.swing.JFrame {
 
         jLabel4.setText("Categorias");
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
+        jScrollPane1.setViewportView(lItems);
 
         jScrollPane2.setViewportView(lCategorias);
 
@@ -374,7 +375,6 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JList<String> jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -386,7 +386,37 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jUsuario;
     private javax.swing.JList<Categoria> lCategorias;
+    private javax.swing.JList<Item> lItems;
     // End of variables declaration//GEN-END:variables
+
+    private void cargarItems() {
+        try {
+            // Obtener items de la fachada 
+            DefaultListModel<Item> modelo = new DefaultListModel<>();
+
+            Categoria c = lCategorias.getSelectedValue();
+
+            if (c != null) {
+                for (Item i : f.obtenerItemsDeCategoria(c.getNombre())) {
+                    modelo.addElement(i);
+                }
+            } 
+
+            //Configurar modelo y renderizador 
+            lItems.setModel(modelo);
+            lItems.setCellRenderer(new RenderizadorListas<>(
+                    Item -> Item.getNombre()
+            ));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar items: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        }
+
+    }
 
     // Renderizador personalizado para categorías
     /*private static class CategoriaListCellRenderer extends JLabel implements ListCellRenderer<Categoria> {
