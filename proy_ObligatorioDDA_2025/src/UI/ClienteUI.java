@@ -37,7 +37,8 @@ public class ClienteUI extends javax.swing.JFrame {
         cargarCategorias();
         cargarItems();
         setVisible(true);
-        
+
+        // Listener para cargar la lista de items; 
         lCategorias.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 cargarItems();
@@ -397,10 +398,12 @@ public class ClienteUI extends javax.swing.JFrame {
             Categoria c = lCategorias.getSelectedValue();
 
             if (c != null) {
-                for (Item i : f.obtenerItemsDeCategoria(c.getNombre())) {
-                    modelo.addElement(i);
+                for (Item item : c.getItems()) {
+                    if (item.tieneStockDisponible()) {
+                        modelo.addElement(item);
+                    }
                 }
-            } 
+            }
 
             //Configurar modelo y renderizador 
             lItems.setModel(modelo);

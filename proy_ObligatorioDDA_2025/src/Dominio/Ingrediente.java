@@ -63,4 +63,10 @@ public class Ingrediente {
     public int hashCode() {
         return Objects.hash(insumo, cantidad);
     }
+    
+    
+    
+    public boolean tieneStockSuficiente(){
+        return insumo.getStock() >= cantidad;
+    }
 }
