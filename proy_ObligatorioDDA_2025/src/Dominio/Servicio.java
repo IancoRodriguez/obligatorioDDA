@@ -52,10 +52,6 @@ public class Servicio {
             
         }
     }
-
-
-    
-
     // Finaliza el servicio y aplica beneficios
     public void finalizar() {
         if (!"Confirmado".equals(estado)) {
@@ -70,6 +66,47 @@ public class Servicio {
         montoTotal = cliente.getTipoCliente()
             .aplicarBeneficio(pedidos, montoTotal);
     }
+    
+    
+    // ======================
+    // Getters
+    // ======================
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public double getMontoTotal() {
+        return montoTotal;
+    }
+
+    public void setMontoTotal(double montoTotal) {
+        this.montoTotal = montoTotal;
+    }
+    
+    
+    
+    
     
     
    

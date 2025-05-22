@@ -7,6 +7,8 @@ package UI;
 import Dominio.Categoria;
 import Dominio.Dispositivo;
 import Dominio.Item;
+import Dominio.Pedido;
+import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
 import java.awt.BorderLayout;
@@ -84,7 +86,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jDesktopPane1 = new javax.swing.JDesktopPane();
         jButton3 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        tComentario = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -133,9 +135,9 @@ public class ClienteUI extends javax.swing.JFrame {
 
         jButton3.setText("Eliminar pedido");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane3.setViewportView(jTextArea1);
+        tComentario.setColumns(20);
+        tComentario.setRows(5);
+        jScrollPane3.setViewportView(tComentario);
 
         jButton2.setText("Agregar pedido");
 
@@ -364,12 +366,38 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jUsuario;
     private javax.swing.JList<Categoria> lCategorias;
     private javax.swing.JList<Item> lItems;
+    private javax.swing.JTextArea tComentario;
     // End of variables declaration//GEN-END:variables
 
+    
+    
+    private void cargarCategorias() {
+        try {
+            // 1. Obtener datos desde la fachada
+            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
+            for (Categoria cat : f.obtenerCategorias()) {
+                modelo.addElement(cat);
+            }
+
+            // 2. Configurar modelo y renderizador
+            lCategorias.setModel(modelo);
+            lCategorias.setCellRenderer(new RenderizadorListas<>(
+                    categoria -> categoria.getNombre()
+            ));
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar categorías: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        }
+    }
+    
     private void cargarItems() {
         try {
             // Obtener items de la fachada 
@@ -401,29 +429,15 @@ public class ClienteUI extends javax.swing.JFrame {
 
     }
     
-    private void cargarCategorias() {
-        try {
-            // 1. Obtener datos desde la fachada
-            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
-            for (Categoria cat : f.obtenerCategorias()) {
-                modelo.addElement(cat);
-            }
-
-            // 2. Configurar modelo y renderizador
-            lCategorias.setModel(modelo);
-            lCategorias.setCellRenderer(new RenderizadorListas<>(
-                    categoria -> categoria.getNombre()
-            ));
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar categorías: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-
-        }
+    public void registrarPedido(){
+        Item item = lItems.getSelectedValue();
+        String comentario = tComentario.getText();
+        Servicio servicio = this.dispositivo.getServicioActivo();
+        Pedido nuevoPedido = f.registrarPedido(item, comentario, servicio);
+        
+        
     }
+    
 }
 
 

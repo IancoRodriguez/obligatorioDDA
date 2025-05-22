@@ -4,10 +4,15 @@ public class Pedido {
     private String comentario;
     private Gestor gestor;
     private Item item;
+    private Servicio servicio;
+    private String estado;
 
-    public Pedido(String comentario, Item item) {
-        this.comentario = comentario;
+
+    public Pedido(Item item, String comentario, Servicio servicio) {
         this.item = item;
+        this.comentario = comentario != null ? comentario : ""; // Comentario opcional
+        this.servicio = servicio;
+        this.estado = "No confirmado";
     }
 
     

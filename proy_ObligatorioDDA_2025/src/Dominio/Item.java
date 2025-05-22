@@ -82,7 +82,7 @@ public class Item {
         return true;
     }
 
-    public Object getCategoria() {
+    public Categoria getCategoria() {
         return this.categoria;
     }
     

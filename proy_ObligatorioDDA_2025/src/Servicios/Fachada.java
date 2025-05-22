@@ -6,21 +6,26 @@ import Dominio.Dispositivo;
 import Dominio.Gestor;
 import Dominio.Item;
 import Dominio.Menu;
+import Dominio.Pedido;
+import Dominio.Servicio;
 import java.util.List;
 
 public class Fachada {
 
     private static Fachada instancia;
     private ServicioUsuarios sUsuarios;
-    private ServicioServicios sServicios;
+    private ControlServicios cServicios;
     private ServicioDispositivos sDispositivos;
     private ServicioMenus sMenus;
-
+    private ServicioPedidos sPedidos;
+    
+    
     private Fachada() {
         this.sUsuarios = new ServicioUsuarios();
-        this.sServicios = new ServicioServicios();
+        this.cServicios = new ControlServicios(sPedidos);
         this.sDispositivos = new ServicioDispositivos();
         this.sMenus = new ServicioMenus();
+        this.sPedidos = new ServicioPedidos();
     }
 
     public static Fachada getInstancia() {
@@ -101,6 +106,12 @@ public class Fachada {
     public List<Gestor> getGestores() {
         return sUsuarios.getGestores();
     }
+
+    public Pedido registrarPedido(Item item, String comentario, Servicio servicio) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+   
     
     
     
