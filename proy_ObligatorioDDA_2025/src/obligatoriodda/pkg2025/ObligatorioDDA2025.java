@@ -72,38 +72,72 @@ public class ObligatorioDDA2025 {
         UnidadProcesadora cocina = new UnidadProcesadora("Cocina");
         UnidadProcesadora barra = new UnidadProcesadora("Barra");
 
-        // Insumos
+       
+        // ======================
+        // 6. Insumos (ampliados para cafés y aguas)
+        // ======================
         Insumo pan = new Insumo("Pan", 100, 10);
         Insumo jamon = new Insumo("Jamón", 80, 5);
         Insumo queso = new Insumo("Queso", 60, 5);
         Insumo tomate = new Insumo("Tomate", 50, 5);
+        Insumo cafeGrano = new Insumo("Café en grano", 200, 100); // Nuevo insumo
+        Insumo agua = new Insumo("Agua", 500, 300);              // Nuevo insumo
 
-        // Ingredientes
+        // ======================
+        // 7. Ingredientes (ampliados)
+        // ======================
         Ingrediente ingPan = new Ingrediente(pan, 2);
         Ingrediente ingJamon = new Ingrediente(jamon, 1);
         Ingrediente ingQueso = new Ingrediente(queso, 1);
         Ingrediente ingTomate = new Ingrediente(tomate, 1);
+        Ingrediente ingCafe = new Ingrediente(cafeGrano, 10); // Para café
+        Ingrediente ingAgua = new Ingrediente(agua, 1);       // Para agua
 
-        // Items
-        Item sandwich = new Item("Sándwich clásico", 150, cocina);
+        // ======================
+        // 8. Categorías (nuevas: Cafés y Aguas)
+        // ======================
+        Categoria comida = new Categoria("Comidas");
+        Categoria bebida = new Categoria("Bebidas");
+        Categoria cafes = new Categoria("Cafés");    // Nueva categoría
+        Categoria aguas = new Categoria("Aguas");    // Nueva categoría
+
+        // ======================
+        // 9. Ítems (corregidos con categorías)
+        // ======================
+        // ---- Ítems originales ----
+        Item sandwich = new Item("Sándwich clásico", 150, cocina, comida);
         sandwich.agregarIngrediente(ingPan);
         sandwich.agregarIngrediente(ingJamon);
         sandwich.agregarIngrediente(ingQueso);
         sandwich.agregarIngrediente(ingTomate);
 
-        Item licuado = new Item("Licuado de frutas", 120, barra);
+        Item licuado = new Item("Licuado de frutas", 120, barra, bebida);
 
-        // Categorías
-        Categoria comida = new Categoria("Comidas");
-        Categoria bebida = new Categoria("Bebidas");
+        // ---- Nuevos ítems ----
+        Item espresso = new Item("Espresso", 150, barra, cafes);
+        espresso.agregarIngrediente(ingCafe);
+        espresso.agregarIngrediente(ingAgua);
 
+        Item aguaMineral = new Item("Agua Mineral", 80, barra, aguas);
+        aguaMineral.agregarIngrediente(ingAgua);
+
+        // ======================
+        // 10. Asignar ítems a categorías
+        // ======================
         comida.agregarItem(sandwich);
         bebida.agregarItem(licuado);
+        cafes.agregarItem(espresso);
+        aguas.agregarItem(aguaMineral);
 
-        // Menú
+        // ======================
+        // 11. Menú (actualizado)
+        // ======================
         Menu menu = new Menu();
         menu.agregarCategoria(comida);
         menu.agregarCategoria(bebida);
+        menu.agregarCategoria(cafes);
+        menu.agregarCategoria(aguas);
+
 
         // Agregar menú al servicio correspondiente
         f.agregarMenu(menu);
