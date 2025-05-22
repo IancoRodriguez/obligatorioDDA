@@ -1,5 +1,7 @@
 package Dominio;
 
+import Dominio.Tipos.TipoCliente;
+
 public class Cliente extends Usuario {
 
     private String numero;
@@ -15,6 +17,24 @@ public class Cliente extends Usuario {
     public String getLoginId() {
         return this.numero;
     }
+
+    public String getNumero() {
+        return numero;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
+
+    public TipoCliente getTipoCliente() {
+        return tipoCliente;
+    }
+
+    public void setTipoCliente(TipoCliente tipoCliente) {
+        this.tipoCliente = tipoCliente;
+    }
+    
+    
     
 
 }

@@ -35,5 +35,10 @@ public class Pedido {
     public void setItem(Item item) {
         this.item = item;
     }
+    
+    
+    public float calcularTotal(){
+        return this.item.getPrecioUnitario();
+    }
 
 }

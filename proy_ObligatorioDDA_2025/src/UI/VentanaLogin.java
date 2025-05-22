@@ -116,7 +116,7 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+ 
         this.abrirSiguienteVentana(usuarioLogueado);
         setVisible(false);
     }

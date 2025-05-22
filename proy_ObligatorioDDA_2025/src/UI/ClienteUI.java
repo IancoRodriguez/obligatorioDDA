@@ -46,6 +46,8 @@ public class ClienteUI extends javax.swing.JFrame {
         });
 
     }
+    
+    
 
     private void ingresar() {
         String usuario = jUsuario.getText();
@@ -64,29 +66,7 @@ public class ClienteUI extends javax.swing.JFrame {
         return Fachada.getInstancia().loginCliente(usuario, contrasena);
     }
 
-    private void cargarCategorias() {
-        try {
-            // 1. Obtener datos desde la fachada
-            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
-            for (Categoria cat : f.obtenerCategorias()) {
-                modelo.addElement(cat);
-            }
-
-            // 2. Configurar modelo y renderizador
-            lCategorias.setModel(modelo);
-            lCategorias.setCellRenderer(new RenderizadorListas<>(
-                    categoria -> categoria.getNombre()
-            ));
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar categorías: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-
-        }
-    }
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -420,8 +400,55 @@ public class ClienteUI extends javax.swing.JFrame {
         }
 
     }
+    
+    private void cargarCategorias() {
+        try {
+            // 1. Obtener datos desde la fachada
+            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
+            for (Categoria cat : f.obtenerCategorias()) {
+                modelo.addElement(cat);
+            }
 
-    // Renderizador personalizado para categorías
+            // 2. Configurar modelo y renderizador
+            lCategorias.setModel(modelo);
+            lCategorias.setCellRenderer(new RenderizadorListas<>(
+                    categoria -> categoria.getNombre()
+            ));
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar categorías: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // Renderizador personalizado para categorías
     /*private static class CategoriaListCellRenderer extends JLabel implements ListCellRenderer<Categoria> {
 
         public CategoriaListCellRenderer() {
@@ -453,4 +480,3 @@ public class ClienteUI extends javax.swing.JFrame {
         }
     }
      */
-}
