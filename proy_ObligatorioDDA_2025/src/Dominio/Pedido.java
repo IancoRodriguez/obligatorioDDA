@@ -7,6 +7,14 @@ public class Pedido {
     private Servicio servicio;
     private String estado;
 
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
 
     public Pedido(Item item, String comentario, Servicio servicio) {
         this.item = item;
