@@ -8,6 +8,6 @@ package Dominio.Excepciones;
  *
  * @author usuar
  */
-class PedidoException extends Exception {
+public class PedidoException extends Exception {
     
 }

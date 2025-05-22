@@ -2,6 +2,8 @@ package Servicios;
 
 import Dominio.Excepciones.PedidoException;
 import Dominio.Excepciones.SinStockException;
+import Dominio.Ingrediente;
+import Dominio.Insumo;
 import Dominio.Item;
 import Dominio.Pedido;
 import Dominio.Servicio;
@@ -41,7 +43,7 @@ public class ServicioPedidos {
     }
 
     // ======================
-    // Métodos auxiliares (sin StockManager)
+    // Métodos auxiliares 
     // ======================
     
     private void validarEstadoServicio(Servicio servicio) {
@@ -53,7 +55,7 @@ public class ServicioPedidos {
     private void validarStockItem(Item item) throws SinStockException {
         for (Ingrediente ingrediente : item.getIngredientes()) {
             Insumo insumo = ingrediente.getInsumo();
-            if (insumo.getStockActual() < ingrediente.getCantidad()) {
+            if (insumo.getStock() < ingrediente.getCantidad()) {
                 throw new SinStockException("Stock insuficiente para: " + insumo.getNombre());
             }
         }
@@ -62,20 +64,22 @@ public class ServicioPedidos {
     private void descontarStockItem(Item item) {
         for (Ingrediente ingrediente : item.getIngredientes()) {
             Insumo insumo = ingrediente.getInsumo();
-            insumo.descontarStock(ingrediente.getCantidad());
+            insumo.consumirStock(ingrediente.getCantidad());
         }
     }
 
     private void reintegrarStockItem(Item item) {
         for (Ingrediente ingrediente : item.getIngredientes()) {
             Insumo insumo = ingrediente.getInsumo();
-            insumo.aumentarStock(ingrediente.getCantidad());
+            insumo.agregarStock(ingrediente.getCantidad());
         }
     }
 
     private void validarEstadoPedido(Pedido pedido) {
         if (pedido.getEstado().equals("Confirmado")) {
-            throw new OperacionNoPermitidaException("No se puede eliminar un pedido confirmado");
+            //todo 
+           // throw new PedidoException("No se puede eliminar un pedido confirmado");
         }
+        
     }
 }

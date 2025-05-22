@@ -39,8 +39,8 @@ public class ControlServicios {
     }
 
     public void confirmarServicio(Servicio servicio) throws SinStockException {
-        sPedidos.validarStock(servicio.getPedidos());
-        sPedidos.asignarUnidadesProcesadoras(servicio.getPedidos());
+       // sPedidos.validarStock(servicio.getPedidos());
+       // sPedidos.asignarUnidadesProcesadoras(servicio.getPedidos());
         servicio.setEstado("Confirmado");
     }
 
@@ -48,10 +48,10 @@ public class ControlServicios {
     // Getters
     // ======================
     public List<Servicio> getServiciosActivos() {
-        return Collections.unmodifiableList(serviciosActivos);
+        return serviciosActivos;
     }
 
     public List<Servicio> getServiciosHistoricos() {
-        return Collections.unmodifiableList(serviciosHistoricos);
+        return serviciosHistoricos;
     }
 }
