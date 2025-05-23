@@ -62,15 +62,17 @@ public class ObligatorioDDA2025 {
         f.agregar(usuario1);
         f.agregar(usuario2);
 
-        // Gestores
-        Gestor diegoAdmin = new Gestor("diego", "123", "Diego Gregoraz");
-        Gestor admin1 = new Gestor("admin", "123", "Administrador General del Sistema");
-        f.agregar(diegoAdmin);
-        f.agregar(admin1);
+        
 
         // Unidades procesadoras
         UnidadProcesadora cocina = new UnidadProcesadora("Cocina");
         UnidadProcesadora barra = new UnidadProcesadora("Barra");
+        
+        // Gestores
+        Gestor diegoAdmin = new Gestor("diego", "123", "Diego Gregoraz", cocina);
+        Gestor admin1 = new Gestor("admin", "123", "Administrador General del Sistema",barra);
+        f.agregar(diegoAdmin);
+        f.agregar(admin1);
 
        
         // ======================

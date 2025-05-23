@@ -17,8 +17,7 @@ public class ServicioPedidos {
     public ServicioPedidos() {
         this.pedidos = new ArrayList();
     }
-    
-    
+       
     
     
     public Pedido registrarPedido(Item item,String comentario, Servicio servicio) throws SinStockException {
@@ -41,6 +40,21 @@ public class ServicioPedidos {
             validarStockItem(pedido.getItem());
         }
     }
+    
+    
+    public List<Pedido> getPedidosPendientesUP(String nombreUP) {
+        List<Pedido> pPendientes = new ArrayList();
+                
+        for(Pedido p : pedidos){
+            if(p.getEstado() == "Pendiente"){
+                pPendientes.add(p);
+            }
+        }
+        
+        return pPendientes;
+    }
+    
+    
 
     // ======================
     // Métodos auxiliares 
@@ -82,4 +96,10 @@ public class ServicioPedidos {
         }
         
     }
+
+    public void cambiarEstado(Pedido p) {
+        p.setEstado("Pedido en curso");
+    }
+
+    
 }

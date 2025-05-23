@@ -18,6 +18,7 @@ public class Fachada {
     private ServicioDispositivos sDispositivos;
     private ServicioMenus sMenus;
     private ServicioPedidos sPedidos;
+    private ServicioGestor sGestor;
     
     
     private Fachada() {
@@ -26,6 +27,7 @@ public class Fachada {
         this.sDispositivos = new ServicioDispositivos();
         this.sMenus = new ServicioMenus();
         this.sPedidos = new ServicioPedidos();
+        this.sGestor = new ServicioGestor();
     }
 
     public static Fachada getInstancia() {
@@ -111,7 +113,31 @@ public class Fachada {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-   
+    public List<Pedido> getPedidosPendientes(String nombreUP) {
+        return sPedidos.getPedidosPendientesUP(nombreUP);
+    }
+
+    // La idea de este metodo es tomar el pedido seleccionado, 
+    // sumarlo al listado que tiene el gestor de pedidos y cambiarle el estado en el listado de sPedidos
+    public void tomarPedido(Gestor gestor, Pedido p) {
+        sGestor.tomarPedido(gestor, p);
+        sPedidos.cambiarEstado(p);
+    }
+ 
+    /*
+    
+    Unificar el manejo de los estados de los pedidos para no repetir codigo solo para cambiar el tipo de estado
+    public void finalizarPedido(Gestor gestor, Pedido p) {
+        sGestor.finalizarPedido(gestor, p);
+        sPedidos.finalizarPedido(p);
+    }
+    
+    public void entregaarPedido(Gestor gestor, Pedido p) {
+        sGestor.finalizarPedido(gestor, p);
+        sPedidos.finalizarPedido(p);
+    }
+    */
+     
     
     
     
