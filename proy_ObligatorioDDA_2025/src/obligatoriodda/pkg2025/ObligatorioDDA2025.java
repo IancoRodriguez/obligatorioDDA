@@ -18,7 +18,7 @@ import Dominio.Menu;
 import Dominio.Tipos.TipoCliente;
 import Dominio.UnidadProcesadora;
 import Servicios.Fachada;
-import Servicios.ServicioMenus;
+
 import UI.ClienteUI;
 import UI.VentanaLoginCliente;
 import UI.VentanaPrincipal;
@@ -56,7 +56,7 @@ public class ObligatorioDDA2025 {
         TipoCliente frecuente = new Frecuente("frecuente");
         TipoCliente deLaCasa = new DeLaCasa("deLaCasa");
 
-        // Clientes
+        // Cliente
         Cliente usuario1 = new Cliente("diego", "123", "444", comun);
         Cliente usuario2 = new Cliente("maria", "321", "555", frecuente);
         f.agregar(usuario1);
@@ -72,7 +72,6 @@ public class ObligatorioDDA2025 {
         UnidadProcesadora cocina = new UnidadProcesadora("Cocina");
         UnidadProcesadora barra = new UnidadProcesadora("Barra");
 
-       
         // ======================
         // 6. Insumos (ampliados para cafés y aguas)
         // ======================
@@ -129,25 +128,18 @@ public class ObligatorioDDA2025 {
         cafes.agregarItem(espresso);
         aguas.agregarItem(aguaMineral);
 
+
+        // 11. Menú (actualizado como singleton)
         // ======================
-        // 11. Menú (actualizado)
-        // ======================
-        Menu menu = new Menu();
+        Menu menu = Menu.getInstancia();  // Obtenemos la instancia singleton
         menu.agregarCategoria(comida);
         menu.agregarCategoria(bebida);
         menu.agregarCategoria(cafes);
         menu.agregarCategoria(aguas);
 
-
-        // Agregar menú al servicio correspondiente
-        f.agregarMenu(menu);
-        f.setMenuActivo(menu); // Asignamos menú activo
+ 
     }
 }
-    
-    
-    
-    
 
 /*
    SwingUtilities.invokeLater(() -> {
@@ -159,4 +151,4 @@ public class ObligatorioDDA2025 {
                 new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
             }
         });
-         */
+ */

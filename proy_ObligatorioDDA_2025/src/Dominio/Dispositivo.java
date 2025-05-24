@@ -37,9 +37,20 @@ public class Dispositivo {
     public boolean estaOcupado() {
         return servicioActivo != null;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     // Getter para acceder al servicio activo desde otras clases
     public Servicio getServicioActivo() {
         return servicioActivo;
     }
+    
+    
 }

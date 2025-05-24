@@ -7,6 +7,7 @@ package UI;
 import Dominio.Categoria;
 import Dominio.Dispositivo;
 import Dominio.Item;
+import Dominio.Menu;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
@@ -30,11 +31,13 @@ public class ClienteUI extends javax.swing.JFrame {
 
     private Fachada f;
     private Dispositivo dispositivo;
+    private Menu menu;
 
     public ClienteUI(Dispositivo dispositivo) {
         initComponents();
         this.dispositivo = dispositivo;
         this.f = Fachada.getInstancia();
+        this.menu = Menu.getInstancia();
 
         cargarCategorias();
         cargarItems();
@@ -378,7 +381,7 @@ public class ClienteUI extends javax.swing.JFrame {
         try {
             // 1. Obtener datos desde la fachada
             DefaultListModel<Categoria> modelo = new DefaultListModel<>();
-            for (Categoria cat : f.obtenerCategorias()) {
+            for (Categoria cat : menu.getCategorias()) {
                 modelo.addElement(cat);
             }
 

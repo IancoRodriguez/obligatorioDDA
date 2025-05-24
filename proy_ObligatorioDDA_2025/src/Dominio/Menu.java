@@ -5,18 +5,22 @@ import java.util.List;
 
 public class Menu {
 
+    private static Menu instancia;
     private String nombre;
     private List<Categoria> categorias;
 
     public Menu() {
         this.categorias = new ArrayList<>();
     }
-     public Menu(String nombre) {
-        this();
-        this.nombre = nombre;
-    }
 
-    // Getter
+    public static Menu getInstancia() {
+        if (instancia == null) {
+            instancia = new Menu();
+        }
+        return instancia;
+        // Getter
+    }
+    
     public List<Categoria> getCategorias() {
         return categorias;
     }
@@ -33,8 +37,8 @@ public class Menu {
     public void eliminarCategoria(Categoria categoria) {
         categorias.remove(categoria);
     }
-    
-     public Categoria buscarCategoriaPorNombre(String nombreCategoria) {
+
+    public Categoria buscarCategoriaPorNombre(String nombreCategoria) {
         for (Categoria categoria : categorias) {
             if (categoria.getNombre().equals(nombreCategoria)) {
                 return categoria;
