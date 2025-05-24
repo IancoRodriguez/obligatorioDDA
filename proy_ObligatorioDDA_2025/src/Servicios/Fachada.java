@@ -16,6 +16,7 @@ public class Fachada {
     private ServicioUsuarios sUsuarios;
     private ServicioPedidos sPedidos;
     private ServicioDispositivos sDispositivos;
+    private ServicioGestor sGestor;
     
     
     private Fachada() {
