@@ -11,7 +11,7 @@ package Dominio.Excepciones;
 public class SinStockException extends Exception {
 
     public SinStockException(String string) {
-        
+        super(string);
     }
     
 }

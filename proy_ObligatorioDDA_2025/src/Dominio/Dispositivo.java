@@ -37,6 +37,10 @@ public class Dispositivo {
     public boolean estaOcupado() {
         return servicioActivo != null;
     }
+
+    public void setServicioActivo(Servicio servicioActivo) {
+        this.servicioActivo = servicioActivo;
+    }
     
     
     

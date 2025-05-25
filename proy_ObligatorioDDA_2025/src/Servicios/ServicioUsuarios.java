@@ -7,6 +7,7 @@ package Servicios;
 import Dominio.Cliente;
 import Dominio.Gestor;
 import Dominio.Ingreso;
+import Dominio.Pedido;
 import Dominio.Usuario;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +81,16 @@ public class ServicioUsuarios {
         return null;
     }
 
+    
+    //metodos gestores
+    
+    public void tomarPedido(Gestor gestor, Pedido p) {
+        gestor.setPedidosTomados(p);
+    }
+    
+    
+    
+    
     
     // Geters y Setters 
     

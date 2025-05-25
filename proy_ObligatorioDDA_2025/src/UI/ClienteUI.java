@@ -4,19 +4,24 @@
  */
 package UI;
 
+import UI.Renderizadores.RenderizadorListas;
 import Dominio.Categoria;
+import Dominio.Cliente;
 import Dominio.Dispositivo;
+import Dominio.Excepciones.SinStockException;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
+import UI.Renderizadores.RenderizadorTablas;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -36,6 +41,7 @@ public class ClienteUI extends javax.swing.JFrame {
     public ClienteUI(Dispositivo dispositivo) {
         initComponents();
         this.dispositivo = dispositivo;
+
         this.f = Fachada.getInstancia();
         this.menu = Menu.getInstancia();
 
@@ -51,8 +57,6 @@ public class ClienteUI extends javax.swing.JFrame {
         });
 
     }
-    
-    
 
     private void ingresar() {
         String usuario = jUsuario.getText();
@@ -64,14 +68,17 @@ public class ClienteUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
+        Cliente cliente = (Cliente) usuarioLogueado;
+        Servicio s = new Servicio(cliente);
+        cliente.setServicio(s);
+        dispositivo.setServicioActivo(s);
+        System.out.println("facha");
+        
     }
 
     public Usuario login(String usuario, String contrasena) {
         return Fachada.getInstancia().loginCliente(usuario, contrasena);
     }
-
-    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -90,7 +97,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         tComentario = new javax.swing.JTextArea();
-        jButton2 = new javax.swing.JButton();
+        btnAgregarPedido = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -101,7 +108,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tablaPedidos = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -142,13 +149,18 @@ public class ClienteUI extends javax.swing.JFrame {
         tComentario.setRows(5);
         jScrollPane3.setViewportView(tComentario);
 
-        jButton2.setText("Agregar pedido");
+        btnAgregarPedido.setText("Agregar pedido");
+        btnAgregarPedido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarPedidoActionPerformed(evt);
+            }
+        });
 
         jLabel5.setText("Comentario");
 
         jDesktopPane1.setLayer(jButton3, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(jScrollPane3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jDesktopPane1.setLayer(jButton2, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane1.setLayer(btnAgregarPedido, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout jDesktopPane1Layout = new javax.swing.GroupLayout(jDesktopPane1);
@@ -163,7 +175,7 @@ public class ClienteUI extends javax.swing.JFrame {
                         .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jDesktopPane1Layout.createSequentialGroup()
-                                .addComponent(jButton2)
+                                .addComponent(btnAgregarPedido)
                                 .addGap(18, 18, 18)
                                 .addComponent(jButton3)))
                         .addGap(0, 142, Short.MAX_VALUE)))
@@ -178,7 +190,7 @@ public class ClienteUI extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
                 .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
+                    .addComponent(btnAgregarPedido)
                     .addComponent(jButton3))
                 .addContainerGap())
         );
@@ -249,7 +261,7 @@ public class ClienteUI extends javax.swing.JFrame {
             }
         });
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tablaPedidos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -260,7 +272,7 @@ public class ClienteUI extends javax.swing.JFrame {
                 "Ítem", "Comentario", "Estado", "Unidad", "Gestor", "Precio"
             }
         ));
-        jScrollPane5.setViewportView(jTable2);
+        jScrollPane5.setViewportView(tablaPedidos);
 
         jLabel6.setText("Pedidos del servicio");
 
@@ -345,10 +357,14 @@ public class ClienteUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    private void btnAgregarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPedidoActionPerformed
+        registrarPedido();
+    }//GEN-LAST:event_btnAgregarPedidoActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAgregarPedido;
     private javax.swing.JButton jBtnLogin;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
@@ -368,15 +384,13 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTextField jUsuario;
     private javax.swing.JList<Categoria> lCategorias;
     private javax.swing.JList<Item> lItems;
     private javax.swing.JTextArea tComentario;
+    private javax.swing.JTable tablaPedidos;
     // End of variables declaration//GEN-END:variables
 
-    
-    
     private void cargarCategorias() {
         try {
             // 1. Obtener datos desde la fachada
@@ -400,7 +414,7 @@ public class ClienteUI extends javax.swing.JFrame {
 
         }
     }
-    
+
     private void cargarItems() {
         try {
             // Obtener items de la fachada 
@@ -431,69 +445,23 @@ public class ClienteUI extends javax.swing.JFrame {
         }
 
     }
-    
-    public void registrarPedido(){
+
+    public void registrarPedido() {
+
         Item item = lItems.getSelectedValue();
         String comentario = tComentario.getText();
-        Servicio servicio = this.dispositivo.getServicioActivo();
-        Pedido nuevoPedido = f.registrarPedido(item, comentario, servicio);
-        
-        
+        Pedido nuevoPedido;
+        try {
+
+            nuevoPedido = new Pedido(item, comentario);
+            dispositivo.getServicioActivo().agregarPedido(nuevoPedido);
+            f.agregarPedido(nuevoPedido);
+            System.out.println(nuevoPedido.toString());
+            tablaPedidos.setDefaultRenderer(nuevoPedido.getClass(), new RenderizadorTablas());
+        } catch (SinStockException ex) {
+            Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
-    
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- // Renderizador personalizado para categorías
-    /*private static class CategoriaListCellRenderer extends JLabel implements ListCellRenderer<Categoria> {
-
-        public CategoriaListCellRenderer() {
-            setOpaque(true);
-            setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Espaciado interno
-        }
-
-        @Override
-        public Component getListCellRendererComponent(
-                JList<? extends Categoria> list,
-                Categoria categoria,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus) {
-
-            // Establecer el texto como el nombre de la categoría
-            setText(categoria.getNombre());
-
-            // Configurar colores de fondo y texto
-            if (isSelected) {
-                setBackground(new Color(200, 220, 255)); // Azul claro para selección
-                setForeground(Color.BLACK);
-            } else {
-                setBackground(Color.WHITE);
-                setForeground(Color.BLACK);
-            }
-
-            return this;
-        }
-    }
-     */

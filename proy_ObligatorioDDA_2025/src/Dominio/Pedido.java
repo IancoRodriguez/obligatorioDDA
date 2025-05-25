@@ -1,5 +1,7 @@
 package Dominio;
 
+import Dominio.Excepciones.SinStockException;
+
 public class Pedido {
     private String comentario;
     private Gestor gestor;
@@ -15,10 +17,11 @@ public class Pedido {
     }
 
 
-    public Pedido(Item item, String comentario, Servicio servicio) {
+    public Pedido(Item item, String comentario) throws SinStockException {
         this.item = item;
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
         this.estado = "No confirmado";
+        this.validar() ;
     }
 
     
@@ -51,5 +54,18 @@ public class Pedido {
     public float calcularTotal(){
         return this.item.getPrecioUnitario();
     }
+    
+    
+    public void validar() throws SinStockException{
+        validarStockItem();
+    }
+    
+    private void validarStockItem() throws SinStockException {
+        if(!item.tieneStockDisponible()){
+            throw new SinStockException("Sin stock pa");
+        }
+    }
+
+        
 
 }

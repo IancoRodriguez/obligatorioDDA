@@ -20,41 +20,25 @@ public class ServicioPedidos {
 
     }
 
-    public Pedido registrarPedido(Item item, String comentario, Servicio servicio) throws SinStockException {
-        validarEstadoServicio(servicio);
-        validarStockItem(item);
-        Pedido pedido = new Pedido(item, comentario, servicio);
-        descontarStockItem(item);
-        servicio.agregarPedido(pedido);
-        return pedido;
+    public void agregarPedido(Pedido pedido) {
+        this.pedidos.add(pedido);
     }
 
-    public void eliminarPedido(Pedido pedido, Servicio servicio) {
-        validarEstadoPedido(pedido);
-        reintegrarStockItem(pedido.getItem());
-        servicio.eliminarPedido(pedido);
+    public void eliminarPedido(Pedido pedido) {
+       this.pedidos.remove(pedido);
     }
 
-    public void validarPedidosServicio(Servicio servicio) throws SinStockException {
-        for (Pedido pedido : servicio.getPedidos()) {
-            validarStockItem(pedido.getItem());
-        }
-    }
-    
-    
     public List<Pedido> getPedidosPendientesUP(String nombreUP) {
         List<Pedido> pPendientes = new ArrayList();
-                
-        for(Pedido p : pedidos){
-            if(p.getEstado() == "Pendiente"){
+
+        for (Pedido p : pedidos) {
+            if (p.getEstado() == "Pendiente") {
                 pPendientes.add(p);
             }
         }
-        
+
         return pPendientes;
     }
-    
-    
 
     // ======================
     // Métodos auxiliares 
@@ -62,29 +46,6 @@ public class ServicioPedidos {
     private void validarEstadoServicio(Servicio servicio) {
         if (!servicio.getEstado().equals("En curso")) {
             throw new IllegalStateException("No se pueden agregar pedidos a un servicio finalizado");
-        }
-    }
-
-    private void validarStockItem(Item item) throws SinStockException {
-        for (Ingrediente ingrediente : item.getIngredientes()) {
-            Insumo insumo = ingrediente.getInsumo();
-            if (insumo.getStock() < ingrediente.getCantidad()) {
-                throw new SinStockException("Stock insuficiente para: " + insumo.getNombre());
-            }
-        }
-    }
-
-    private void descontarStockItem(Item item) {
-        for (Ingrediente ingrediente : item.getIngredientes()) {
-            Insumo insumo = ingrediente.getInsumo();
-            insumo.consumirStock(ingrediente.getCantidad());
-        }
-    }
-
-    private void reintegrarStockItem(Item item) {
-        for (Ingrediente ingrediente : item.getIngredientes()) {
-            Insumo insumo = ingrediente.getInsumo();
-            insumo.agregarStock(ingrediente.getCantidad());
         }
     }
 
@@ -124,10 +85,8 @@ public class ServicioPedidos {
     // ======================
     // Getters
     // ======================
-  
     public void cambiarEstado(Pedido p) {
         p.setEstado("Pedido en curso");
     }
 
-    
 }

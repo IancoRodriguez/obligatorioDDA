@@ -16,7 +16,7 @@ public class Fachada {
     private ServicioUsuarios sUsuarios;
     private ServicioPedidos sPedidos;
     private ServicioDispositivos sDispositivos;
-    private ServicioGestor sGestor;
+
     
     
     private Fachada() {
@@ -44,6 +44,11 @@ public class Fachada {
         return sUsuarios.agregar(gestor);
     }
 
+    public void agregarPedido(Pedido pedido) {
+        sPedidos.agregarPedido(pedido);
+    }
+    
+    
     public Cliente loginCliente(String nombre, String contrasena) {
         return sUsuarios.loginCliente(nombre, contrasena);
     }
@@ -70,9 +75,7 @@ public class Fachada {
         return sUsuarios.getGestores();
     }
 
-    public Pedido registrarPedido(Item item, String comentario, Servicio servicio) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+    
 
     public List<Pedido> getPedidosPendientes(String nombreUP) {
         return sPedidos.getPedidosPendientesUP(nombreUP);
@@ -81,7 +84,7 @@ public class Fachada {
     // La idea de este metodo es tomar el pedido seleccionado, 
     // sumarlo al listado que tiene el gestor de pedidos y cambiarle el estado en el listado de sPedidos
     public void tomarPedido(Gestor gestor, Pedido p) {
-        sGestor.tomarPedido(gestor, p);
+        sUsuarios.tomarPedido(gestor, p);
         sPedidos.cambiarEstado(p);
     }
  
