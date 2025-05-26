@@ -4,9 +4,13 @@
  */
 package UI;
 
+import Dominio.Excepciones.DispositivoException;
+import Dominio.Excepciones.UsuarioException;
 import Dominio.Gestor;
 import Dominio.Usuario;
 import Servicios.Fachada;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 
@@ -21,7 +25,14 @@ public class VentanaLoginGestor extends VentanaLogin{
 
     @Override
     public Usuario login(String usuario, String contrasena) {
-        return Fachada.getInstancia().loginGestor(usuario, contrasena);
+        try {
+            return Fachada.getInstancia().loginGestor(usuario, contrasena);
+        } catch (UsuarioException ex) {
+            Logger.getLogger(VentanaLoginGestor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DispositivoException ex) {
+            Logger.getLogger(VentanaLoginGestor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
         
         
     }

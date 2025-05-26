@@ -3,6 +3,8 @@ package Servicios;
 import Dominio.Categoria;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
+import Dominio.Excepciones.DispositivoException;
+import Dominio.Excepciones.UsuarioException;
 import Dominio.Gestor;
 import Dominio.Item;
 import Dominio.Menu;
@@ -49,11 +51,11 @@ public class Fachada {
     }
     
     
-    public Cliente loginCliente(String nombre, String contrasena) {
+    public Cliente loginCliente(String nombre, String contrasena) throws UsuarioException, DispositivoException {
         return sUsuarios.loginCliente(nombre, contrasena);
     }
 
-    public Gestor loginGestor(String nombre, String contrasena) {
+    public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException, DispositivoException {
         return sUsuarios.loginGestor(nombre, contrasena);
     }
 
@@ -62,6 +64,11 @@ public class Fachada {
     }
     
     //Getters y setters 
+
+    public List<Pedido> getTodosLosPedidos() {
+        return sDispositivos.getTodosLosPedidos();
+    }
+    
 
     public List<Dispositivo> getDispositivos() {
         return sDispositivos.getDispositivos();

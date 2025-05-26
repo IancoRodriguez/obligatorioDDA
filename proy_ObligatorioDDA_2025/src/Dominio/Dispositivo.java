@@ -1,5 +1,7 @@
 package Dominio;
 
+import Dominio.Excepciones.DispositivoException;
+
 public class Dispositivo {
     private Servicio servicioActivo; 
     private final int id;
@@ -17,18 +19,17 @@ public class Dispositivo {
             this.id = counter.nextId++;
         }
     }
+    
+    public Cliente clienteLogueado(){
+        return servicioActivo.getCliente();
+    }
 
     public int getId() {
         return id;
     }
     
     
-    public void ocupar(Servicio servicio) {
-        if (this.servicioActivo != null) {
-            throw new IllegalStateException("Dispositivo ya ocupado");
-        }
-        this.servicioActivo = servicio;
-    }
+   
 
     public void liberar() {
         this.servicioActivo = null;
@@ -38,8 +39,11 @@ public class Dispositivo {
         return servicioActivo != null;
     }
 
-    public void setServicioActivo(Servicio servicioActivo) {
-        this.servicioActivo = servicioActivo;
+    public void setServicioActivo(Servicio servicio) throws DispositivoException {
+         if (this.servicioActivo != null) {
+            throw new DispositivoException("Dispositivo ya ocupado");
+        }
+        this.servicioActivo = servicio;
     }
     
     

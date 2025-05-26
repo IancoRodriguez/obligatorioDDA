@@ -8,19 +8,24 @@ import UI.Renderizadores.RenderizadorListas;
 import Dominio.Categoria;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
+import Dominio.Excepciones.DispositivoException;
 import Dominio.Excepciones.SinStockException;
+import Dominio.Excepciones.UsuarioException;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
-import UI.Renderizadores.RenderizadorTablas;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -30,7 +35,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 public class ClienteUI extends javax.swing.JFrame {
 
@@ -40,6 +47,7 @@ public class ClienteUI extends javax.swing.JFrame {
 
     public ClienteUI(Dispositivo dispositivo) {
         initComponents();
+        usuarioLogueadoFlag.setVisible(false);
         this.dispositivo = dispositivo;
 
         this.f = Fachada.getInstancia();
@@ -58,25 +66,31 @@ public class ClienteUI extends javax.swing.JFrame {
 
     }
 
-    private void ingresar() {
+    private void ingresar() throws UsuarioException, DispositivoException {
         String usuario = jUsuario.getText();
         String contrasena = new String(jContrasena.getPassword());
 
-        Usuario usuarioLogueado = login(usuario, contrasena);
+        try {
+            Usuario usuarioLogueado = login(usuario, contrasena);
 
-        if (usuarioLogueado == null) {
-            JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
-            return;
+            if (usuarioLogueado == null) {
+                JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Cliente cliente = (Cliente) usuarioLogueado;
+            Servicio s = new Servicio(cliente);
+            cliente.setServicio(s);
+            dispositivo.setServicioActivo(s);
+            usuarioLogueadoFlag.setVisible(true);
+        } catch(UsuarioException e){
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+        }catch (DispositivoException e ){
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }
-        Cliente cliente = (Cliente) usuarioLogueado;
-        Servicio s = new Servicio(cliente);
-        cliente.setServicio(s);
-        dispositivo.setServicioActivo(s);
-        System.out.println("facha");
-        
+
     }
 
-    public Usuario login(String usuario, String contrasena) {
+    public Usuario login(String usuario, String contrasena) throws UsuarioException, DispositivoException {
         return Fachada.getInstancia().loginCliente(usuario, contrasena);
     }
 
@@ -110,6 +124,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jScrollPane5 = new javax.swing.JScrollPane();
         tablaPedidos = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
+        usuarioLogueadoFlag = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -276,6 +291,10 @@ public class ClienteUI extends javax.swing.JFrame {
 
         jLabel6.setText("Pedidos del servicio");
 
+        usuarioLogueadoFlag.setBackground(new java.awt.Color(51, 51, 51));
+        usuarioLogueadoFlag.setForeground(new java.awt.Color(0, 102, 0));
+        usuarioLogueadoFlag.setText("Usuario Logueado");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -284,7 +303,20 @@ public class ClienteUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jDesktopPane2)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(jButton4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton5))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(29, 29, 29)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -295,21 +327,10 @@ public class ClienteUI extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jBtnLogin))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(21, 21, 21)
-                                .addComponent(jButton4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton5)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jDesktopPane2))))
+                                .addComponent(jBtnLogin)
+                                .addGap(27, 27, 27)
+                                .addComponent(usuarioLogueadoFlag)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .addComponent(jScrollPane5)
         );
@@ -322,7 +343,8 @@ public class ClienteUI extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(jBtnLogin)
                     .addComponent(jContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel1)
+                    .addComponent(usuarioLogueadoFlag))
                 .addGap(13, 13, 13)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -346,7 +368,13 @@ public class ClienteUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jUsuarioActionPerformed
 
     private void jBtnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnLoginActionPerformed
-        ingresar();
+        try {
+            ingresar();
+        } catch (UsuarioException ex) {
+            Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DispositivoException ex) {
+            Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jBtnLoginActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -389,6 +417,7 @@ public class ClienteUI extends javax.swing.JFrame {
     private javax.swing.JList<Item> lItems;
     private javax.swing.JTextArea tComentario;
     private javax.swing.JTable tablaPedidos;
+    private javax.swing.JLabel usuarioLogueadoFlag;
     // End of variables declaration//GEN-END:variables
 
     private void cargarCategorias() {
@@ -455,13 +484,45 @@ public class ClienteUI extends javax.swing.JFrame {
 
             nuevoPedido = new Pedido(item, comentario);
             dispositivo.getServicioActivo().agregarPedido(nuevoPedido);
-            f.agregarPedido(nuevoPedido);
+
             System.out.println(nuevoPedido.toString());
-            tablaPedidos.setDefaultRenderer(nuevoPedido.getClass(), new RenderizadorTablas());
+
+            cargarPedidosEnTabla(dispositivo.getServicioActivo().getPedidos());
+
         } catch (SinStockException ex) {
             Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    private void cargarPedidosEnTabla(List<Pedido> pedidos) {
+        // 1. Crear un modelo de tabla vacío
+        DefaultTableModel modelo = new DefaultTableModel();
+
+        // 2. Definir las columnas
+        modelo.setColumnIdentifiers(new String[]{"Item", "Comentario", "Estado", "Unidad", "Gestor", "Precio"});
+
+        // 3. Llenar el modelo con datos
+        for (Pedido pedido : pedidos) {
+            modelo.addRow(new Object[]{
+                pedido.getItem().getNombre(), // Asegúrate de que Item tenga toString()
+                pedido.getComentario(),
+                pedido.getEstado(),
+                pedido.getItem().getUnidadProcesadora(),
+                pedido.getGestor(),
+                pedido.getItem().getPrecioUnitario()
+            });
+        }
+
+        // 4. Asignar el modelo a la tabla
+        tablaPedidos.setModel(modelo);
+
+        // 5. Ajustar el ancho de las columnas (opcional)
+        tablaPedidos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        // 6. Actualizar la interfaz
+        tablaPedidos.revalidate();
+        tablaPedidos.repaint();
     }
 
 }

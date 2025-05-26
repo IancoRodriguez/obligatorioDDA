@@ -60,15 +60,7 @@ public class ServicioPedidos {
     // ======================
     // Gestión de servicios
     // ======================
-    public Servicio iniciarServicio(Cliente cliente, Dispositivo dispositivo) {
-        if (dispositivo.estaOcupado()) {
-            throw new IllegalStateException("Dispositivo ocupado");
-        }
 
-        Servicio servicio = new Servicio(cliente);
-        dispositivo.ocupar(servicio); // Dispositivo almacena la referencia al Servicio
-        return servicio;
-    }
 
     public void finalizarServicio(Dispositivo dispositivo) {
         Servicio servicio = dispositivo.getServicioActivo();
