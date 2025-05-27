@@ -44,6 +44,7 @@ public class ClienteUI extends javax.swing.JFrame {
     private Fachada f;
     private Dispositivo dispositivo;
     private Menu menu;
+    private Servicio servicioActual;
 
     public ClienteUI(Dispositivo dispositivo) {
         initComponents();
@@ -71,7 +72,7 @@ public class ClienteUI extends javax.swing.JFrame {
         String contrasena = new String(jContrasena.getPassword());
 
         try {
-            Servicio ServicioUsuarioLogueado = login(usuario, contrasena);          
+            servicioActual = login(usuario, contrasena);          
             
             usuarioLogueadoFlag.setVisible(true);
         } catch(UsuarioException e){
@@ -475,11 +476,11 @@ public class ClienteUI extends javax.swing.JFrame {
         try {
 
             nuevoPedido = new Pedido(item, comentario);
-            dispositivo.getServicioActivo().agregarPedido(nuevoPedido);
+            servicioActual.agregarPedido(nuevoPedido);
 
             System.out.println(nuevoPedido.toString());
 
-            cargarPedidosEnTabla(dispositivo.getServicioActivo().getPedidos());
+            cargarPedidosEnTabla(servicioActual.getPedidos());
 
         } catch (SinStockException ex) {
             Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
