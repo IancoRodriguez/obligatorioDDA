@@ -42,14 +42,12 @@ public class ServicioUsuarios {
     public Servicio loginCliente(String nombre, String contrasena, Dispositivo dispositivo) throws UsuarioException, DispositivoException {
         
         Cliente cliente = (Cliente) login(nombre, contrasena, this.clientes);
-        if(cliente != null){
-            Servicio s = new Servicio(cliente);
-            cliente.setServicio(s);
-            dispositivo.setServicioActivo(s);
-            return s;
-        }
         
-        throw new UsuarioException("Usuario no registrado.");
+        Servicio s = new Servicio(cliente);
+        cliente.setServicio(s);
+        dispositivo.setServicioActivo(s);
+        return s;
+        
     }
 
     public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException, DispositivoException {
@@ -64,10 +62,9 @@ public class ServicioUsuarios {
         // Verifico que el usuario no este logueado
         for (Dispositivo d : Fachada.getInstancia().getDispositivos()) {
             if (d.getServicioActivo() != null && d.clienteLogueado().getLoginId().equals(nombre)) 
-                throw new UsuarioException("El usuario ya esta logueado");
+                throw new UsuarioException("El usuario ya esta logueado en otro dispositivo");
         }
-
-       
+     
 
         // Busco el usuario en el listado de usuarios
         for (Usuario usuario : listaUsuarios) {
@@ -76,8 +73,8 @@ public class ServicioUsuarios {
             }
         }
 
-        // Si el usuario no cumple las validaciones o esta logueado, devolvemos null
-        return null;
+        // Si el usuario no fue encontrado
+        throw new UsuarioException("Usuario no registrado.");
     }
 
     //metodos gestores
