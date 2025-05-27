@@ -71,16 +71,8 @@ public class ClienteUI extends javax.swing.JFrame {
         String contrasena = new String(jContrasena.getPassword());
 
         try {
-            Usuario usuarioLogueado = login(usuario, contrasena);
-
-            if (usuarioLogueado == null) {
-                JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            Cliente cliente = (Cliente) usuarioLogueado;
-            Servicio s = new Servicio(cliente);
-            cliente.setServicio(s);
-            dispositivo.setServicioActivo(s);
+            Servicio ServicioUsuarioLogueado = login(usuario, contrasena);          
+            
             usuarioLogueadoFlag.setVisible(true);
         } catch(UsuarioException e){
             JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
@@ -90,8 +82,8 @@ public class ClienteUI extends javax.swing.JFrame {
 
     }
 
-    public Usuario login(String usuario, String contrasena) throws UsuarioException, DispositivoException {
-        return Fachada.getInstancia().loginCliente(usuario, contrasena);
+    public Servicio login(String usuario, String contrasena) throws UsuarioException, DispositivoException {
+        return Fachada.getInstancia().loginCliente(usuario, contrasena, this.dispositivo);
     }
 
     @SuppressWarnings("unchecked")

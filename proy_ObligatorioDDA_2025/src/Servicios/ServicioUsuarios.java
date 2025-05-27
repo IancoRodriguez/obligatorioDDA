@@ -11,6 +11,7 @@ import Dominio.Dispositivo;
 import Dominio.Gestor;
 import Dominio.Ingreso;
 import Dominio.Pedido;
+import Dominio.Servicio;
 import Dominio.Usuario;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +39,17 @@ public class ServicioUsuarios {
         return true;
     }
 
-    public Cliente loginCliente(String nombre, String contrasena) throws UsuarioException, DispositivoException {
-        return (Cliente) login(nombre, contrasena, this.clientes);
+    public Servicio loginCliente(String nombre, String contrasena, Dispositivo dispositivo) throws UsuarioException, DispositivoException {
+        
+        Cliente cliente = (Cliente) login(nombre, contrasena, this.clientes);
+        if(cliente != null){
+            Servicio s = new Servicio(cliente);
+            cliente.setServicio(s);
+            dispositivo.setServicioActivo(s);
+            return s;
+        }
+        
+        throw new UsuarioException("Usuario no registrado.");
     }
 
     public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException, DispositivoException {

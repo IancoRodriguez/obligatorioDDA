@@ -51,8 +51,8 @@ public class Fachada {
     }
     
     
-    public Cliente loginCliente(String nombre, String contrasena) throws UsuarioException, DispositivoException {
-        return sUsuarios.loginCliente(nombre, contrasena);
+    public Servicio loginCliente(String nombre, String contrasena, Dispositivo d) throws UsuarioException, DispositivoException {
+        return sUsuarios.loginCliente(nombre, contrasena, d);
     }
 
     public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException, DispositivoException {
