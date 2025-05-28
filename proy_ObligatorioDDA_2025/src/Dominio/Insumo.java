@@ -2,11 +2,11 @@ package Dominio;
 
 import Dominio.Excepciones.StockException;
 
-public class Insumo {
+public class Insumo extends Observable {
 
     private String nombre;
     private int stock;
-    private int stockMinimo; 
+    private int stockMinimo;
 
     // Constructor con validaciones
     public Insumo(String nombre, int stock, int stockMinimo) {
@@ -58,7 +58,17 @@ public class Insumo {
         if (cantidad < 0) {
             throw new IllegalArgumentException("La cantidad no puede ser negativa");
         }
+        int stockAnterior = this.stock;
         this.stock += cantidad;
+
+        // Notificar siempre el cambio
+        notificar(Evento.STOCK_ACTUALIZADO);
+
+        // Notificación adicional si se recupera del mínimo
+        if (stockAnterior <= stockMinimo && stock > stockMinimo) {
+            notificar(Evento.STOCK_ACTUALIZADO);
+        }
+
     }
 
     // Método para consumir stock (con validación de stock mínimo)
@@ -67,11 +77,28 @@ public class Insumo {
             throw new StockException("La cantidad no puede ser negativa");
         }
         if (this.stock - cantidad < this.stockMinimo) {
+            notificar(Evento.INTENTO_CONSUMO_INVALIDO);
             throw new StockException("No hay suficiente stock (mínimo requerido: " + stockMinimo + ")");
         }
+
+        int stockAnterior = this.stock;
         this.stock -= cantidad;
+
+        // Notificar siempre el cambio
+        notificar(Evento.STOCK_ACTUALIZADO);
+
+        // Notificación adicional si cruza el umbral mínimo
+        if (stockAnterior > stockMinimo && stock <= stockMinimo) {
+            notificar(Evento.STOCK_INSUFICIENTE);
+        }
     }
 
+    
+    
+    
+    
+    
+    
     // Representación legible del objeto
     @Override
     public String toString() {
@@ -80,4 +107,5 @@ public class Insumo {
                 nombre, stock, stockMinimo
         );
     }
+
 }

@@ -15,6 +15,8 @@ import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
+import Dominio.Observable;
+import Dominio.Observador;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,14 +37,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
-public class ClienteUI extends javax.swing.JFrame {
+public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     private Fachada f;
     private Dispositivo dispositivo;
     private Menu menu;
     private Servicio servicioActual;
+
+    private Categoria categoriaSeleccionada;
 
     public ClienteUI(Dispositivo dispositivo) {
         initComponents();
@@ -56,13 +61,12 @@ public class ClienteUI extends javax.swing.JFrame {
         cargarItems();
         setVisible(true);
 
-        // Listener para cargar la lista de items; 
-        lCategorias.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                cargarItems();
-            }
-        });
-
+//        // Listener para cargar la lista de items; 
+//        lCategorias.addListSelectionListener(e -> {
+//            if (!e.getValueIsAdjusting()) {
+//                cargarItems();
+//            }
+//        });
     }
 
     private void ingresar() throws UsuarioException, DispositivoException {
@@ -70,19 +74,18 @@ public class ClienteUI extends javax.swing.JFrame {
         String contrasena = new String(jContrasena.getPassword());
 
         try {
-            
-            if(!usuario.isBlank() && !contrasena.isBlank()){
-                servicioActual = login(usuario, contrasena);          
+
+            if (!usuario.isBlank() && !contrasena.isBlank()) {
+                servicioActual = login(usuario, contrasena);
                 usuarioLogueadoFlag.setVisible(true);
-            }else{
+            } else {
                 cerrarSesion();
                 throw new UsuarioException("Revise las credenciales ingresadas");
             }
-            
-            
-        } catch(UsuarioException e){
+
+        } catch (UsuarioException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
-        }catch (DispositivoException e ){
+        } catch (DispositivoException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }
 
@@ -441,6 +444,12 @@ public class ClienteUI extends javax.swing.JFrame {
                     categoria -> categoria.getNombre()
             ));
 
+            lCategorias.addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    seleccionarCategoria(lCategorias.getSelectedValue());
+                }
+            });
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "Error al cargar categorías: " + e.getMessage(),
@@ -449,6 +458,24 @@ public class ClienteUI extends javax.swing.JFrame {
             );
 
         }
+    }
+
+    private void seleccionarCategoria(Categoria nuevaCategoria) {
+        // 1. Desuscribir de la categoría anterior
+        if (categoriaSeleccionada != null) {
+            categoriaSeleccionada.desuscribir(this);
+        }
+
+        // 2. Actualizar referencia
+        categoriaSeleccionada = nuevaCategoria;
+
+        // 3. Suscribir a la nueva categoría
+        if (categoriaSeleccionada != null) {
+            categoriaSeleccionada.subscribir(this);
+        }
+
+        // 4. Cargar items de la nueva categoría
+        cargarItems();
     }
 
     private void cargarItems() {
@@ -483,10 +510,10 @@ public class ClienteUI extends javax.swing.JFrame {
     }
 
     public void registrarPedido() {
-        
+
         try {
-            
-            if(servicioActual == null){
+
+            if (servicioActual == null) {
                 throw new ServicioException("Servicio no inicializado");
             }
             Item item = lItems.getSelectedValue();
@@ -494,14 +521,13 @@ public class ClienteUI extends javax.swing.JFrame {
             Pedido nuevoPedido;
 
             nuevoPedido = new Pedido(item, comentario);
-            
+
             servicioActual.agregarPedido(nuevoPedido);
             cargarPedidosEnTabla(servicioActual.getPedidos());
-            
 
         } catch (StockException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
-        }catch (ServicioException ex){
+        } catch (ServicioException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }
 
@@ -538,64 +564,72 @@ public class ClienteUI extends javax.swing.JFrame {
     }
 
     private void eliminarPedido() {
-     
-    try {
-            
-        if(servicioActual == null){
-            throw new ServicioException("Servicio no inicializado");
-        }
 
-        Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
+        try {
 
-        servicioActual.eliminarPedido(quitarPedido);
-        cargarPedidosEnTabla(servicioActual.getPedidos());
-            
+            if (servicioActual == null) {
+                throw new ServicioException("Servicio no inicializado");
+            }
 
-        
-        }catch (ServicioException ex){
+            Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
+
+            servicioActual.eliminarPedido(quitarPedido);
+            cargarPedidosEnTabla(servicioActual.getPedidos());
+
+        } catch (ServicioException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }
 
     }
 
     private void confimarPedidos() {
-        
-        try{
+
+        try {
             servicioActual.confirmar();
             cargarPedidosEnTabla(servicioActual.getPedidos());
-        }
-        catch (StockException ex){
+        } catch (StockException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Problema con el stock", JOptionPane.ERROR_MESSAGE);
-        }       
-        
+        }
+
     }
-    
+
     private void finalizarServicio() {
-        
-        try{
+
+        try {
             servicioActual.finalizar();
             cerrarSesion();
-            
+
             cargarPedidosEnTabla(new ArrayList<Pedido>());
-        }
-        catch (ServicioException ex){
+        } catch (ServicioException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "BOOM!", JOptionPane.ERROR_MESSAGE);
-        }       
-        
+        }
+
     }
 
     private void cerrarSesion() {
-        try{
+        try {
             usuarioLogueadoFlag.setVisible(false);
             jUsuario.setText("");
             jContrasena.setText("");
-            
+
             servicioActual = null;
             dispositivo.setServicioActivo(servicioActual);
-        }
-        catch (DispositivoException ex){
+        } catch (DispositivoException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "BOOM!", JOptionPane.ERROR_MESSAGE);
-        } 
+        }
+    }
+
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        if (origen == categoriaSeleccionada) {
+            System.out.println("Evento recibido: " + evento + " | Origen: " + origen);
+            // Actualizar UI inmediatamente
+            SwingUtilities.invokeLater(() -> {
+                System.out.println("Ejecutando cargarItems() desde EDT");
+                cargarItems();
+        
+            });
+        }
     }
 
 }

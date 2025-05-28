@@ -3,15 +3,15 @@ package Dominio;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Item {
+public class Item extends Observable implements Observador {
 
     private String Nombre;
     private float precioUnitario;
     private UnidadProcesadora unidadProcesadora;
     private List<Ingrediente> ingredientes;
     private Categoria categoria;
-    
-    public Item(String Nombre, float precioUnitario,UnidadProcesadora unidadProcesadora, Categoria categoria) {
+
+    public Item(String Nombre, float precioUnitario, UnidadProcesadora unidadProcesadora, Categoria categoria) {
 
         // Validaciones 
         if (Nombre == null || Nombre.trim().isEmpty()) {
@@ -66,13 +66,15 @@ public class Item {
     public void setIngredientes(List<Ingrediente> ingredientes) {
         this.ingredientes = ingredientes;
     }
-    
-    
+
     public void agregarIngrediente(Ingrediente ingrediente) {
         ingredientes.add(ingrediente);
+        
+        
+        ingrediente.subscribir(this);
+
     }
-    
-    
+
     public boolean tieneStockDisponible() {
         for (Ingrediente ingrediente : ingredientes) {
             if (!ingrediente.tieneStockSuficiente()) {
@@ -85,5 +87,29 @@ public class Item {
     public Categoria getCategoria() {
         return this.categoria;
     }
+
     
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        // Notificar inmediatamente a la categoría
+        notificar(Evento.ITEM_ACTUALIZADO);
+    }
+    
+    public boolean estaDisponible() {
+        for (Ingrediente i : ingredientes) {
+            if (!i.tieneStockSuficiente()) return false;
+        }
+        return true;
+    }
+    
+    
+
+    private boolean usaInsumo(Insumo insumo) {
+        for (Ingrediente ingrediente : this.ingredientes) {
+            if (ingrediente.getInsumo().equals(insumo)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

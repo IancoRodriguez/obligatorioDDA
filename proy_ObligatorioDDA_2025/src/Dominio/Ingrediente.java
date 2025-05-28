@@ -2,7 +2,7 @@ package Dominio;
 
 import java.util.Objects;
 
-public class Ingrediente {
+public class Ingrediente extends Observable implements Observador {
 
     private final Insumo insumo;  // El insumo no cambia luego de la creación
     private int cantidad;         // La cantidad sí puede modificarse con validación
@@ -17,6 +17,7 @@ public class Ingrediente {
         }
         this.insumo = insumo;
         this.cantidad = cantidad;
+        insumo.subscribir(this);
     }
 
     // Getters
@@ -68,5 +69,10 @@ public class Ingrediente {
     
     public boolean tieneStockSuficiente(){
         return insumo.getStock() >= cantidad;
+    }
+
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        notificar(Evento.INGREDIENTE_ACTUALIZADO);
     }
 }

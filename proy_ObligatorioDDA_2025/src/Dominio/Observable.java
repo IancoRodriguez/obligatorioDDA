@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Servicios;
+package Dominio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,10 +13,10 @@ import java.util.List;
  */
 public abstract class Observable {
     private List<Observador> subscriptores;
-    public enum Evento {STOCK_INSUFICIENTE}
+    public enum Evento {STOCK_ACTUALIZADO, STOCK_RECUPERADO, STOCK_INSUFICIENTE, INTENTO_CONSUMO_INVALIDO, ITEM_ACTUALIZADO, INGREDIENTE_ACTUALIZADO, CATEGORIA_ACTUALIZADA}
 
     public Observable() {
-        this.subscriptores = subscriptores;
+        this.subscriptores = new ArrayList();
     }
     
     public void subscribir(Observador subscriptor){
