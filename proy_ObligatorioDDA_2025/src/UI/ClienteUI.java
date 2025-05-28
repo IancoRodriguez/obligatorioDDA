@@ -469,7 +469,7 @@ public class ClienteUI extends javax.swing.JFrame {
             //Configurar modelo y renderizador 
             lItems.setModel(modelo);
             lItems.setCellRenderer(new RenderizadorListas<>(
-                    Item -> Item.getNombre()
+                    item -> item.getNombre() + " - $" + item.getPrecioUnitario()
             ));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
