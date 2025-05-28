@@ -8,9 +8,9 @@ package Dominio.Excepciones;
  *
  * @author usuar
  */
-public class SinStockException extends Exception {
+public class StockException extends Exception {
 
-    public SinStockException(String string) {
+    public StockException(String string) {
         super(string);
     }
     

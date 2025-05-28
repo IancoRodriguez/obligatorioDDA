@@ -2,7 +2,7 @@ package Servicios;
 
 import Dominio.Cliente;
 import Dominio.Dispositivo;
-import Dominio.Excepciones.SinStockException;
+import Dominio.Excepciones.StockException;
 import Dominio.Ingrediente;
 import Dominio.Insumo;
 import Dominio.Item;
@@ -68,7 +68,7 @@ public class ServicioPedidos {
         dispositivo.liberar(); // Elimina la referencia al Servicio
     }
 
-    public void confirmarServicio(Servicio servicio) throws SinStockException {
+    public void confirmarServicio(Servicio servicio) throws StockException {
         // sPedidos.validarStock(servicio.getPedidos());
         // sPedidos.asignarUnidadesProcesadoras(servicio.getPedidos());
         servicio.setEstado("Confirmado");

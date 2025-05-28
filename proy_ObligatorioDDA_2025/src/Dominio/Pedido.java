@@ -1,6 +1,6 @@
 package Dominio;
 
-import Dominio.Excepciones.SinStockException;
+import Dominio.Excepciones.StockException;
 
 public class Pedido {
     private String comentario;
@@ -17,7 +17,7 @@ public class Pedido {
     }
 
 
-    public Pedido(Item item, String comentario) throws SinStockException {
+    public Pedido(Item item, String comentario) throws StockException {
         this.item = item;
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
         this.estado = "No confirmado";
@@ -56,13 +56,13 @@ public class Pedido {
     }
     
     
-    public void validar() throws SinStockException{
+    public void validar() throws StockException{
         validarStockItem();
     }
     
-    private void validarStockItem() throws SinStockException {
+    private void validarStockItem() throws StockException {
         if(!item.tieneStockDisponible()){
-            throw new SinStockException("Sin stock pa");
+            throw new StockException("Sin stock pa");
         }
     }
 

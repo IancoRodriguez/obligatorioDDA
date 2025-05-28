@@ -1,7 +1,7 @@
 package Dominio;
 
 import Dominio.Excepciones.ServicioException;
-import Dominio.Excepciones.SinStockException;
+import Dominio.Excepciones.StockException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class Servicio {
     
 
     // Confirma el servicio y valida el stock
-    public void confirmar() throws SinStockException {
+    public void confirmar() throws StockException {
         validarStockPedidos();
         for(Pedido p : pedidos){
             if(p.getEstado() == "No confirmado")
@@ -51,10 +51,10 @@ public class Servicio {
         //asignarUnidadesProcesadoras();
     }
 
-    private void validarStockPedidos() throws SinStockException {
+    private void validarStockPedidos() throws StockException {
         for (Pedido pedido : pedidos) {
             if (!pedido.getItem().tieneStockDisponible()) {
-                throw new SinStockException("Stock insuficiente para: " + pedido.getItem().getNombre());
+                throw new StockException("Stock insuficiente para: " + pedido.getItem().getNombre());
             }
             
         }

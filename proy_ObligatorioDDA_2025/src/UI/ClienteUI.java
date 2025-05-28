@@ -499,7 +499,7 @@ public class ClienteUI extends javax.swing.JFrame {
             cargarPedidosEnTabla(servicioActual.getPedidos());
             
 
-        } catch (SinStockException ex) {
+        } catch (StockException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
         }catch (ServicioException ex){
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
@@ -564,8 +564,8 @@ public class ClienteUI extends javax.swing.JFrame {
             servicioActual.confirmar();
             cargarPedidosEnTabla(servicioActual.getPedidos());
         }
-        catch (SinStockException ex){
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
+        catch (StockException ex){
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Problema con el stock", JOptionPane.ERROR_MESSAGE);
         }       
         
     }

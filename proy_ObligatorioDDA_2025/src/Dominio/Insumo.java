@@ -1,5 +1,7 @@
 package Dominio;
 
+import Dominio.Excepciones.StockException;
+
 public class Insumo {
 
     private String nombre;
@@ -60,12 +62,12 @@ public class Insumo {
     }
 
     // Método para consumir stock (con validación de stock mínimo)
-    public void consumirStock(int cantidad) {
+    public void consumirStock(int cantidad) throws StockException {
         if (cantidad < 0) {
-            throw new IllegalArgumentException("La cantidad no puede ser negativa");
+            throw new StockException("La cantidad no puede ser negativa");
         }
         if (this.stock - cantidad < this.stockMinimo) {
-            throw new IllegalStateException("No hay suficiente stock (mínimo requerido: " + stockMinimo + ")");
+            throw new StockException("No hay suficiente stock (mínimo requerido: " + stockMinimo + ")");
         }
         this.stock -= cantidad;
     }
