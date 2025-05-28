@@ -77,7 +77,7 @@ public class Insumo extends Observable {
             throw new StockException("La cantidad no puede ser negativa");
         }
         if (this.stock - cantidad < this.stockMinimo) {
-            notificar(Evento.INTENTO_CONSUMO_INVALIDO);
+            notificar(Evento.STOCK_ACTUALIZADO);
             throw new StockException("No hay suficiente stock (mínimo requerido: " + stockMinimo + ")");
         }
 
