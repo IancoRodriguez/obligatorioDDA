@@ -8,9 +8,7 @@ import UI.Renderizadores.RenderizadorListas;
 import Dominio.Categoria;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
-import Dominio.Excepciones.DispositivoException;
-import Dominio.Excepciones.SinStockException;
-import Dominio.Excepciones.UsuarioException;
+import Dominio.Excepciones.*;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Pedido;
@@ -72,9 +70,12 @@ public class ClienteUI extends javax.swing.JFrame {
         String contrasena = new String(jContrasena.getPassword());
 
         try {
-            servicioActual = login(usuario, contrasena);          
             
-            usuarioLogueadoFlag.setVisible(true);
+            if(!usuario.isBlank() && !contrasena.isBlank()){
+                servicioActual = login(usuario, contrasena);          
+                usuarioLogueadoFlag.setVisible(true);
+            }
+            
         } catch(UsuarioException e){
             JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }catch (DispositivoException e ){
@@ -101,7 +102,7 @@ public class ClienteUI extends javax.swing.JFrame {
         jContrasena = new javax.swing.JPasswordField();
         jDesktopPane2 = new javax.swing.JDesktopPane();
         jDesktopPane1 = new javax.swing.JDesktopPane();
-        jButton3 = new javax.swing.JButton();
+        btnEliminarPedido = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         tComentario = new javax.swing.JTextArea();
         btnAgregarPedido = new javax.swing.JButton();
@@ -151,7 +152,12 @@ public class ClienteUI extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setText("Eliminar pedido");
+        btnEliminarPedido.setText("Eliminar pedido");
+        btnEliminarPedido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarPedidoActionPerformed(evt);
+            }
+        });
 
         tComentario.setColumns(20);
         tComentario.setRows(5);
@@ -166,7 +172,7 @@ public class ClienteUI extends javax.swing.JFrame {
 
         jLabel5.setText("Comentario");
 
-        jDesktopPane1.setLayer(jButton3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jDesktopPane1.setLayer(btnEliminarPedido, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(jScrollPane3, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(btnAgregarPedido, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jDesktopPane1.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -185,7 +191,7 @@ public class ClienteUI extends javax.swing.JFrame {
                             .addGroup(jDesktopPane1Layout.createSequentialGroup()
                                 .addComponent(btnAgregarPedido)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButton3)))
+                                .addComponent(btnEliminarPedido)))
                         .addGap(0, 142, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -199,7 +205,7 @@ public class ClienteUI extends javax.swing.JFrame {
                 .addGap(8, 8, 8)
                 .addGroup(jDesktopPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAgregarPedido)
-                    .addComponent(jButton3))
+                    .addComponent(btnEliminarPedido))
                 .addContainerGap())
         );
 
@@ -382,11 +388,15 @@ public class ClienteUI extends javax.swing.JFrame {
         registrarPedido();
     }//GEN-LAST:event_btnAgregarPedidoActionPerformed
 
+    private void btnEliminarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarPedidoActionPerformed
+        eliminarPedido();
+    }//GEN-LAST:event_btnEliminarPedidoActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarPedido;
+    private javax.swing.JButton btnEliminarPedido;
     private javax.swing.JButton jBtnLogin;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JPasswordField jContrasena;
@@ -469,21 +479,26 @@ public class ClienteUI extends javax.swing.JFrame {
     }
 
     public void registrarPedido() {
-
-        Item item = lItems.getSelectedValue();
-        String comentario = tComentario.getText();
-        Pedido nuevoPedido;
+        
         try {
+            
+            if(servicioActual == null){
+                throw new ServicioException("Servicio no inicializado");
+            }
+            Item item = lItems.getSelectedValue();
+            String comentario = tComentario.getText();
+            Pedido nuevoPedido;
 
             nuevoPedido = new Pedido(item, comentario);
+            
             servicioActual.agregarPedido(nuevoPedido);
-
-            System.out.println(nuevoPedido.toString());
-
             cargarPedidosEnTabla(servicioActual.getPedidos());
+            
 
         } catch (SinStockException ex) {
-            Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
+        }catch (ServicioException ex){
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }
 
     }
@@ -516,6 +531,27 @@ public class ClienteUI extends javax.swing.JFrame {
         // 6. Actualizar la interfaz
         tablaPedidos.revalidate();
         tablaPedidos.repaint();
+    }
+
+    private void eliminarPedido() {
+     
+    try {
+            
+        if(servicioActual == null){
+            throw new ServicioException("Servicio no inicializado");
+        }
+
+        Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
+
+        servicioActual.eliminarPedido(quitarPedido);
+        cargarPedidosEnTabla(servicioActual.getPedidos());
+            
+
+        
+        }catch (ServicioException ex){
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+        }
+
     }
 
 }

@@ -41,6 +41,9 @@ public class ServicioUsuarios {
 
     public Servicio loginCliente(String nombre, String contrasena, Dispositivo dispositivo) throws UsuarioException, DispositivoException {
         
+        if(nombre.isBlank() || contrasena.isBlank())
+            throw new UsuarioException("Credenciales invalidas");
+        
         Cliente cliente = (Cliente) login(nombre, contrasena, this.clientes);
         
         Servicio s = new Servicio(cliente);

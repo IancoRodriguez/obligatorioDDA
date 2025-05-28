@@ -1,5 +1,6 @@
 package Dominio;
 
+import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.SinStockException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,9 @@ public class Servicio {
     }
 
     // Agrega un pedido al servicio
-    public void agregarPedido(Pedido pedido) {
+    public void agregarPedido(Pedido pedido) throws ServicioException {
         if (!"En curso".equals(estado)) {
-            throw new IllegalStateException("No se pueden agregar pedidos a un servicio finalizado.");
+            throw new ServicioException("No se pueden agregar pedidos a un servicio finalizado.");
         }
         pedidos.add(pedido);
         montoTotal += pedido.calcularTotal();
@@ -27,9 +28,9 @@ public class Servicio {
     
     // Eliminar pedido del servicio 
     
-    public void eliminarPedido(Pedido pedido){
+    public void eliminarPedido(Pedido pedido) throws ServicioException{
         if (!"En curso".equals(estado)) {
-            throw new IllegalStateException("No se pueden eliminar pedidos a un servicio finalizado.");
+            throw new ServicioException("No se pueden eliminar pedidos a un servicio finalizado.");
         }
         pedidos.remove(pedido);
         montoTotal -= pedido.calcularTotal();
@@ -53,9 +54,9 @@ public class Servicio {
         }
     }
     // Finaliza el servicio y aplica beneficios
-    public void finalizar() {
+    public void finalizar() throws ServicioException {
         if (!"Confirmado".equals(estado)) {
-            throw new IllegalStateException("El servicio debe estar confirmado para finalizar.");
+            throw new ServicioException("El servicio debe estar confirmado para finalizar.");
         }
         aplicarBeneficiosCliente();
         estado = "Finalizado";
