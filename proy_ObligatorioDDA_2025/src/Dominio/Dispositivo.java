@@ -40,9 +40,9 @@ public class Dispositivo {
     }
 
     public void setServicioActivo(Servicio servicio) throws DispositivoException {
-         if (this.servicioActivo != null) {
+        /* if (this.servicioActivo != null) {
             throw new DispositivoException("Dispositivo ya ocupado");
-        }
+        }*/
         this.servicioActivo = servicio;
     }
     

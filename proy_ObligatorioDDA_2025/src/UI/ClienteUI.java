@@ -74,7 +74,11 @@ public class ClienteUI extends javax.swing.JFrame {
             if(!usuario.isBlank() && !contrasena.isBlank()){
                 servicioActual = login(usuario, contrasena);          
                 usuarioLogueadoFlag.setVisible(true);
+            }else{
+                cerrarSesion();
+                throw new UsuarioException("Revise las credenciales ingresadas");
             }
+            
             
         } catch(UsuarioException e){
             JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
@@ -113,8 +117,8 @@ public class ClienteUI extends javax.swing.JFrame {
         lItems = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         lCategorias = new javax.swing.JList<>();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnConfirmarPedidos = new javax.swing.JButton();
+        btnFinalizarServicio = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         tablaPedidos = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
@@ -261,17 +265,17 @@ public class ClienteUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jButton4.setText("Confirmar Pedidos");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        btnConfirmarPedidos.setText("Confirmar Pedidos");
+        btnConfirmarPedidos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                btnConfirmarPedidosActionPerformed(evt);
             }
         });
 
-        jButton5.setText("Finalizar Servicio");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        btnFinalizarServicio.setText("Finalizar Servicio");
+        btnFinalizarServicio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                btnFinalizarServicioActionPerformed(evt);
             }
         });
 
@@ -313,9 +317,9 @@ public class ClienteUI extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(21, 21, 21)
-                                .addComponent(jButton4)
+                                .addComponent(btnConfirmarPedidos)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton5))
+                                .addComponent(btnFinalizarServicio))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(29, 29, 29)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -352,8 +356,8 @@ public class ClienteUI extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton5))
+                    .addComponent(btnConfirmarPedidos)
+                    .addComponent(btnFinalizarServicio))
                 .addGap(21, 21, 21)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(149, Short.MAX_VALUE))
@@ -376,13 +380,13 @@ public class ClienteUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jBtnLoginActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
+    private void btnConfirmarPedidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarPedidosActionPerformed
+        confimarPedidos();
+    }//GEN-LAST:event_btnConfirmarPedidosActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
+    private void btnFinalizarServicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarServicioActionPerformed
+        finalizarServicio();
+    }//GEN-LAST:event_btnFinalizarServicioActionPerformed
 
     private void btnAgregarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPedidoActionPerformed
         registrarPedido();
@@ -395,10 +399,10 @@ public class ClienteUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarPedido;
+    private javax.swing.JButton btnConfirmarPedidos;
     private javax.swing.JButton btnEliminarPedido;
+    private javax.swing.JButton btnFinalizarServicio;
     private javax.swing.JButton jBtnLogin;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JPasswordField jContrasena;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JDesktopPane jDesktopPane2;
@@ -552,6 +556,46 @@ public class ClienteUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
         }
 
+    }
+
+    private void confimarPedidos() {
+        
+        try{
+            servicioActual.confirmar();
+            cargarPedidosEnTabla(servicioActual.getPedidos());
+        }
+        catch (SinStockException ex){
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
+        }       
+        
+    }
+    
+    private void finalizarServicio() {
+        
+        try{
+            servicioActual.finalizar();
+            cerrarSesion();
+            
+            cargarPedidosEnTabla(new ArrayList<Pedido>());
+        }
+        catch (ServicioException ex){
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "BOOM!", JOptionPane.ERROR_MESSAGE);
+        }       
+        
+    }
+
+    private void cerrarSesion() {
+        try{
+            usuarioLogueadoFlag.setVisible(false);
+            jUsuario.setText("");
+            jContrasena.setText("");
+            
+            servicioActual = null;
+            dispositivo.setServicioActivo(servicioActual);
+        }
+        catch (DispositivoException ex){
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "BOOM!", JOptionPane.ERROR_MESSAGE);
+        } 
     }
 
 }

@@ -19,7 +19,7 @@ public class Servicio {
 
     // Agrega un pedido al servicio
     public void agregarPedido(Pedido pedido) throws ServicioException {
-        if (!"En curso".equals(estado)) {
+        if (pedido.getEstado() == "En curso") {
             throw new ServicioException("No se pueden agregar pedidos a un servicio finalizado.");
         }
         pedidos.add(pedido);
@@ -29,8 +29,8 @@ public class Servicio {
     // Eliminar pedido del servicio 
     
     public void eliminarPedido(Pedido pedido) throws ServicioException{
-        if (!"En curso".equals(estado)) {
-            throw new ServicioException("No se pueden eliminar pedidos a un servicio finalizado.");
+        if (pedido.getEstado() == "Confirmado") {
+            throw new ServicioException("No se pueden eliminar pedidos a un servicio confirmado.");
         }
         pedidos.remove(pedido);
         montoTotal -= pedido.calcularTotal();
@@ -41,25 +41,30 @@ public class Servicio {
     // Confirma el servicio y valida el stock
     public void confirmar() throws SinStockException {
         validarStockPedidos();
-        estado = "Confirmado";
+        for(Pedido p : pedidos){
+            if(p.getEstado() == "No confirmado")
+                p.setEstado("Confirmado");
+        }
         //asignarUnidadesProcesadoras();
     }
 
     private void validarStockPedidos() throws SinStockException {
         for (Pedido pedido : pedidos) {
-                if (!pedido.getItem().tieneStockDisponible()) {
-                    throw new SinStockException("Stock insuficiente para: " + pedido.getItem().getNombre());
-                }
+            if (!pedido.getItem().tieneStockDisponible()) {
+                throw new SinStockException("Stock insuficiente para: " + pedido.getItem().getNombre());
+            }
             
         }
     }
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {
-        if (!"Confirmado".equals(estado)) {
-            throw new ServicioException("El servicio debe estar confirmado para finalizar.");
+        for (Pedido p : pedidos) {
+            if (p.getEstado() != "Confirmado") {
+                throw new ServicioException("El servicio debe estar entregado para finalizar.");
+            }
         }
         aplicarBeneficiosCliente();
-        estado = "Finalizado";
+        //estado = "Finalizado";
     }
 
     private void aplicarBeneficiosCliente() {
