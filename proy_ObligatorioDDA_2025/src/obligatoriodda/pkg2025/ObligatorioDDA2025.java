@@ -77,10 +77,10 @@ public class ObligatorioDDA2025 {
         // ======================
         // 6. Insumos (ampliados para cafés y aguas)
         // ======================
-        Insumo pan = new Insumo("Pan", 100, 10);
-        Insumo jamon = new Insumo("Jamón", 80, 5);
-        Insumo queso = new Insumo("Queso", 60, 5);
-        Insumo tomate = new Insumo("Tomate", 50, 5);
+        Insumo pan = new Insumo("Pan", 4, 2);
+        Insumo jamon = new Insumo("Jamón", 2, 1);
+        Insumo queso = new Insumo("Queso", 2, 1);
+        Insumo tomate = new Insumo("Tomate", 2, 1);
         Insumo cafeGrano = new Insumo("Café en grano", 200, 100); // Nuevo insumo
         Insumo agua = new Insumo("Agua", 500, 300);              // Nuevo insumo
 

@@ -44,6 +44,9 @@ public class Servicio {
         for(Pedido p : pedidos){
             if(p.getEstado() == "No confirmado")
                 p.setEstado("Confirmado");
+                for(Ingrediente i : p.getItem().getIngredientes()){
+                    i.getInsumo().consumirStock(i.getCantidad());
+                }
         }
         //asignarUnidadesProcesadoras();
     }

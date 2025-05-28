@@ -9,7 +9,6 @@ import Dominio.Excepciones.UsuarioException;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
 import Dominio.Gestor;
-import Dominio.Ingreso;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
