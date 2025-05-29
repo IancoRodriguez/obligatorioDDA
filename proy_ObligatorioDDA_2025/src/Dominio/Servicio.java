@@ -92,7 +92,7 @@ public class Servicio {
     public List<Pedido> getPedidos() {
         return pedidos;
     }
-
+    
     public void setPedidos(List<Pedido> pedidos) {
         this.pedidos = pedidos;
     }
@@ -113,6 +113,17 @@ public class Servicio {
         this.montoTotal = montoTotal;
     }
     
+    public List<Item> getItemsPorUP(UnidadProcesadora UP){
+        
+        List<Item> itemsDeLaUP = new ArrayList();
+        for(Pedido p : pedidos){
+            if(p.getItem().getUnidadProcesadora().equals(UP) ){
+                itemsDeLaUP.add(p.getItem());
+            }
+        }
+        
+        return itemsDeLaUP;
+    }
     
     
     

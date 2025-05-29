@@ -1,20 +1,16 @@
 package Dominio;
 
 import Dominio.Excepciones.StockException;
+import java.time.LocalDate;
 
 public class Pedido {
     private String comentario;
     private Gestor gestor;
     private Item item;
     private String estado;
+    private LocalDate fechaHora;
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+    
 
 
     public Pedido(Item item, String comentario) throws StockException {
@@ -22,6 +18,19 @@ public class Pedido {
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
         this.estado = "No confirmado";
         this.validar() ;
+        this.fechaHora = LocalDate.now();
+    }
+    
+    public LocalDate getFechaHora() {
+        return fechaHora;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
     

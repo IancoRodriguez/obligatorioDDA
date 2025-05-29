@@ -32,6 +32,10 @@ public class Gestor extends Usuario {
         return UP.getNombre();
     }
     
+    public UnidadProcesadora getUP() {
+        return UP;
+    }
+    
     public List<Pedido> getPedidosTomados() {
         return pedidosTomados;
     }

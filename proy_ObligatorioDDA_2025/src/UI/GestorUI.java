@@ -5,10 +5,16 @@
 package UI;
 
 import Dominio.Gestor;
+import Dominio.Item;
 import Dominio.Pedido;
+import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
+import UI.Renderizadores.RenderizadorListas;
+import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 
 public class GestorUI extends javax.swing.JFrame {
@@ -22,7 +28,9 @@ public class GestorUI extends javax.swing.JFrame {
         
         initComponents();
         
+        
         cargarNombreUP(gestor);
+        cargarPedidos();
         
         
     }
@@ -71,7 +79,7 @@ public class GestorUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jListadoItems = new javax.swing.JList<>();
+        jListadoPedidos = new javax.swing.JList<>();
         jButton1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -83,12 +91,7 @@ public class GestorUI extends javax.swing.JFrame {
 
         jLabel1.setText("Gestor y unidad Procesadora");
 
-        jListadoItems.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jListadoItems);
+        jScrollPane1.setViewportView(jListadoPedidos);
 
         jButton1.setText("TomarPedido");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -176,7 +179,42 @@ public class GestorUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-   
+   private void cargarPedidos() {
+        try {
+            // Obtener items de la fachada 
+            DefaultListModel<Object> modelo = new DefaultListModel<>();
+            List<Servicio> servicios = new ArrayList();
+            
+            for (Servicio s : f.getServiciosDeLaUP(this.gestor.getUP())) {
+                servicios.add(s);
+            }
+            
+            for(Servicio s : servicios){
+                modelo.addElement(s);
+            }
+            
+            
+            
+            
+
+            //Configurar modelo y renderizador 
+            jListadoPedidos.setModel(modelo);        
+
+        
+            jListadoPedidos.setCellRenderer(new RenderizadorListas<>(
+                    servicio -> servicio.toString()
+            ));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error al cargar items: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+        }
+   }
+
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -184,7 +222,7 @@ public class GestorUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JList<String> jListadoItems;
+    private javax.swing.JList<Object> jListadoPedidos;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;

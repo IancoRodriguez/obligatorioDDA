@@ -10,6 +10,7 @@ import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Pedido;
 import Dominio.Servicio;
+import Dominio.UnidadProcesadora;
 import java.util.List;
 
 public class Fachada {
@@ -108,6 +109,11 @@ public class Fachada {
         sPedidos.finalizarPedido(p);
     }
     */
+
+    public List<Servicio> getServiciosDeLaUP(UnidadProcesadora up) {
+        return sDispositivos.getServiciosDeLaUP(up);
+        
+    }
      
     
     

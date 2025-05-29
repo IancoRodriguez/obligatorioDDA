@@ -622,10 +622,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     @Override
     public void notificar(Observable origen, Object evento) {
         if (origen == categoriaSeleccionada) {
-            System.out.println("Evento recibido: " + evento + " | Origen: " + origen);
+            //System.out.println("Evento recibido: " + evento + " | Origen: " + origen);
             // Actualizar UI inmediatamente
             SwingUtilities.invokeLater(() -> {
-                System.out.println("Ejecutando cargarItems() desde EDT");
+                //System.out.println("Ejecutando cargarItems() desde EDT");
                 cargarItems();
         
             });
