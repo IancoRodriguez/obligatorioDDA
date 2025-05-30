@@ -3,7 +3,7 @@ package Dominio;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Categoria extends Observable implements Observador{
+public class Categoria {
 
     private String nombre;
     private List<Item> items;
@@ -31,7 +31,6 @@ public class Categoria extends Observable implements Observador{
             throw new IllegalArgumentException("El ítem no puede ser nulo");
         }
         items.add(item);
-        item.subscribir(this);;
     }
 
     // Eliminar un ítem
@@ -39,24 +38,7 @@ public class Categoria extends Observable implements Observador{
         items.remove(item);
     }
     
-    
-    @Override
-    public void notificar(Observable origen, Object evento) {
-        // Notificar inmediatamente a la vista
-        notificar(Evento.CATEGORIA_ACTUALIZADA);
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+ 
     
 
     // Representación legible

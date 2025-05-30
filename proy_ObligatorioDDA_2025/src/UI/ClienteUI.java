@@ -17,6 +17,7 @@ import Dominio.Usuario;
 import Servicios.Fachada;
 import Dominio.Observable;
 import Dominio.Observador;
+import Servicios.Fachada;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,6 +26,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +42,10 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ *
+ * @author ianco
+ */
 public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     private Fachada f;
@@ -61,12 +67,12 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         cargarItems();
         setVisible(true);
 
-//        // Listener para cargar la lista de items; 
-//        lCategorias.addListSelectionListener(e -> {
-//            if (!e.getValueIsAdjusting()) {
-//                cargarItems();
-//            }
-//        });
+        // Listener para cargar la lista de items; 
+        lCategorias.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                cargarItems();
+            }
+        });
     }
 
     private void ingresar() throws UsuarioException, DispositivoException {
@@ -444,12 +450,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                     categoria -> categoria.getNombre()
             ));
 
-            lCategorias.addListSelectionListener(e -> {
-                if (!e.getValueIsAdjusting()) {
-                    seleccionarCategoria(lCategorias.getSelectedValue());
-                }
-            });
-
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "Error al cargar categorías: " + e.getMessage(),
@@ -458,24 +458,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             );
 
         }
-    }
-
-    private void seleccionarCategoria(Categoria nuevaCategoria) {
-        // 1. Desuscribir de la categoría anterior
-        if (categoriaSeleccionada != null) {
-            categoriaSeleccionada.desuscribir(this);
-        }
-
-        // 2. Actualizar referencia
-        categoriaSeleccionada = nuevaCategoria;
-
-        // 3. Suscribir a la nueva categoría
-        if (categoriaSeleccionada != null) {
-            categoriaSeleccionada.subscribir(this);
-        }
-
-        // 4. Cargar items de la nueva categoría
-        cargarItems();
     }
 
     private void cargarItems() {
@@ -487,6 +469,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
             if (c != null) {
                 for (Item item : c.getItems()) {
+                    // Suscribirse al item para recibir cambios
+                    item.desuscribir(this);
+                    item.subscribir(this);
+
                     if (item.tieneStockDisponible()) {
                         modelo.addElement(item);
                     }
@@ -621,14 +607,16 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     @Override
     public void notificar(Observable origen, Object evento) {
-        if (origen == categoriaSeleccionada) {
-            //System.out.println("Evento recibido: " + evento + " | Origen: " + origen);
-            // Actualizar UI inmediatamente
-            SwingUtilities.invokeLater(() -> {
-                //System.out.println("Ejecutando cargarItems() desde EDT");
-                cargarItems();
-        
-            });
+        if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
+            DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
+            Item item = (Item) origen;
+            if (item.isDisponible()) {
+                if (!model.contains(item)) {
+                    model.addElement(item);
+                }
+            } else {
+                model.removeElement(item);
+            }
         }
     }
 

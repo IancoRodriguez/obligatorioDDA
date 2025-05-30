@@ -40,6 +40,7 @@ public class Servicio {
 
     // Confirma el servicio y valida el stock
     public void confirmar() throws StockException {
+        try{
         validarStockPedidos();
         for(Pedido p : pedidos){
             if(p.getEstado() == "No confirmado")
@@ -48,6 +49,12 @@ public class Servicio {
                     i.getInsumo().consumirStock(i.getCantidad());
                 }
         }
+        
+        }catch(StockException e){
+            System.out.println(e.getMessage());
+        }
+        
+        
         //asignarUnidadesProcesadoras();
     }
 

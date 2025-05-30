@@ -10,6 +10,7 @@ public class Item extends Observable implements Observador {
     private UnidadProcesadora unidadProcesadora;
     private List<Ingrediente> ingredientes;
     private Categoria categoria;
+    private boolean disponible = true;
 
     public Item(String Nombre, float precioUnitario, UnidadProcesadora unidadProcesadora, Categoria categoria) {
 
@@ -69,9 +70,9 @@ public class Item extends Observable implements Observador {
 
     public void agregarIngrediente(Ingrediente ingrediente) {
         ingredientes.add(ingrediente);
-        
-        
-        ingrediente.subscribir(this);
+
+        // Subscribir este Item al Insumo para recibir cambios de stock
+        ingrediente.getInsumo().subscribir(this);
 
     }
 
@@ -88,28 +89,30 @@ public class Item extends Observable implements Observador {
         return this.categoria;
     }
 
-    
-    @Override
-    public void notificar(Observable origen, Object evento) {
-        // Notificar inmediatamente a la categoría
-        notificar(Evento.ITEM_ACTUALIZADO);
+    public boolean isDisponible() {
+        return disponible;
     }
-    
-    public boolean estaDisponible() {
-        for (Ingrediente i : ingredientes) {
-            if (!i.tieneStockSuficiente()) return false;
-        }
-        return true;
-    }
-    
-    
 
-    private boolean usaInsumo(Insumo insumo) {
-        for (Ingrediente ingrediente : this.ingredientes) {
-            if (ingrediente.getInsumo().equals(insumo)) {
-                return true;
+    public void verificarDisponibilidad() {
+        boolean antes = disponible;
+        disponible = true;
+        for (Ingrediente ing : ingredientes) {
+            if (!ing.tieneStockSuficiente()) {
+                disponible = false;
+                break;
             }
         }
-        return false;
+        if (disponible != antes) {
+            notificar(Evento.ITEM_ACTUALIZADO);
+        }
+    }
+
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        // Si el stock de un insumo cambia, re-verificamos disponibilidad
+        if (evento == Evento.STOCK_ACTUALIZADO) {
+            verificarDisponibilidad();
+        }
+
     }
 }
