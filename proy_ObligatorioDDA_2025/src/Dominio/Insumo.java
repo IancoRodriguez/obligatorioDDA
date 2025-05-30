@@ -2,7 +2,7 @@ package Dominio;
 
 import Dominio.Excepciones.StockException;
 
-public class Insumo extends Observable {
+public class Insumo extends Observable{
 
     private String nombre;
     private int stock;
@@ -58,16 +58,11 @@ public class Insumo extends Observable {
         if (cantidad < 0) {
             throw new IllegalArgumentException("La cantidad no puede ser negativa");
         }
-        int stockAnterior = this.stock;
-        this.stock += cantidad;
-
-        // Notificar siempre el cambio
-        notificar(Evento.STOCK_ACTUALIZADO);
-
-        // Notificación adicional si se recupera del mínimo
-        if (stockAnterior <= stockMinimo && stock > stockMinimo) {
-            notificar(Evento.STOCK_ACTUALIZADO);
-        }
+        stock += cantidad;
+        notificar(Evento.STOCK_RECUPERADO);
+        
+        
+       
 
     }
 
@@ -76,21 +71,16 @@ public class Insumo extends Observable {
         if (cantidad < 0) {
             throw new StockException("La cantidad no puede ser negativa");
         }
-        if (this.stock - cantidad < this.stockMinimo) {
-            notificar(Evento.STOCK_ACTUALIZADO);
-            throw new StockException("No hay suficiente stock (mínimo requerido: " + stockMinimo + ")");
-        }
-
-        int stockAnterior = this.stock;
-        this.stock -= cantidad;
-
-        // Notificar siempre el cambio
+        stock -= cantidad;
+        // Notificar siempre que cambia stock
         notificar(Evento.STOCK_ACTUALIZADO);
-
-        // Notificación adicional si cruza el umbral mínimo
-        if (stockAnterior > stockMinimo && stock <= stockMinimo) {
+        // Si cae por debajo del mínimo, podrías notificar STOCK_INSUFICIENTE
+        if (stock < stockMinimo) {
             notificar(Evento.STOCK_INSUFICIENTE);
         }
+       
+
+       
     }
 
     
