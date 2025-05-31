@@ -35,7 +35,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
@@ -89,10 +88,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 throw new UsuarioException("Revise las credenciales ingresadas");
             }
 
-        } catch (UsuarioException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
-        } catch (DispositivoException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+        } catch (UsuarioException ex) {
+            msgError.setText(ex.getMessage());
+        } catch (DispositivoException ex) {
+            msgError.setText(ex.getMessage());
         }
 
     }
@@ -107,6 +106,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
         jScrollPane4 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jSeparator3 = new javax.swing.JSeparator();
         jSeparator1 = new javax.swing.JSeparator();
         jUsuario = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
@@ -132,6 +132,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         tablaPedidos = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
         usuarioLogueadoFlag = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        msgError = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -205,7 +207,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                                 .addComponent(btnAgregarPedido)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnEliminarPedido)))
-                        .addGap(0, 142, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jDesktopPane1Layout.setVerticalGroup(
@@ -307,21 +309,27 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         usuarioLogueadoFlag.setForeground(new java.awt.Color(0, 102, 0));
         usuarioLogueadoFlag.setText("Usuario Logueado");
 
+        jLabel7.setText("Mensajes del sistema: ");
+
+        msgError.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
+        msgError.setForeground(new java.awt.Color(255, 51, 51));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jScrollPane5)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jDesktopPane2)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jDesktopPane2)))
+                                .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -341,10 +349,14 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                                 .addGap(18, 18, 18)
                                 .addComponent(jBtnLogin)
                                 .addGap(27, 27, 27)
-                                .addComponent(usuarioLogueadoFlag)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(usuarioLogueadoFlag))
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 210, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(jScrollPane5)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -369,7 +381,11 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                     .addComponent(btnFinalizarServicio))
                 .addGap(21, 21, 21)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(149, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(msgError))
+                .addGap(19, 19, 19))
         );
 
         pack();
@@ -383,9 +399,9 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         try {
             ingresar();
         } catch (UsuarioException ex) {
-            Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
+            msgError.setText(ex.getMessage());
         } catch (DispositivoException ex) {
-            Logger.getLogger(ClienteUI.class.getName()).log(Level.SEVERE, null, ex);
+            msgError.setText(ex.getMessage());
         }
     }//GEN-LAST:event_jBtnLoginActionPerformed
 
@@ -421,16 +437,19 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator3;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jUsuario;
     private javax.swing.JList<Categoria> lCategorias;
     private javax.swing.JList<Item> lItems;
+    private javax.swing.JLabel msgError;
     private javax.swing.JTextArea tComentario;
     private javax.swing.JTable tablaPedidos;
     private javax.swing.JLabel usuarioLogueadoFlag;
@@ -450,13 +469,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                     categoria -> categoria.getNombre()
             ));
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar categorías: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-
+        } catch (Exception ex) {
+            msgError.setText(ex.getMessage());
         }
     }
 
@@ -484,13 +498,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             lItems.setCellRenderer(new RenderizadorListas<>(
                     item -> item.getNombre() + " - $" + item.getPrecioUnitario()
             ));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error al cargar items: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-
+        } catch (Exception ex) {
+            msgError.setText(ex.getMessage());
         }
 
     }
@@ -505,16 +514,27 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             Item item = lItems.getSelectedValue();
             String comentario = tComentario.getText();
             Pedido nuevoPedido;
-
-            nuevoPedido = new Pedido(item, comentario);
-
-            servicioActual.agregarPedido(nuevoPedido);
-            cargarPedidosEnTabla(servicioActual.getPedidos());
+            
+            if(item!= null){
+                nuevoPedido = new Pedido(item, comentario);
+                servicioActual.agregarPedido(nuevoPedido);
+                cargarPedidosEnTabla(servicioActual.getPedidos());
+            }else
+                throw new PedidoException("Debe seleccionar un item");
+            
+            
+        
+            
 
         } catch (StockException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
         } catch (ServicioException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
+        }catch (PedidoException ex){
+            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
         }
 
     }
@@ -556,14 +576,21 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             if (servicioActual == null) {
                 throw new ServicioException("Servicio no inicializado");
             }
-
-            Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
-
-            servicioActual.eliminarPedido(quitarPedido);
-            cargarPedidosEnTabla(servicioActual.getPedidos());
+            
+            if(tablaPedidos.getSelectedRow() != -1 ){
+                Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
+                servicioActual.eliminarPedido(quitarPedido);
+                cargarPedidosEnTabla(servicioActual.getPedidos());
+            }else{
+                throw new PedidoException("Debe seleccionar un item a eliminar.");
+            }
+            
+            
 
         } catch (ServicioException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
+        }catch (PedidoException ex){
+            msgError.setText(ex.getMessage());
         }
 
     }
@@ -574,7 +601,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             servicioActual.confirmar();
             cargarPedidosEnTabla(servicioActual.getPedidos());
         } catch (StockException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Problema con el stock", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
         }
 
     }
@@ -587,7 +614,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
             cargarPedidosEnTabla(new ArrayList<Pedido>());
         } catch (ServicioException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "BOOM!", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
         }
 
     }
@@ -601,7 +628,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             servicioActual = null;
             dispositivo.setServicioActivo(servicioActual);
         } catch (DispositivoException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "BOOM!", JOptionPane.ERROR_MESSAGE);
+            msgError.setText(ex.getMessage());
         }
     }
 
