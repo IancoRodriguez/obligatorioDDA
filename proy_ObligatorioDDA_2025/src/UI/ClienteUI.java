@@ -582,7 +582,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 servicioActual.eliminarPedido(quitarPedido);
                 cargarPedidosEnTabla(servicioActual.getPedidos());
             }else{
-                throw new PedidoException("Debe seleccionar un item a eliminar.");
+                throw new PedidoException("Debe seleccionar un item a eliminar");
             }
             
             
@@ -646,5 +646,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             }
         }
     }
-
+    
+    
 }
