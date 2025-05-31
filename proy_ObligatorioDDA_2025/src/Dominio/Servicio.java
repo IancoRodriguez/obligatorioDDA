@@ -133,6 +133,25 @@ public class Servicio {
     }
     
     
+    public List<String> mostrarPedidosPorUP(UnidadProcesadora UP) {
+        
+        List<String> res = new ArrayList();
+        
+        for (Pedido pedido : pedidos) {
+            StringBuilder str = new StringBuilder();
+            if(pedido.getItem().getUnidadProcesadora().equals(UP)){
+                str.append(pedido.getItem().getNombre() + " - ");
+                str.append("Cliente: " + this.cliente.getNombreCompleto()+ " - ");
+                str.append(pedido.getFechaHora());                
+            
+                res.add(str.toString());
+            }
+        }
+        
+        
+        return res;
+}
+    
     
     
     

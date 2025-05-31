@@ -48,16 +48,13 @@ public class ServicioDispositivos {
         return dispositivos;
     }
 
-    public List<Servicio> getServiciosDeLaUP(UnidadProcesadora up) {
+    public List<Servicio> getServicios() {
         
         List<Servicio> servicios = new ArrayList();
         
-        
         for (Dispositivo d : dispositivos) {
             if(d.getServicioActivo() != null ){
-                if(!d.getServicioActivo().getItemsPorUP(up).isEmpty()){
-                    servicios.add(d.getServicioActivo());
-                }
+                servicios.add(d.getServicioActivo());
             }
         }
         return servicios;

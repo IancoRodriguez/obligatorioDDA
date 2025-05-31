@@ -1,14 +1,15 @@
 package Dominio;
 
 import Dominio.Excepciones.StockException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Pedido {
     private String comentario;
     private Gestor gestor;
     private Item item;
     private String estado;
-    private LocalDate fechaHora;
+    private String fechaHora;
 
     
 
@@ -17,11 +18,12 @@ public class Pedido {
         this.item = item;
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
         this.estado = "No confirmado";
+        this.fechaHora = fechaHora();
         this.validar() ;
-        this.fechaHora = LocalDate.now();
+        
     }
     
-    public LocalDate getFechaHora() {
+    public String getFechaHora() {
         return fechaHora;
     }
 
@@ -74,7 +76,15 @@ public class Pedido {
             throw new StockException("Sin stock pa");
         }
     }
+    
+    private String fechaHora(){
+        LocalDateTime fechaHora = LocalDateTime.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+        String fechaHoraFormateada = fechaHora.format(formato);
+        
+        return fechaHoraFormateada;
+    }
         
 
 }

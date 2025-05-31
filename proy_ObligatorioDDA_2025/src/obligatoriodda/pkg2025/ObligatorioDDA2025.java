@@ -57,8 +57,8 @@ public class ObligatorioDDA2025 {
         TipoCliente deLaCasa = new DeLaCasa("deLaCasa");
 
         // Cliente
-        Cliente usuario1 = new Cliente("diego", "123", "444", comun);
-        Cliente usuario2 = new Cliente("maria", "321", "555", frecuente);
+        Cliente usuario1 = new Cliente("Bruno", "123", "444", comun);
+        Cliente usuario2 = new Cliente("Ricardo", "321", "555", frecuente);
         f.agregar(usuario1);
         f.agregar(usuario2);
 

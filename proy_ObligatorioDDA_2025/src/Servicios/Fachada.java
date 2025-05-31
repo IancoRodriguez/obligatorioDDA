@@ -110,8 +110,8 @@ public class Fachada {
     }
     */
 
-    public List<Servicio> getServiciosDeLaUP(UnidadProcesadora up) {
-        return sDispositivos.getServiciosDeLaUP(up);
+    public List<Servicio> getServicios() {
+        return sDispositivos.getServicios();
         
     }
      

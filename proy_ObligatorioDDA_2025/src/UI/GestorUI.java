@@ -29,7 +29,7 @@ public class GestorUI extends javax.swing.JFrame {
         
         
         cargarNombreUP(gestor);
-        cargarPedidos();
+        cargarPedidosPendientesUP();
         
         
     }
@@ -41,12 +41,7 @@ public class GestorUI extends javax.swing.JFrame {
         jLabel2.setText(labelContent);       
     }          
     
-    public void cargarPedidosPendientesUP(){
-        List<Pedido> pedidosPendientes = f.getPedidosPendientes(this.gestor.getNombreUP());
         
-        // TODO: renderizalos en la vista
-    }
-    
     public void cargarPedidosTomadosPorGestor(Gestor g){
         
         List<Pedido> pedidosTomados = g.getPedidosTomados();
@@ -195,25 +190,23 @@ public class GestorUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-   private void cargarPedidos() {
+   private void cargarPedidosPendientesUP() {
         try {
             // Obtener items de la fachada 
-            DefaultListModel<Object> modelo = new DefaultListModel<>();
-            List<Servicio> servicios = new ArrayList();
+            DefaultListModel<String> modelo = new DefaultListModel<>();
             
-            for (Servicio s : f.getServiciosDeLaUP(this.gestor.getUP())) {
-                servicios.add(s);
-            }
-            
-            for(Servicio s : servicios){
-                modelo.addElement(s);
+            for(Servicio s : f.getServicios()){
+                for(String str : s.mostrarPedidosPorUP(gestor.getUP())){
+                    modelo.addElement(str);
+                }
+                
             }
 
             //Configurar modelo y renderizador 
             jListadoPedidos.setModel(modelo);        
         
             jListadoPedidos.setCellRenderer(new RenderizadorListas<>(
-                    servicio -> servicio.toString()
+                    servicio -> servicio
             ));
         } catch (Exception ex) {
             msgError.setText(ex.getMessage());
@@ -230,7 +223,7 @@ public class GestorUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JList<Object> jListadoPedidos;
+    private javax.swing.JList<String> jListadoPedidos;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
