@@ -35,7 +35,7 @@ public class GestorUI extends javax.swing.JFrame {
     }          
     
     public void cargarPedidosPendientesUP(){
-        List<Pedido> pedidosPendientes = f.getPedidosPendientes(this.gestor.getNombreUP());
+        List<Pedido> pedidosPendientes = f.getPedidosConfirmados(this.gestor.getNombreUP());
         
         // TODO: renderizalos en la vista
     }

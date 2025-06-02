@@ -12,47 +12,41 @@ import java.util.List;
  *
  * @author ianco
  */
-public class Confirmado implements EstadoPedido {
+public class Finalizado implements EstadoPedido{
     private Pedido pedido;
 
-    public Confirmado(Pedido pedido) {
+    public Finalizado(Pedido pedido) {
         this.pedido = pedido;
     }
 
     public void confirmar() {
-        System.out.println("Ya está confirmado.");
+        System.out.println("Ya finalizado. No se puede confirmar.");
     }
 
     public void desconfirmar() {
-        System.out.println("Pedido vuelto a sin confirmar.");
-        pedido.setEstado(new SinConfirmar(pedido));
+        System.out.println("No se puede desconfirmar un pedido finalizado.");
     }
 
     public void procesar() {
-        System.out.println("Pedido en procesamiento.");
-        pedido.setEstado(new Procesando(pedido));
+        System.out.println("Ya fue procesado.");
     }
 
     public void entregar() {
-        System.out.println("No se puede entregar sin procesar.");
+        System.out.println("Ya fue entregado.");
     }
 
     public void finalizar() {
-        System.out.println("No se puede finalizar sin entregar.");
+        System.out.println("Ya está finalizado.");
     }
 
     public void validarEliminacion() throws ServicioException {
-        
-        throw new ServicioException("No se puede eliminar un pedido confirmado.");
+        throw new ServicioException("No se puede eliminar un pedido finalizado.");
     }
 
   
+
     @Override
     public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        if (pedido.getGestor().getNombreUP().equals(nombreUP)) {
-            pedidos.add(pedido);
-        }
+        
     }
-
-    
 }

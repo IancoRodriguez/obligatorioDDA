@@ -1,5 +1,6 @@
 package Dominio;
 
+import Dominio.Estados.Confirmado;
 import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import java.util.ArrayList;
@@ -8,20 +9,15 @@ import java.util.List;
 public class Servicio {
     private Cliente cliente;
     private List<Pedido> pedidos;
-    private String estado; // "En curso", "Confirmado", "Finalizado"
     private double montoTotal;
 
     public Servicio(Cliente cliente) {
         this.cliente = cliente;
         this.pedidos = new ArrayList<>();
-        this.estado = "En curso";
     }
 
     // Agrega un pedido al servicio
     public void agregarPedido(Pedido pedido) throws ServicioException {
-        if (pedido.getEstado() == "En curso") {
-            throw new ServicioException("No se pueden agregar pedidos a un servicio finalizado.");
-        }
         pedidos.add(pedido);
         montoTotal += pedido.calcularTotal();
     }
@@ -29,9 +25,7 @@ public class Servicio {
     // Eliminar pedido del servicio 
     
     public void eliminarPedido(Pedido pedido) throws ServicioException{
-        if (pedido.getEstado() == "Confirmado") {
-            throw new ServicioException("No se pueden eliminar pedidos a un servicio confirmado.");
-        }
+        pedido.validarEliminacion();
         pedidos.remove(pedido);
         montoTotal -= pedido.calcularTotal();
     }
@@ -43,8 +37,7 @@ public class Servicio {
         try{
         validarStockPedidos();
         for(Pedido p : pedidos){
-            if(p.getEstado() == "No confirmado")
-                p.setEstado("Confirmado");
+            p.confirmar();
                 for(Ingrediente i : p.getItem().getIngredientes()){
                     i.getInsumo().consumirStock(i.getCantidad());
                 }
@@ -69,9 +62,7 @@ public class Servicio {
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {
         for (Pedido p : pedidos) {
-            if (p.getEstado() != "Confirmado") {
-                throw new ServicioException("El servicio debe estar entregado para finalizar.");
-            }
+            p.finalizar();
         }
         aplicarBeneficiosCliente();
         //estado = "Finalizado";
@@ -104,14 +95,7 @@ public class Servicio {
         this.pedidos = pedidos;
     }
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
+ 
     public double getMontoTotal() {
         return montoTotal;
     }
@@ -119,13 +103,7 @@ public class Servicio {
     public void setMontoTotal(double montoTotal) {
         this.montoTotal = montoTotal;
     }
-    
-    
-    
-    
-    
-    
-   
+
 }
 
 

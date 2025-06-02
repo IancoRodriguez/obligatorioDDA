@@ -12,29 +12,28 @@ import java.util.List;
  *
  * @author ianco
  */
-public class Confirmado implements EstadoPedido {
+public class Procesando implements EstadoPedido{
     private Pedido pedido;
 
-    public Confirmado(Pedido pedido) {
+    public Procesando(Pedido pedido) {
         this.pedido = pedido;
     }
 
     public void confirmar() {
-        System.out.println("Ya está confirmado.");
+        System.out.println("Ya fue confirmado.");
     }
 
     public void desconfirmar() {
-        System.out.println("Pedido vuelto a sin confirmar.");
-        pedido.setEstado(new SinConfirmar(pedido));
+        System.out.println("No se puede desconfirmar un pedido en procesamiento.");
     }
 
     public void procesar() {
-        System.out.println("Pedido en procesamiento.");
-        pedido.setEstado(new Procesando(pedido));
+        System.out.println("Ya está en procesamiento.");
     }
 
     public void entregar() {
-        System.out.println("No se puede entregar sin procesar.");
+        System.out.println("Pedido entregado.");
+        pedido.setEstado((EstadoPedido) new Entregado(pedido));
     }
 
     public void finalizar() {
@@ -42,17 +41,14 @@ public class Confirmado implements EstadoPedido {
     }
 
     public void validarEliminacion() throws ServicioException {
-        
-        throw new ServicioException("No se puede eliminar un pedido confirmado.");
+        throw new ServicioException("No se puede eliminar un pedido en procesamiento.");
     }
 
-  
     @Override
     public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        if (pedido.getGestor().getNombreUP().equals(nombreUP)) {
-            pedidos.add(pedido);
-        }
+        
     }
 
-    
+   
+
 }

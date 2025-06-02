@@ -6,6 +6,7 @@ package Servicios;
 
 import Dominio.Cliente;
 import Dominio.Dispositivo;
+import Dominio.Estados.Confirmado;
 import Dominio.Pedido;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,16 @@ public class ServicioDispositivos {
 
         return todosLosPedidos;
     }
+
+    public List<Pedido> getPedidosConfirmados(String nombreUP) {
+    List<Pedido> pedidosPendientes = new ArrayList<>();
+    
+    for (Pedido pedido : getTodosLosPedidos()) {
+        pedido.getEstado().agregarSiEsConfirmado(pedido, pedidosPendientes, nombreUP);
+    }
+    
+    return pedidosPendientes;
+}
 
     public boolean agregar(Dispositivo d) {
         dispositivos.add(d);

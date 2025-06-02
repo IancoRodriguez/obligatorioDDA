@@ -1,29 +1,31 @@
 package Dominio;
 
+import Dominio.Estados.EstadoPedido;
+import Dominio.Estados.SinConfirmar;
+import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 
 public class Pedido {
     private String comentario;
     private Gestor gestor;
     private Item item;
-    private String estado;
+    private EstadoPedido estado;
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-
+  
     public Pedido(Item item, String comentario) throws StockException {
         this.item = item;
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
-        this.estado = "No confirmado";
+        this.estado = new SinConfirmar(this);
         this.validar() ;
     }
 
+     public EstadoPedido getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoPedido estado) {
+        this.estado = estado;
+    }
     
     
     public String getComentario() {
@@ -66,6 +68,18 @@ public class Pedido {
         }
     }
 
+    
+    
+    
+    // Métodos delegados
+    public void confirmar()      { estado.confirmar(); }
+    public void desconfirmar()   { estado.desconfirmar(); }
+    public void procesar()       { estado.procesar(); }
+    public void entregar()       { estado.entregar(); }
+    public void finalizar()      { estado.finalizar(); }
+    public void validarEliminacion() throws ServicioException {estado.validarEliminacion();}
+
+    
         
 
 }
