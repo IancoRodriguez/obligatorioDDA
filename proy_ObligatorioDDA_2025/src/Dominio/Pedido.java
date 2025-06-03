@@ -12,7 +12,6 @@ public class Pedido {
     private Gestor gestor;
     private Item item;
     private EstadoPedido estado;
-    private String estado;
     private String fechaHora;
 
     
@@ -21,33 +20,26 @@ public class Pedido {
     public Pedido(Item item, String comentario) throws StockException {
         this.item = item;
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
-        this.estado = "No confirmado";
         this.fechaHora = fechaHora();
         this.validar() ;
+        this.estado = new SinConfirmar(this);
         
     }
     
     public String getFechaHora() {
         return fechaHora;
+    }      
+   
+    private String fechaHora(){
+        LocalDateTime fechaHora = LocalDateTime.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        String fechaHoraFormateada = fechaHora.format(formato);
+        
+        return fechaHoraFormateada;
     }
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-  
-    public Pedido(Item item, String comentario) throws StockException {
-        this.item = item;
-        this.comentario = comentario != null ? comentario : ""; // Comentario opcional
-        this.estado = new SinConfirmar(this);
-        this.validar() ;
-    }
-
-     public EstadoPedido getEstado() {
+    public EstadoPedido getEstado() {
         return estado;
     }
 
@@ -109,14 +101,7 @@ public class Pedido {
 
     
     
-    private String fechaHora(){
-        LocalDateTime fechaHora = LocalDateTime.now();
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-        String fechaHoraFormateada = fechaHora.format(formato);
-        
-        return fechaHoraFormateada;
-    }
+    
         
 
 }

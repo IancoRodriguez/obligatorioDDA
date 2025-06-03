@@ -89,7 +89,7 @@ public class Fachada {
     public List<Pedido> getPedidosConfirmados(String nombreUP) {
         return sDispositivos.getPedidosConfirmados(nombreUP);
     }
-    */
+    
 
     public List<Servicio> getServicios() {
         return sDispositivos.getServicios();

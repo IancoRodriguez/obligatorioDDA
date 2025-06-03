@@ -38,9 +38,9 @@ public class Servicio {
         validarStockPedidos();
         for(Pedido p : pedidos){
             p.confirmar();
-                for(Ingrediente i : p.getItem().getIngredientes()){
-                    i.getInsumo().consumirStock(i.getCantidad());
-                }
+            for(Ingrediente i : p.getItem().getIngredientes()){
+                i.getInsumo().consumirStock(i.getCantidad());
+            }
         }
         
         }catch(StockException e){
