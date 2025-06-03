@@ -41,7 +41,12 @@ public class GestorUI extends javax.swing.JFrame {
         jLabel2.setText(labelContent);       
     }          
     
+    public void cargarPedidosPendientesUP(){
+        List<Pedido> pedidosPendientes = f.getPedidosConfirmados(this.gestor.getNombreUP());
         
+        // TODO: renderizalos en la vista
+    }
+    
     public void cargarPedidosTomadosPorGestor(Gestor g){
         
         List<Pedido> pedidosTomados = g.getPedidosTomados();

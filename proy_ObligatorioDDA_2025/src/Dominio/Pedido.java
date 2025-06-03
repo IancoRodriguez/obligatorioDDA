@@ -1,5 +1,8 @@
 package Dominio;
 
+import Dominio.Estados.EstadoPedido;
+import Dominio.Estados.SinConfirmar;
+import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,6 +11,7 @@ public class Pedido {
     private String comentario;
     private Gestor gestor;
     private Item item;
+    private EstadoPedido estado;
     private String estado;
     private String fechaHora;
 
@@ -35,6 +39,21 @@ public class Pedido {
         this.estado = estado;
     }
 
+  
+    public Pedido(Item item, String comentario) throws StockException {
+        this.item = item;
+        this.comentario = comentario != null ? comentario : ""; // Comentario opcional
+        this.estado = new SinConfirmar(this);
+        this.validar() ;
+    }
+
+     public EstadoPedido getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoPedido estado) {
+        this.estado = estado;
+    }
     
     
     public String getComentario() {
@@ -76,6 +95,19 @@ public class Pedido {
             throw new StockException("Sin stock pa");
         }
     }
+
+    
+    
+    
+    // Métodos delegados
+    public void confirmar()      { estado.confirmar(); }
+    public void desconfirmar()   { estado.desconfirmar(); }
+    public void procesar()       { estado.procesar(); }
+    public void entregar()       { estado.entregar(); }
+    public void finalizar()      { estado.finalizar(); }
+    public void validarEliminacion() throws ServicioException {estado.validarEliminacion();}
+
+    
     
     private String fechaHora(){
         LocalDateTime fechaHora = LocalDateTime.now();

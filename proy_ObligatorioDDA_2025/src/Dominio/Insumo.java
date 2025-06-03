@@ -60,10 +60,6 @@ public class Insumo extends Observable{
         }
         stock += cantidad;
         notificar(Evento.STOCK_RECUPERADO);
-        
-        
-       
-
     }
 
     // Método para consumir stock (con validación de stock mínimo)
@@ -78,9 +74,7 @@ public class Insumo extends Observable{
         if (stock < stockMinimo) {
             notificar(Evento.STOCK_INSUFICIENTE);
         }
-       
-
-       
+ 
     }
 
     

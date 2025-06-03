@@ -483,8 +483,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
             if (c != null) {
                 for (Item item : c.getItems()) {
-                    // Suscribirse al item para recibir cambios
+                    //desuscribir para evitar duplicados 
                     item.desuscribir(this);
+                    
+                     // Suscribirse al item para recibir cambios
                     item.subscribir(this);
 
                     if (item.tieneStockDisponible()) {
