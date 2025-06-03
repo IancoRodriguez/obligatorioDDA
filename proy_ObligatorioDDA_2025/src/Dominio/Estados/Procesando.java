@@ -49,6 +49,13 @@ public class Procesando implements EstadoPedido{
         
     }
 
+    @Override
+    public String toString() {
+        return "Procesando";
+    }
+    
+    
+
    
 
 }

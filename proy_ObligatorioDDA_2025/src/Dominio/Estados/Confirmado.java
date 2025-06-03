@@ -52,7 +52,14 @@ public class Confirmado implements EstadoPedido {
         if (pedido.getGestor().getNombreUP().equals(nombreUP)) {
             pedidos.add(pedido);
         }
+    }   
+
+    @Override
+    public String toString() {
+        return "Confirmado";
     }
+    
+    
 
     
 }

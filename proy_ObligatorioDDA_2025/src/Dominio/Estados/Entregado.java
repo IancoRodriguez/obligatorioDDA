@@ -42,4 +42,11 @@ public class Entregado {
     public void validarEliminacion() throws ServicioException {
         throw new ServicioException("No se puede eliminar un pedido entregado.");
     }
+
+    @Override
+    public String toString() {
+        return "Entregado";
+    }
+    
+    
 }
