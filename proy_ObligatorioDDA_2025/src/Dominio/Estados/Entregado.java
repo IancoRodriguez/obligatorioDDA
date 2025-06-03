@@ -22,10 +22,6 @@ public class Entregado {
         System.out.println("Ya fue confirmado.");
     }
 
-    public void desconfirmar() {
-        System.out.println("No se puede desconfirmar un pedido entregado.");
-    }
-
     public void procesar() {
         System.out.println("Ya fue procesado.");
     }

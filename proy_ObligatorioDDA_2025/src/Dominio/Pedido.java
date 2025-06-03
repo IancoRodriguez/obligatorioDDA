@@ -93,7 +93,6 @@ public class Pedido {
     
     // Métodos delegados
     public void confirmar()      { estado.confirmar(); }
-    public void desconfirmar()   { estado.desconfirmar(); }
     public void procesar()       { estado.procesar(); }
     public void entregar()       { estado.entregar(); }
     public void finalizar()      { estado.finalizar(); }

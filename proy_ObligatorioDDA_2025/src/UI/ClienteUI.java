@@ -15,8 +15,8 @@ import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
-import Dominio.Observable;
-import Dominio.Observador;
+import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import Servicios.Fachada;
 
 import java.awt.BorderLayout;
@@ -61,6 +61,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
         this.f = Fachada.getInstancia();
         this.menu = Menu.getInstancia();
+        
 
         cargarCategorias();
         cargarItems();
@@ -82,6 +83,11 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
             if (!usuario.isBlank() && !contrasena.isBlank()) {
                 servicioActual = login(usuario, contrasena);
+                
+                //Suscribir después de inicializar 
+                this.servicioActual.subscribir(this);
+                
+                
                 usuarioLogueadoFlag.setVisible(true);
             } else {
                 cerrarSesion();
@@ -134,6 +140,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         usuarioLogueadoFlag = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         msgError = new javax.swing.JLabel();
+        jlMontoTotal = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -314,6 +321,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         msgError.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
         msgError.setForeground(new java.awt.Color(255, 51, 51));
 
+        jlMontoTotal.setText("Monto total: ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -332,11 +341,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(21, 21, 21)
-                                .addComponent(btnConfirmarPedidos)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnFinalizarServicio))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(29, 29, 29)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -357,6 +361,14 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                                 .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 210, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(btnConfirmarPedidos)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnFinalizarServicio)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jlMontoTotal)
+                .addGap(84, 84, 84))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -378,7 +390,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnConfirmarPedidos)
-                    .addComponent(btnFinalizarServicio))
+                    .addComponent(btnFinalizarServicio)
+                    .addComponent(jlMontoTotal))
                 .addGap(21, 21, 21)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
@@ -447,6 +460,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jUsuario;
+    private javax.swing.JLabel jlMontoTotal;
     private javax.swing.JList<Categoria> lCategorias;
     private javax.swing.JList<Item> lItems;
     private javax.swing.JLabel msgError;
@@ -485,8 +499,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 for (Item item : c.getItems()) {
                     //desuscribir para evitar duplicados 
                     item.desuscribir(this);
-                    
-                     // Suscribirse al item para recibir cambios
+
+                    // Suscribirse al item para recibir cambios
                     item.subscribir(this);
 
                     if (item.tieneStockDisponible()) {
@@ -511,22 +525,19 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         try {
 
             if (servicioActual == null) {
-                throw new ServicioException("Servicio no inicializado");
+                throw new ServicioException("Debe identificarse antes de agregar un pedido");
             }
             Item item = lItems.getSelectedValue();
             String comentario = tComentario.getText();
             Pedido nuevoPedido;
-            
-            if(item!= null){
+
+            if (item != null) {
                 nuevoPedido = new Pedido(item, comentario);
                 servicioActual.agregarPedido(nuevoPedido);
                 cargarPedidosEnTabla(servicioActual.getPedidos());
-            }else
+            } else {
                 throw new PedidoException("Debe seleccionar un item");
-            
-            
-        
-            
+            }
 
         } catch (StockException ex) {
             //JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
@@ -534,7 +545,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         } catch (ServicioException ex) {
             //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
             msgError.setText(ex.getMessage());
-        }catch (PedidoException ex){
+        } catch (PedidoException ex) {
             //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
             msgError.setText(ex.getMessage());
         }
@@ -578,20 +589,18 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             if (servicioActual == null) {
                 throw new ServicioException("Servicio no inicializado");
             }
-            
-            if(tablaPedidos.getSelectedRow() != -1 ){
+
+            if (tablaPedidos.getSelectedRow() != -1) {
                 Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
                 servicioActual.eliminarPedido(quitarPedido);
                 cargarPedidosEnTabla(servicioActual.getPedidos());
-            }else{
+            } else {
                 throw new PedidoException("Debe seleccionar un item a eliminar");
             }
-            
-            
 
         } catch (ServicioException ex) {
             msgError.setText(ex.getMessage());
-        }catch (PedidoException ex){
+        } catch (PedidoException ex) {
             msgError.setText(ex.getMessage());
         }
 
@@ -600,17 +609,24 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     private void confimarPedidos() {
 
         try {
+            if (servicioActual == null) {
+                throw new ServicioException("Debe identificarse antes de confirmar pedidos");
+            }
             servicioActual.confirmar();
             cargarPedidosEnTabla(servicioActual.getPedidos());
         } catch (StockException ex) {
             msgError.setText(ex.getMessage());
+        } catch (ServicioException ex) {
+            msgError.setText(ex.getMessage());
         }
-
     }
 
     private void finalizarServicio() {
 
         try {
+            if (servicioActual == null) {
+                throw new ServicioException("Debe identificarse antes de confirmar  el \n" + "servicio");
+            }
             servicioActual.finalizar();
             cerrarSesion();
 
@@ -634,6 +650,11 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         }
     }
 
+    private void actualizarMonto() {
+        double monto = servicioActual.getMontoTotal();
+        jlMontoTotal.setText(String.format("Total: $%.2f", monto));
+    }
+
     @Override
     public void notificar(Observable origen, Object evento) {
         if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
@@ -647,7 +668,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 model.removeElement(item);
             }
         }
+        if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
+            actualizarMonto();
+        }
+
     }
-    
-    
+
 }

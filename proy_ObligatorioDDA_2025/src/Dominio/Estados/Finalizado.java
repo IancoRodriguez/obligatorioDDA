@@ -23,10 +23,6 @@ public class Finalizado implements EstadoPedido{
         System.out.println("Ya finalizado. No se puede confirmar.");
     }
 
-    public void desconfirmar() {
-        System.out.println("No se puede desconfirmar un pedido finalizado.");
-    }
-
     public void procesar() {
         System.out.println("Ya fue procesado.");
     }

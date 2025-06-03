@@ -1,5 +1,7 @@
 package Dominio;
 
+import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,4 +117,6 @@ public class Item extends Observable implements Observador {
         }
 
     }
+
+   
 }

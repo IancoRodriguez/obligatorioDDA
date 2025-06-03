@@ -14,7 +14,6 @@ import java.util.List;
  */
 public interface EstadoPedido {
     void confirmar();
-    void desconfirmar();
     void procesar();
     void entregar();
     void finalizar();

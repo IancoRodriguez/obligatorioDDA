@@ -1,5 +1,6 @@
 package Dominio;
 
+import Dominio.Observer.Observable;
 import Dominio.Excepciones.StockException;
 
 public class Insumo extends Observable{
@@ -59,7 +60,7 @@ public class Insumo extends Observable{
             throw new IllegalArgumentException("La cantidad no puede ser negativa");
         }
         stock += cantidad;
-        notificar(Evento.STOCK_RECUPERADO);
+        notificar(Evento.STOCK_ACTUALIZADO);
     }
 
     // Método para consumir stock (con validación de stock mínimo)

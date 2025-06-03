@@ -23,11 +23,6 @@ public class Confirmado implements EstadoPedido {
         System.out.println("Ya está confirmado.");
     }
 
-    public void desconfirmar() {
-        System.out.println("Pedido vuelto a sin confirmar.");
-        pedido.setEstado(new SinConfirmar(pedido));
-    }
-
     public void procesar() {
         System.out.println("Pedido en procesamiento.");
         pedido.setEstado(new Procesando(pedido));
@@ -41,9 +36,8 @@ public class Confirmado implements EstadoPedido {
         System.out.println("No se puede finalizar sin entregar.");
     }
 
-    public void validarEliminacion() throws ServicioException {
-        
-        throw new ServicioException("No se puede eliminar un pedido confirmado.");
+    public void validarEliminacion() {
+  
     }
 
   

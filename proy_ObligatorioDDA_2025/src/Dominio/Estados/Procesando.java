@@ -23,10 +23,6 @@ public class Procesando implements EstadoPedido{
         System.out.println("Ya fue confirmado.");
     }
 
-    public void desconfirmar() {
-        System.out.println("No se puede desconfirmar un pedido en procesamiento.");
-    }
-
     public void procesar() {
         System.out.println("Ya está en procesamiento.");
     }

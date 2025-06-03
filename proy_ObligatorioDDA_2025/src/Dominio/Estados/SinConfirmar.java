@@ -23,10 +23,6 @@ public class SinConfirmar implements EstadoPedido {
         pedido.setEstado(new Confirmado(pedido));
     }
 
-    public void desconfirmar() {
-        System.out.println("Ya está sin confirmar.");
-    }
-
     public void procesar() {
         System.out.println("No se puede procesar un pedido sin confirmar.");
     }
@@ -52,8 +48,6 @@ public class SinConfirmar implements EstadoPedido {
     public String toString() {
         return "Sin Confirmar";
     }
-    
-    
-    
+
 
 }
