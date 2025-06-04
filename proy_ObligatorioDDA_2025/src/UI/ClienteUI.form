@@ -83,6 +83,8 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Component id="msgFinServicio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="msgError" min="-2" pref="308" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -132,6 +134,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="msgError" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="msgFinServicio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
           </Group>
@@ -460,6 +463,8 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Monto total: "/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="msgFinServicio">
     </Component>
   </SubComponents>
 </Form>

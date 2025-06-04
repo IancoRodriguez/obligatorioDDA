@@ -141,6 +141,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         jLabel7 = new javax.swing.JLabel();
         msgError = new javax.swing.JLabel();
         jlMontoTotal = new javax.swing.JLabel();
+        msgFinServicio = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -358,6 +359,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                                 .addContainerGap()
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(msgFinServicio)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 210, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -397,7 +400,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(msgError))
+                    .addComponent(msgError)
+                    .addComponent(msgFinServicio))
                 .addGap(19, 19, 19))
         );
 
@@ -464,6 +468,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     private javax.swing.JList<Categoria> lCategorias;
     private javax.swing.JList<Item> lItems;
     private javax.swing.JLabel msgError;
+    private javax.swing.JLabel msgFinServicio;
     private javax.swing.JTextArea tComentario;
     private javax.swing.JTable tablaPedidos;
     private javax.swing.JLabel usuarioLogueadoFlag;
@@ -587,7 +592,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         try {
 
             if (servicioActual == null) {
-                throw new ServicioException("Servicio no inicializado");
+                throw new ServicioException("Debe identificarse antes de eliminar pedidos");
             }
 
             if (tablaPedidos.getSelectedRow() != -1) {
@@ -627,6 +632,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             if (servicioActual == null) {
                 throw new ServicioException("Debe identificarse antes de confirmar  el \n" + "servicio");
             }
+            btnFinalizarServicio.setText("Aceptar");
+            
+            
+            
             servicioActual.finalizar();
             cerrarSesion();
 
@@ -634,6 +643,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         } catch (ServicioException ex) {
             msgError.setText(ex.getMessage());
         }
+        
+        
 
     }
 

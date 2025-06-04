@@ -70,6 +70,8 @@ public class Servicio extends Observable{
 
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {
+        
+        
         for (Pedido p : pedidos) {
             p.finalizar();
         }

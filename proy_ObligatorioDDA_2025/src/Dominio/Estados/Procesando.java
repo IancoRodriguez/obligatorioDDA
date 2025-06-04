@@ -12,7 +12,8 @@ import java.util.List;
  *
  * @author ianco
  */
-public class Procesando implements EstadoPedido{
+public class Procesando implements EstadoPedido {
+
     private Pedido pedido;
 
     public Procesando(Pedido pedido) {
@@ -37,21 +38,17 @@ public class Procesando implements EstadoPedido{
     }
 
     public void validarEliminacion() throws ServicioException {
-        throw new ServicioException("No se puede eliminar un pedido en procesamiento.");
+        throw new ServicioException("Un poco tarde…Ya estamos\n" + "elaborando este pedido!");
     }
 
     @Override
     public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        
+
     }
 
     @Override
     public String toString() {
         return "Procesando";
     }
-    
-    
-
-   
 
 }
