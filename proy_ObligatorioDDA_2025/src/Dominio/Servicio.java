@@ -75,11 +75,11 @@ public class Servicio extends Observable{
         for (Pedido p : pedidos) {
             p.finalizar();
         }
-        aplicarBeneficiosCliente();
+      
 
     }
 
-    private void aplicarBeneficiosCliente() {
+    public void aplicarBeneficiosCliente() {
 
         montoTotal = cliente.getTipoCliente()
                 .aplicarBeneficio(pedidos, montoTotal);

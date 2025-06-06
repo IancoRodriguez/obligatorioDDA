@@ -35,6 +35,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
@@ -61,7 +62,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
         this.f = Fachada.getInstancia();
         this.menu = Menu.getInstancia();
-        
 
         cargarCategorias();
         cargarItems();
@@ -83,11 +83,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
             if (!usuario.isBlank() && !contrasena.isBlank()) {
                 servicioActual = login(usuario, contrasena);
-                
+
                 //Suscribir después de inicializar 
                 this.servicioActual.subscribir(this);
-                
-                
+
                 usuarioLogueadoFlag.setVisible(true);
             } else {
                 cerrarSesion();
@@ -627,27 +626,98 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     }
 
     private void finalizarServicio() {
-
         try {
             if (servicioActual == null) {
-                throw new ServicioException("Debe identificarse antes de confirmar  el \n" + "servicio");
+                throw new ServicioException("No hay servicio activo");
             }
-            btnFinalizarServicio.setText("Aceptar");
-            
-            
-            
-            servicioActual.finalizar();
-            cerrarSesion();
 
-            cargarPedidosEnTabla(new ArrayList<Pedido>());
+            // Primer clic: Mostrar resumen
+            if (btnFinalizarServicio.getText().equals("Finalizar Servicio")) {
+                mostrarResumenPago(this.servicioActual);
+                btnFinalizarServicio.setText("CONFIRMAR PAGO");
+                return;
+            }
+
+            // Segundo clic: Confirmación obligatoria
+            if (btnFinalizarServicio.getText().equals("CONFIRMAR PAGO")) {
+                servicioActual.finalizar(); // Finaliza pedidos y aplica descuentos
+
+                // Feedback visual
+                msgFinServicio.setText(
+                        "<html><div style='color: green; text-align: center;'>"
+                        + "✅ <b>SERVICIO FINALIZADO</b></div></html>"
+                );
+
+                cerrarSesion(); // Libera tablet y limpia datos (tu método existente)
+                limpiarInterfaz(); // Limpia la tabla y restablece el botón
+            }
+
         } catch (ServicioException ex) {
             msgError.setText(ex.getMessage());
+            reiniciarFlujo();
         }
-        
-        
-
     }
 
+// Métodos auxiliares
+    private void mostrarResumenPago(Servicio servicio) {
+
+        // 1. Obtener costo inicial
+        double costoInicial = servicio.getMontoTotal();
+
+        // 2. Aplicar beneficio (esto debería modificar el estado del servicio)
+        servicio.aplicarBeneficiosCliente();
+
+        // 3. Obtener costo FINAL después del descuento
+        double costoFinal = servicio.getMontoTotal();
+
+        // Obtenemos directamente el mensaje de beneficio del tipo de cliente
+        String mensajeBeneficio = servicio.getCliente().getTipoCliente().getMensajeBeneficio();
+
+        // Construimos el resumen sin mostrar el monto del descuento explícitamente
+        String resumen = "Resumen de Pago\n"
+                + "---------------\n"
+                + "Beneficio:  " + mensajeBeneficio + "\n"
+                + "---------------\n"
+                + "Total:      " + formatoMoneda(costoFinal);
+
+        msgFinServicio.setText(resumen);
+    }
+
+    private String formatoMoneda(double valor) {
+        return String.format("$%,.2f", valor);
+    }
+
+    private void limpiarInterfaz() {
+        cargarPedidosEnTabla(new ArrayList<>()); // Limpia la tabla de pedidos
+        btnFinalizarServicio.setText("Finalizar Servicio"); // Restablece el botón
+    }
+
+    private void reiniciarFlujo() {
+        btnFinalizarServicio.setText("Finalizar Servicio");
+        msgFinServicio.setText("");
+    }
+
+//    private void finalizarServicio() {
+//
+//        try {
+//            if (servicioActual == null) {
+//                throw new ServicioException("Debe identificarse antes de confirmar  el \n" + "servicio");
+//            }
+//            btnFinalizarServicio.setText("Aceptar");
+//            
+//            
+//            
+//            servicioActual.finalizar();
+//            cerrarSesion();
+//
+//            cargarPedidosEnTabla(new ArrayList<Pedido>());
+//        } catch (ServicioException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//        
+//        
+//
+//    }
     private void cerrarSesion() {
         try {
             usuarioLogueadoFlag.setVisible(false);
