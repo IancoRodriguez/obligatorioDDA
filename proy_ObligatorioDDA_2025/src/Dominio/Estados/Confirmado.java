@@ -52,6 +52,11 @@ public class Confirmado implements EstadoPedido {
     public String toString() {
         return "Confirmado";
     }
+
+    @Override
+    public boolean esConfirmado() {
+       return true;
+    }
     
     
 

@@ -697,27 +697,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         msgFinServicio.setText("");
     }
 
-//    private void finalizarServicio() {
-//
-//        try {
-//            if (servicioActual == null) {
-//                throw new ServicioException("Debe identificarse antes de confirmar  el \n" + "servicio");
-//            }
-//            btnFinalizarServicio.setText("Aceptar");
-//            
-//            
-//            
-//            servicioActual.finalizar();
-//            cerrarSesion();
-//
-//            cargarPedidosEnTabla(new ArrayList<Pedido>());
-//        } catch (ServicioException ex) {
-//            msgError.setText(ex.getMessage());
-//        }
-//        
-//        
-//
-//    }
+
     private void cerrarSesion() {
         try {
             usuarioLogueadoFlag.setVisible(false);
@@ -754,5 +734,38 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         }
 
     }
+    
+    
 
 }
+
+
+
+
+
+
+
+
+
+
+//    private void finalizarServicio() {
+//
+//        try {
+//            if (servicioActual == null) {
+//                throw new ServicioException("Debe identificarse antes de confirmar  el \n" + "servicio");
+//            }
+//            btnFinalizarServicio.setText("Aceptar");
+//            
+//            
+//            
+//            servicioActual.finalizar();
+//            cerrarSesion();
+//
+//            cargarPedidosEnTabla(new ArrayList<Pedido>());
+//        } catch (ServicioException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//        
+//        
+//
+//    }

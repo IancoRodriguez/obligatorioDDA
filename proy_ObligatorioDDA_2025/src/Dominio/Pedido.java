@@ -82,7 +82,7 @@ public class Pedido {
         validarStockItem();
     }
     
-    private void validarStockItem() throws StockException {
+    public void validarStockItem() throws StockException {
         if(!item.tieneStockDisponible()){
             throw new StockException("Sin stock pa");
         }

@@ -5,6 +5,7 @@ import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import Dominio.Observer.Observable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Servicio extends Observable{
@@ -50,13 +51,15 @@ public class Servicio extends Observable{
                 for (Ingrediente i : p.getItem().getIngredientes()) {
                     i.getInsumo().consumirStock(i.getCantidad());
                 }
+                
+                eliminarPedidosSinStock();
             }
 
         } catch (StockException e) {
             System.out.println(e.getMessage());
         }
 
-        //asignarUnidadesProcesadoras();
+        
     }
 
     private void validarStockPedidos() throws StockException {
@@ -68,6 +71,19 @@ public class Servicio extends Observable{
         }
     }
 
+     private void eliminarPedidosSinStock() {
+         Iterator<Pedido> iterador = pedidos.iterator();
+         while(iterador.hasNext()){
+             Pedido p = iterador.next();
+             if(!p.getEstado().esConfirmado() && p.getItem().tieneStockDisponible() ){
+                 // Notifico el propio objeto Pedido → la vista identificará su ID
+                notificar(p);
+                iterador.remove();
+             }
+         }
+         
+    }
+    
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {
         
@@ -100,7 +116,8 @@ public class Servicio extends Observable{
         }
 
     }
-
+    
+    
     // ======================
     // Getters
     // ======================
@@ -158,15 +175,8 @@ public class Servicio extends Observable{
         return res;
     }
 
+   
+
 }
 
-/*
-private void asignarUnidadesProcesadoras() {
-        for (Pedido pedido : pedidos) {
-            String unidad = determinarUnidadProcesadora(pedido);
-            pedido.setUnidadProcesadora(unidad);
-            pedido.setEstado("Confirmado");
-        }
-    }
 
- */

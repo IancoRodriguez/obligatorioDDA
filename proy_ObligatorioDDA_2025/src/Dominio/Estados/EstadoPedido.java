@@ -21,4 +21,5 @@ public interface EstadoPedido {
 
 
     public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP);
+    public boolean esConfirmado();
 }
