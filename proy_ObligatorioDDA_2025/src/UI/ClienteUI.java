@@ -88,6 +88,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 this.servicioActual.subscribir(this);
 
                 usuarioLogueadoFlag.setVisible(true);
+                msgError.setText("");
             } else {
                 cerrarSesion();
                 throw new UsuarioException("Revise las credenciales ingresadas");
@@ -357,9 +358,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(msgFinServicio)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGap(18, 18, 18)
                                 .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 210, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -371,6 +370,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jlMontoTotal)
                 .addGap(84, 84, 84))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(msgFinServicio, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -396,11 +399,12 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                     .addComponent(jlMontoTotal))
                 .addGap(21, 21, 21)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
+                .addComponent(msgFinServicio, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(msgError)
-                    .addComponent(msgFinServicio))
+                    .addComponent(msgError))
                 .addGap(19, 19, 19))
         );
 
@@ -697,6 +701,13 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         msgFinServicio.setText("");
     }
 
+    
+    
+    
+    
+    
+    
+    
 //    private void finalizarServicio() {
 //
 //        try {
