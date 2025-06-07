@@ -7,6 +7,7 @@ package UI;
 import Dominio.Gestor;
 import Dominio.Item;
 import Dominio.Pedido;
+import Dominio.PedidoVO;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
@@ -129,6 +130,7 @@ public class GestorUI extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
             }
         ));
+        tablaPedidosTomados.setToolTipText("");
         jScrollPane2.setViewportView(tablaPedidosTomados);
 
         jButton2.setText("Finalizar Pedido");
@@ -210,12 +212,11 @@ public class GestorUI extends javax.swing.JFrame {
    private void cargarPedidosPendientesUP() {
         try {
             // Obtener items de la fachada 
-            DefaultListModel<String> modelo = new DefaultListModel<>();
+            DefaultListModel<PedidoVO> modelo = new DefaultListModel<>();
             
-            for(Servicio s : f.getServicios()){
-                for(String str : s.mostrarPedidosPorUP(gestor.getUP())){
-                    modelo.addElement(str);
-                }
+            for(PedidoVO p : f.getPedidosConfirmados(gestor.getUP().getNombre())){
+               
+                modelo.addElement(p);
                 
             }
 
@@ -223,7 +224,7 @@ public class GestorUI extends javax.swing.JFrame {
             jListadoPedidos.setModel(modelo);        
         
             jListadoPedidos.setCellRenderer(new RenderizadorListas<>(
-                    servicio -> servicio
+                    p -> p.nombreCliente() + p.nombreItem() + p.fechaHora()
             ));
         } catch (Exception ex) {
             msgError.setText(ex.getMessage());
@@ -240,7 +241,7 @@ public class GestorUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JList<String> jListadoPedidos;
+    private javax.swing.JList<PedidoVO> jListadoPedidos;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel msgError;

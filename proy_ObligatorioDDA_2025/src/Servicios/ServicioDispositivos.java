@@ -58,7 +58,7 @@ public class ServicioDispositivos {
 
         
 
-        return pedidosPendientes;
+        return pedidos;
     }
 
     public boolean agregar(Dispositivo d) {
