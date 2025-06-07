@@ -157,6 +157,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         jScrollPane4.setViewportView(jTable1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setSize(new java.awt.Dimension(0, 0));
 
         jUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -341,26 +342,24 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(29, 29, 29)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(31, 31, 31)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jBtnLogin)
-                                .addGap(27, 27, 27)
-                                .addComponent(usuarioLogueadoFlag))
-                            .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jLabel7)
-                                .addGap(18, 18, 18)
-                                .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 210, Short.MAX_VALUE)))
+                        .addGap(29, 29, 29)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(31, 31, 31)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jBtnLogin)
+                        .addGap(27, 27, 27)
+                        .addComponent(usuarioLogueadoFlag)
+                        .addGap(0, 210, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(msgError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGap(21, 21, 21)
@@ -404,7 +403,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(msgError))
+                    .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(19, 19, 19))
         );
 
@@ -624,6 +623,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             cargarPedidosEnTabla(servicioActual.getPedidos());
         } catch (StockException ex) {
             msgError.setText(ex.getMessage());
+            // Hay que renderizar en la tabla de pedidos solo aquellos que estan SIN CONFIRMAR
+            cargarPedidosEnTabla(servicioActual.pedidosConStock());
         } catch (ServicioException ex) {
             msgError.setText(ex.getMessage());
         }
@@ -752,87 +753,13 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 }
             } else {
                 model.removeElement(item);
-
-                // Verificar pedidos sin confirmar para este item
-                for (Pedido p : servicioActual.getPedidos()) {
-                    if (p.getEstado().esSinConfirmar() && p.getItem().equals(item)) {
-                        String mensajeError = "El item '" + item.getNombre() + "' se ha quedado sin stock. "
-                                + "Tu pedido no ha sido confirmado y ha sido eliminado.";
-                        msgFinServicio.setText(mensajeError);
-                        break; // No es necesario seguir verificando más pedidos
-                    }
-                }
-            }
-
-            cargarPedidosEnTabla(servicioActual.pedidosConStock());
+            }            
         }
 
         if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
             actualizarMonto();
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-//    @Override
-//    public void notificar(Observable origen, Object evento) {
-//        if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
-//            DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
-//            Item item = (Item) origen;
-//            if (item.isDisponible()) {
-//                if (!model.contains(item)) {
-//                    model.addElement(item);
-//                }
-//            } else {
-//                model.removeElement(item);
-//            }
-//            cargarPedidosEnTabla(servicioActual.pedidosConStock());
-//            boolean flag = false;
-//            String mensaje = "Lo sentimos, nos hemos quedado sin stock de ";
-//            for (Pedido p : servicioActual.pedidosEliminados()) {
-//                if (p.getEstado().esSinConfirmar()) {
-//                    mensaje += p.getItem().getNombre() + " ";
-//                }
-//
-//            }
-//            for(Pedido p : servicioActual.getPedidos()){
-//                if(p.getEstado().esSinConfirmar()){
-//                flag = true;
-//                break;
-//                }
-//            }
-//            mensaje += " por lo que lo hemos quitado el pedido del servicio";
-//            if (servicioActual.pedidosEliminados().size() > 0 && flag) {
-//                msgFinServicio.setText(mensaje);
-//            }
-//
-//        }
-//        if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
-//            actualizarMonto();
-//        }
-//
-//    }
 }
-
-//servicioActual.getPedidos().get(0).getEstado().esSinConfirmar()
+    
+    

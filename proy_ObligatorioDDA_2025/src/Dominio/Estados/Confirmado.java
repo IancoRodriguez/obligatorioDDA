@@ -5,6 +5,8 @@
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
+import Dominio.Excepciones.StockException;
+import Dominio.Ingrediente;
 import Dominio.Pedido;
 import java.util.List;
 
@@ -20,7 +22,8 @@ public class Confirmado implements EstadoPedido {
     }
 
     public void confirmar() {
-        System.out.println("Ya está confirmado.");
+
+              
     }
 
     public void procesar() {

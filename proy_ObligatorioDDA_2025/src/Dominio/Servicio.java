@@ -46,25 +46,40 @@ public class Servicio extends Observable{
         try {
             validarStockPedidos();
             for (Pedido p : pedidos) {
-                p.confirmar();
-                for (Ingrediente i : p.getItem().getIngredientes()) {
-                    i.getInsumo().consumirStock(i.getCantidad());
+                if(p.getEstado().esSinConfirmar()){
+                    for (Ingrediente i : p.getItem().getIngredientes()) {
+                        i.getInsumo().consumirStock(i.getCantidad());
+                    }
                 }
+                p.confirmar();
             }
 
         } catch (StockException e) {
-            System.out.println(e.getMessage());
+           throw e;
         }
 
-        //asignarUnidadesProcesadoras();
-    }
-
+    }  
+    
     public void validarStockPedidos() throws StockException {
         for (Pedido pedido : pedidos) {
-            if (!pedido.getItem().tieneStockDisponible()) {
-                throw new StockException("Stock insuficiente para: " + pedido.getItem().getNombre());
-            }
+            for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+                Insumo insumo = ingrediente.getInsumo();
+                int cantidadNecesariaTotal = 0;
 
+                // Sumo todas las cantidades necesarias de este insumo en la lista de pedidos
+                for (Pedido p : pedidos) {
+                    for (Ingrediente ing : p.getItem().getIngredientes()) {
+                        if (ing.getInsumo().equals(insumo)) {
+                            cantidadNecesariaTotal += ing.getCantidad();
+                        }
+                    }
+                }
+
+                // Verifico si hay suficiente stock para este insumo
+                if (insumo.getStock() < cantidadNecesariaTotal) {
+                    throw new StockException("Nos hemos quedado sin stock de " + pedido.getItem().getNombre() + " y no pudimos avisarte antes!" );                    
+                }
+            }
         }
     }
     
@@ -93,12 +108,9 @@ public class Servicio extends Observable{
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {
         
-        
         for (Pedido p : pedidos) {
             p.finalizar();
         }
-      
-
     }
 
     public void aplicarBeneficiosCliente() {

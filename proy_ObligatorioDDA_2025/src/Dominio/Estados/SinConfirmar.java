@@ -19,7 +19,7 @@ public class SinConfirmar implements EstadoPedido {
     }
 
     public void confirmar() {
-        System.out.println("Pedido confirmado.");
+        //System.out.println("Pedido confirmado.");
         pedido.setEstado(new Confirmado(pedido));
     }
 
