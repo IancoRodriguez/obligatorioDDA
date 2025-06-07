@@ -6,12 +6,13 @@ package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
 import Dominio.Pedido;
+import java.util.List;
 
 /**
  *
  * @author ianco
  */
-public class Entregado {
+public class Entregado implements EstadoPedido{
     private Pedido pedido;
 
     public Entregado(Pedido pedido) {
@@ -42,6 +43,16 @@ public class Entregado {
     @Override
     public String toString() {
         return "Entregado";
+    }
+
+    @Override
+    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean esSinConfirmar() {
+        return false;
     }
     
     

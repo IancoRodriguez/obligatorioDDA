@@ -50,6 +50,11 @@ public class Finalizado implements EstadoPedido{
     public String toString() {
         return "Finalizado";
     }
+
+    @Override
+    public boolean esSinConfirmar() {
+        return false;
+    }
     
     
 }

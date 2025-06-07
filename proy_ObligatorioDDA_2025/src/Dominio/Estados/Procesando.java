@@ -51,4 +51,9 @@ public class Procesando implements EstadoPedido {
         return "Procesando";
     }
 
+    @Override
+    public boolean esSinConfirmar() {
+        return false;
+    }
+
 }

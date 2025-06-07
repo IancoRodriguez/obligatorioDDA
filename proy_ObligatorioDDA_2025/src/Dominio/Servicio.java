@@ -59,7 +59,7 @@ public class Servicio extends Observable{
         //asignarUnidadesProcesadoras();
     }
 
-    private void validarStockPedidos() throws StockException {
+    public void validarStockPedidos() throws StockException {
         for (Pedido pedido : pedidos) {
             if (!pedido.getItem().tieneStockDisponible()) {
                 throw new StockException("Stock insuficiente para: " + pedido.getItem().getNombre());
@@ -67,6 +67,28 @@ public class Servicio extends Observable{
 
         }
     }
+    
+    public List<Pedido> pedidosConStock(){
+        List<Pedido> aux = new ArrayList();
+        for (Pedido pedido : pedidos) {
+            if (pedido.getItem().tieneStockDisponible()) {
+                aux.add(pedido);
+            }
+        }
+        return aux;
+    }
+    
+    public List<Pedido> pedidosEliminados(){
+        List<Pedido> aux = new ArrayList();
+        for(Pedido pedido: pedidos){
+            if(!pedido.getItem().tieneStockDisponible()){
+                aux.add(pedido);
+            }
+        }
+        return aux;
+     }
+    
+    
 
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {

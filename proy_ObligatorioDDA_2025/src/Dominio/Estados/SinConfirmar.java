@@ -49,5 +49,10 @@ public class SinConfirmar implements EstadoPedido {
         return "Sin Confirmar";
     }
 
+    @Override
+    public boolean esSinConfirmar() {
+        return true;
+    }
+
 
 }

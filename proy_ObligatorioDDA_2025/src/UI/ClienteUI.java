@@ -701,13 +701,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         msgFinServicio.setText("");
     }
 
-    
-    
-    
-    
-    
-    
-    
 //    private void finalizarServicio() {
 //
 //        try {
@@ -752,18 +745,94 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
             DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
             Item item = (Item) origen;
+
             if (item.isDisponible()) {
                 if (!model.contains(item)) {
                     model.addElement(item);
                 }
             } else {
                 model.removeElement(item);
+
+                // Verificar pedidos sin confirmar para este item
+                for (Pedido p : servicioActual.getPedidos()) {
+                    if (p.getEstado().esSinConfirmar() && p.getItem().equals(item)) {
+                        String mensajeError = "El item '" + item.getNombre() + "' se ha quedado sin stock. "
+                                + "Tu pedido no ha sido confirmado y ha sido eliminado.";
+                        msgFinServicio.setText(mensajeError);
+                        break; // No es necesario seguir verificando más pedidos
+                    }
+                }
             }
+
+            cargarPedidosEnTabla(servicioActual.pedidosConStock());
         }
+
         if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
             actualizarMonto();
         }
-
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
+//    @Override
+//    public void notificar(Observable origen, Object evento) {
+//        if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
+//            DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
+//            Item item = (Item) origen;
+//            if (item.isDisponible()) {
+//                if (!model.contains(item)) {
+//                    model.addElement(item);
+//                }
+//            } else {
+//                model.removeElement(item);
+//            }
+//            cargarPedidosEnTabla(servicioActual.pedidosConStock());
+//            boolean flag = false;
+//            String mensaje = "Lo sentimos, nos hemos quedado sin stock de ";
+//            for (Pedido p : servicioActual.pedidosEliminados()) {
+//                if (p.getEstado().esSinConfirmar()) {
+//                    mensaje += p.getItem().getNombre() + " ";
+//                }
+//
+//            }
+//            for(Pedido p : servicioActual.getPedidos()){
+//                if(p.getEstado().esSinConfirmar()){
+//                flag = true;
+//                break;
+//                }
+//            }
+//            mensaje += " por lo que lo hemos quitado el pedido del servicio";
+//            if (servicioActual.pedidosEliminados().size() > 0 && flag) {
+//                msgFinServicio.setText(mensaje);
+//            }
+//
+//        }
+//        if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
+//            actualizarMonto();
+//        }
+//
+//    }
 }
+
+//servicioActual.getPedidos().get(0).getEstado().esSinConfirmar()
