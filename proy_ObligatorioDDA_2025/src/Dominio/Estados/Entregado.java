@@ -47,13 +47,6 @@ public class Entregado implements EstadoPedido{
     }
 
     @Override
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-
-
-    @Override
     public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
        return Collections.emptyList();
     }

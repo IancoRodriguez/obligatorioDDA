@@ -128,7 +128,6 @@ public class GestorUI extends javax.swing.JFrame {
         msgError = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Unidad Procesadora");
 
         jLabel1.setText("Gestor y unidad Procesadora");
@@ -225,8 +224,6 @@ public class GestorUI extends javax.swing.JFrame {
                     .addComponent(msgError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        btnTomarPedido.getAccessibleContext().setAccessibleName("Tomar Pedido");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

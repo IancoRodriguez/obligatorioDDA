@@ -192,24 +192,18 @@ public class Servicio extends Observable {
     
     
     public List<Pedido> mostrarPedidosPorUP(UnidadProcesadora UP) {
-        
         List<Pedido> res = new ArrayList();
-        
         for (Pedido pedido : pedidos) {
-            StringBuilder str = new StringBuilder();
             if(pedido.getItem().getUnidadProcesadora().equals(UP)){
-                str.append(pedido.getItem().getNombre() + " - ");
-                str.append("Cliente: " + this.cliente.getNombreCompleto()+ " - ");
-                str.append(pedido.getFechaHora());                
-            
-                res.add(str.toString());
+                res.add(pedido);
             }
         }
-        
-        
         return res;
-}
+    }
     
+    public String getNombreCliente(){
+        return this.cliente.getNombreCompleto();
+    }
     
     
     
