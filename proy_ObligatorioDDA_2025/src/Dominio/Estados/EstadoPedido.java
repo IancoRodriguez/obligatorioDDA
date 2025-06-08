@@ -5,6 +5,8 @@
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
+import Dominio.Excepciones.StockException;
+import Dominio.Ingrediente;
 import Dominio.Pedido;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import java.util.List;
  * @author ianco
  */
 public interface EstadoPedido {
-    void confirmar();
+    void confirmar(Pedido pedido)throws StockException;
     void procesar();
     void entregar();
     void finalizar();
@@ -21,5 +23,5 @@ public interface EstadoPedido {
 
 
     public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP);
-    public boolean esSinConfirmar();
+    List<Ingrediente> ingredientesParaConfirmar(Pedido pedido);
 }

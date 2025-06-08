@@ -5,6 +5,7 @@
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
+import Dominio.Ingrediente;
 import Dominio.Pedido;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class Procesando implements EstadoPedido {
         this.pedido = pedido;
     }
 
-    public void confirmar() {
+    public void confirmar(Pedido pedido) {
         System.out.println("Ya fue confirmado.");
     }
 
@@ -51,9 +52,11 @@ public class Procesando implements EstadoPedido {
         return "Procesando";
     }
 
+
+
     @Override
-    public boolean esSinConfirmar() {
-        return false;
+    public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

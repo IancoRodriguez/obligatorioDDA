@@ -5,7 +5,9 @@
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
+import Dominio.Ingrediente;
 import Dominio.Pedido;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ public class Entregado implements EstadoPedido{
         this.pedido = pedido;
     }
 
-    public void confirmar() {
+    public void confirmar(Pedido pedido) {
         System.out.println("Ya fue confirmado.");
     }
 
@@ -50,9 +52,11 @@ public class Entregado implements EstadoPedido{
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+
+
     @Override
-    public boolean esSinConfirmar() {
-        return false;
+    public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
+       return Collections.emptyList();
     }
     
     

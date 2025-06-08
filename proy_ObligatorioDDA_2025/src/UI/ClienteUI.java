@@ -613,7 +613,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     }
 
-    private void confimarPedidos() {
+       private void confimarPedidos() {
 
         try {
             if (servicioActual == null) {
@@ -753,7 +753,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 }
             } else {
                 model.removeElement(item);
-            }            
+            }
         }
 
         if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
@@ -761,5 +761,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         }
     }
 }
-    
-    
+
+
+

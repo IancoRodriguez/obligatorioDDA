@@ -4,7 +4,11 @@
  */
 package Dominio.Estados;
 
+import Dominio.Excepciones.StockException;
+import Dominio.Ingrediente;
+import Dominio.Insumo;
 import Dominio.Pedido;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,14 +16,35 @@ import java.util.List;
  * @author ianco
  */
 public class SinConfirmar implements EstadoPedido {
+
     private Pedido pedido;
 
     public SinConfirmar(Pedido pedido) {
         this.pedido = pedido;
     }
 
-    public void confirmar() {
-        //System.out.println("Pedido confirmado.");
+    
+ 
+    public void confirmar(Pedido pedido) throws StockException {
+        // 1) Validación por ingrediente usando tu helper
+        for (Ingrediente ing : pedido.getItem().getIngredientes()) {
+            if (!ing.tieneStockSuficiente()) {
+                Insumo ins = ing.getInsumo();
+                throw new StockException(
+                        "No hay stock suficiente de "
+                        + ins.getNombre()
+                        + " (necesita " + ing.getCantidad()
+                        + ", disponible " + ins.getStock() + ")"
+                );
+            }
+        }
+
+        // 2) Consumo real
+        for (Ingrediente ing : pedido.getItem().getIngredientes()) {
+            ing.getInsumo().consumirStock(ing.getCantidad());
+        }
+
+        // 3) Cambio de estado
         pedido.setEstado(new Confirmado(pedido));
     }
 
@@ -41,7 +66,7 @@ public class SinConfirmar implements EstadoPedido {
 
     @Override
     public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        
+
     }
 
     @Override
@@ -50,9 +75,10 @@ public class SinConfirmar implements EstadoPedido {
     }
 
     @Override
-    public boolean esSinConfirmar() {
-        return true;
+    public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
+        return pedido.getItem().getIngredientes();
     }
 
+    
 
 }

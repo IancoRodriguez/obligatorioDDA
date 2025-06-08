@@ -8,6 +8,7 @@ import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import Dominio.Ingrediente;
 import Dominio.Pedido;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,8 +22,8 @@ public class Confirmado implements EstadoPedido {
         this.pedido = pedido;
     }
 
-    public void confirmar() {
-
+    public void confirmar(Pedido pedido) {
+        System.out.println("ya esta conf");
               
     }
 
@@ -56,9 +57,10 @@ public class Confirmado implements EstadoPedido {
         return "Confirmado";
     }
 
+ 
     @Override
-    public boolean esSinConfirmar() {
-        return false;
+    public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
+        return Collections.emptyList();
     }
     
     

@@ -92,7 +92,7 @@ public class Pedido {
     
     
     // Métodos delegados
-    public void confirmar()      { estado.confirmar(); }
+    public void confirmar() throws StockException  { estado.confirmar(this); } 
     public void procesar()       { estado.procesar(); }
     public void entregar()       { estado.entregar(); }
     public void finalizar()      { estado.finalizar(); }

@@ -5,7 +5,9 @@
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
+import Dominio.Ingrediente;
 import Dominio.Pedido;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ public class Finalizado implements EstadoPedido{
         this.pedido = pedido;
     }
 
-    public void confirmar() {
+    public void confirmar(Pedido pedido) {
         System.out.println("Ya finalizado. No se puede confirmar.");
     }
 
@@ -51,9 +53,11 @@ public class Finalizado implements EstadoPedido{
         return "Finalizado";
     }
 
+ 
+
     @Override
-    public boolean esSinConfirmar() {
-        return false;
+    public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
+       return Collections.emptyList();
     }
     
     
