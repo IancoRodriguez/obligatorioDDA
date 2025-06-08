@@ -9,7 +9,6 @@ import Dominio.Dispositivo;
 import Dominio.Estados.Confirmado;
 import Dominio.Item;
 import Dominio.Pedido;
-import Dominio.PedidoVO;
 import Dominio.Servicio;
 import Dominio.UnidadProcesadora;
 import java.util.ArrayList;
@@ -40,24 +39,17 @@ public class ServicioDispositivos {
         return todosLosPedidos;
     }
 
-    public List<PedidoVO> getPedidosConfirmados(String nombreUP) {
+    public List<Pedido> getPedidosConfirmados(String nombreUP) {
         
-         List<PedidoVO> pedidos = new ArrayList<>();
+        List<Pedido> pedidos = new ArrayList<>();
         
         for(Servicio s : getServicios() ){
-            
-            // Hay que filtrar los PedidoVO con el estado Confirmado y tirarlo a al GestorUI
-            
             for (Pedido pedido : s.getPedidos()) {
-                //pedido.getEstado().agregarSiEsConfirmado(pedido, pedidosPendientes, nombreUP);
-                
-            }
+                if(pedido.getEstado()  instanceof Confirmado && pedido.getItem().getUnidadProcesadora().getNombre() == nombreUP){
+                    pedidos.add(pedido);
+                } 
+            }          
         }
-        
-       
-
-        
-
         return pedidos;
     }
 

@@ -45,15 +45,7 @@ public class Confirmado implements EstadoPedido {
         
         throw new ServicioException("No se puede eliminar un pedido confirmado.");
     }
-
-  
-    @Override
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        if (pedido.getGestor().getNombreUP().equals(nombreUP)) {
-            pedidos.add(pedido);
-        }
-    }   
-
+     
     @Override
     public String toString() {
         return "Confirmado";

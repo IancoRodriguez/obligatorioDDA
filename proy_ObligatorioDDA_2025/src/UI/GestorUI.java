@@ -7,7 +7,6 @@ package UI;
 import Dominio.Gestor;
 import Dominio.Item;
 import Dominio.Pedido;
-import Dominio.PedidoVO;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import Servicios.Fachada;
@@ -28,61 +27,85 @@ public class GestorUI extends javax.swing.JFrame {
         this.gestor = gestor;
         this.f = Fachada.getInstancia();
         
-        initComponents();
-        
+        initComponents();       
         
         cargarNombreUP(gestor);
         cargarPedidosPendientesUP();
-        
-        
     }
     
     
     public void cargarNombreUP(Gestor g){
-        
         String labelContent = g.getNombreCompleto() + " | Area: "+ g.getNombreUP();
         jLabel2.setText(labelContent);       
     }          
-    
-        
-    public void cargarPedidosTomadosPorGestor(Gestor g){
-        
-        List<Pedido> pedidosTomados = g.getPedidosTomados();
-        
-                
-        DefaultTableModel modelo = new DefaultTableModel();
-
-        modelo.setColumnIdentifiers(new String[]{"Nombre de item", "Descripcion", "Cliente", "Fecha Hora", "Estado"});
-
-        for (Pedido pedido : pedidosTomados) {
-            modelo.addRow(new Object[]{
-                pedido.getItem().getNombre(),
-                pedido.getComentario(),
-                // Cliente
-                // Estado
-            });
-        }
-
-        tablaPedidosTomados.setModel(modelo);
-
-        tablaPedidosTomados.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-        tablaPedidosTomados.revalidate();
-        tablaPedidosTomados.repaint();
-    
-        
-    }
-    
+     
     public void tomarPedido(Pedido p){
-        
         f.tomarPedido(this.gestor,p);
     }
-    
     
     public void finalizarPedido(Pedido p){
        // f.finalizarPedido(this.gestor, p);
     }
     
+    private void cargarPedidosPendientesUP() {
+        try {
+            DefaultListModel<Pedido> modelo = new DefaultListModel<>();
+
+            for(Pedido p : f.getPedidosConfirmados(gestor.getUP().getNombre())){
+                modelo.addElement(p);
+            }
+
+            jListadoPedidos.setModel(modelo);        
+            jListadoPedidos.setCellRenderer(new RenderizadorListas<>(
+                    p ->p.getItem().getNombre() + " - Cliente: " + p.getServicio().getNombreCliente() + " - " + p.getFechaHora()
+            ));
+        } catch (Exception ex) {
+            msgError.setText(ex.getMessage());
+
+        }
+    }
+    
+    private void cargarPedidosTomados(){
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.setColumnIdentifiers(new String[]{"Nombre item", "Descripcion", "Cliente", "FechaHora", "Estado"});
+
+         for (Pedido pedido : this.gestor.getPedidosTomados()) {
+             modelo.addRow(new Object[]{
+                 pedido.getItem().getNombre(),
+                 pedido.getComentario(),
+                 pedido.getServicio().getNombreCliente(),
+                 pedido.getFechaHora(),
+                 pedido.getEstado().toString()
+             });
+         }
+
+         tablaPedidosTomados.setModel(modelo);
+         tablaPedidosTomados.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+         tablaPedidosTomados.revalidate();
+         tablaPedidosTomados.repaint();
+    }
+   
+    private void tomarPedido(){
+        tomarPedido(jListadoPedidos.getSelectedValue());
+        cargarPedidosPendientesUP();
+        cargarPedidosTomados();
+    }
+    
+    private void entregarPedido(){
+        int posPedido = tablaPedidosTomados.getSelectedRow();
+        Pedido p = this.gestor.getPedidosTomados().get(posPedido);
+        p.entregar();
+        cargarPedidosTomados();
+                
+    }
+    private void finalizarPedido(){
+        int posPedido = tablaPedidosTomados.getSelectedRow();
+        Pedido p = this.gestor.getPedidosTomados().get(posPedido);
+        p.finalizar();
+        cargarPedidosTomados();
+                
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -97,11 +120,11 @@ public class GestorUI extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jListadoPedidos = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
+        btnTomarPedido = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tablaPedidosTomados = new javax.swing.JTable();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnFinalizarPedido = new javax.swing.JButton();
+        btnEntregarPedido = new javax.swing.JButton();
         msgError = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
 
@@ -112,10 +135,10 @@ public class GestorUI extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jListadoPedidos);
 
-        jButton1.setText("TomarPedido");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnTomarPedido.setText("Tomar Pedido");
+        btnTomarPedido.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnTomarPedidoActionPerformed(evt);
             }
         });
 
@@ -127,20 +150,25 @@ public class GestorUI extends javax.swing.JFrame {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
+                "Nombre de item", "Descripcion", "Cliente", "FechaHora", "Estado"
             }
         ));
         tablaPedidosTomados.setToolTipText("");
         jScrollPane2.setViewportView(tablaPedidosTomados);
 
-        jButton2.setText("Finalizar Pedido");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnFinalizarPedido.setText("Finalizar Pedido");
+        btnFinalizarPedido.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnFinalizarPedidoActionPerformed(evt);
             }
         });
 
-        jButton3.setText("Entregar Pedido");
+        btnEntregarPedido.setText("Entregar Pedido");
+        btnEntregarPedido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEntregarPedidoActionPerformed(evt);
+            }
+        });
 
         msgError.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
         msgError.setForeground(new java.awt.Color(255, 51, 51));
@@ -155,13 +183,13 @@ public class GestorUI extends javax.swing.JFrame {
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnTomarPedido, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createSequentialGroup()
-                            .addComponent(jButton2)
-                            .addGap(26, 26, 26)
-                            .addComponent(jButton3)))
+                            .addComponent(btnFinalizarPedido)
+                            .addGap(18, 18, 18)
+                            .addComponent(btnEntregarPedido)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -184,13 +212,13 @@ public class GestorUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(21, 21, 21)
-                .addComponent(jButton1)
+                .addComponent(btnTomarPedido)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
+                    .addComponent(btnFinalizarPedido)
+                    .addComponent(btnEntregarPedido))
                 .addGap(18, 35, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
@@ -198,50 +226,31 @@ public class GestorUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        btnTomarPedido.getAccessibleContext().setAccessibleName("Tomar Pedido");
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void btnTomarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTomarPedidoActionPerformed
+        tomarPedido();
+    }//GEN-LAST:event_btnTomarPedidoActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void btnFinalizarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarPedidoActionPerformed
+        finalizarPedido();
+    }//GEN-LAST:event_btnFinalizarPedidoActionPerformed
 
-   private void cargarPedidosPendientesUP() {
-        try {
-            // Obtener items de la fachada 
-            DefaultListModel<PedidoVO> modelo = new DefaultListModel<>();
-            
-            for(PedidoVO p : f.getPedidosConfirmados(gestor.getUP().getNombre())){
-               
-                modelo.addElement(p);
-                
-            }
-
-            //Configurar modelo y renderizador 
-            jListadoPedidos.setModel(modelo);        
-        
-            jListadoPedidos.setCellRenderer(new RenderizadorListas<>(
-                    p -> p.nombreCliente() + p.nombreItem() + p.fechaHora()
-            ));
-        } catch (Exception ex) {
-            msgError.setText(ex.getMessage());
-
-        }
-   }
-
-    
+    private void btnEntregarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntregarPedidoActionPerformed
+        entregarPedido();
+    }//GEN-LAST:event_btnEntregarPedidoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
+    private javax.swing.JButton btnEntregarPedido;
+    private javax.swing.JButton btnFinalizarPedido;
+    private javax.swing.JButton btnTomarPedido;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JList<PedidoVO> jListadoPedidos;
+    private javax.swing.JList<Pedido> jListadoPedidos;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel msgError;

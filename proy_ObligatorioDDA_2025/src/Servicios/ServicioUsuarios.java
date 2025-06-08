@@ -81,6 +81,7 @@ public class ServicioUsuarios {
 
     //metodos gestores
     public void tomarPedido(Gestor gestor, Pedido p) {
+        p.procesar();
         gestor.setPedidosTomados(p);
     }
 

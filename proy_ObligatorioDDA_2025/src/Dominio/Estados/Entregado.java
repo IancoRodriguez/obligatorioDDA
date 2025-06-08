@@ -11,7 +11,7 @@ import Dominio.Pedido;
  *
  * @author ianco
  */
-public class Entregado {
+public class Entregado implements EstadoPedido{
     private Pedido pedido;
 
     public Entregado(Pedido pedido) {
@@ -31,11 +31,10 @@ public class Entregado {
     }
 
     public void entregar() {
-        System.out.println("Ya fue entregado.");
+        System.out.println("Pedido ya fue entregado");
     }
 
     public void finalizar() {
-        System.out.println("Pedido finalizado.");
         pedido.setEstado(new Finalizado(pedido));
     }
 

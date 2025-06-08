@@ -28,12 +28,11 @@ public class Procesando implements EstadoPedido{
     }
 
     public void procesar() {
-        System.out.println("Ya está en procesamiento.");
+        System.out.println("Pedido en proceso");
     }
 
     public void entregar() {
-        System.out.println("Pedido entregado.");
-        pedido.setEstado((EstadoPedido) new Entregado(pedido));
+        pedido.setEstado(new Entregado(pedido));
     }
 
     public void finalizar() {
@@ -42,11 +41,6 @@ public class Procesando implements EstadoPedido{
 
     public void validarEliminacion() throws ServicioException {
         throw new ServicioException("No se puede eliminar un pedido en procesamiento.");
-    }
-
-    @Override
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        
     }
 
     @Override

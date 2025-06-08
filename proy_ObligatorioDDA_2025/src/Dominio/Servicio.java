@@ -117,26 +117,23 @@ public class Servicio {
     }
     
     
-    public List<PedidoVO> mostrarPedidosPorUP(UnidadProcesadora UP) {
+    public List<Pedido> mostrarPedidosPorUP(UnidadProcesadora UP) {
         
-        List<PedidoVO> res = new ArrayList();
+        List<Pedido> res = new ArrayList();
         
         for (Pedido pedido : pedidos) {
             
-            if(pedido.getItem().getUnidadProcesadora().equals(UP)){
-                PedidoVO pVO = new PedidoVO(pedido.getItem().getNombre(), 
-                        this.cliente.getNombreCompleto(), 
-                        pedido.getFechaHora(),
-                        pedido.getComentario(),
-                        pedido.getEstado());
-                
-                res.add(pVO);
+            if(pedido.getItem().getUnidadProcesadora().equals(UP)){               
+                res.add(pedido);
             }
         }
         
-        
-    return res;
-}
+        return res;
+    }
+    
+    public String getNombreCliente(){
+        return this.cliente.getNombreCompleto();
+    }
     
     
     

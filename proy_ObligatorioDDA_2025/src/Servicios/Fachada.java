@@ -9,7 +9,6 @@ import Dominio.Gestor;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Pedido;
-import Dominio.PedidoVO;
 import Dominio.Servicio;
 import Dominio.UnidadProcesadora;
 import java.util.List;
@@ -87,7 +86,7 @@ public class Fachada {
         //sPedidos.cambiarEstado(p);
     }
 
-    public List<PedidoVO> getPedidosConfirmados(String nombreUP) {
+    public List<Pedido> getPedidosConfirmados(String nombreUP) {
         return sDispositivos.getPedidosConfirmados(nombreUP);
     }
     
