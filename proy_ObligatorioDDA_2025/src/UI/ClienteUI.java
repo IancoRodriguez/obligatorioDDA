@@ -23,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -559,6 +562,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     }
 
+    //cargar pedidos en tabla viejo 
     private void cargarPedidosEnTabla(List<Pedido> pedidos) {
         // 1. Crear un modelo de tabla vacío
         DefaultTableModel modelo = new DefaultTableModel();
@@ -613,7 +617,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     }
 
-       private void confimarPedidos() {
+    private void confimarPedidos()  {
 
         try {
             if (servicioActual == null) {
@@ -741,6 +745,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         jlMontoTotal.setText(String.format("Total: $%.2f", monto));
     }
 
+
+
     @Override
     public void notificar(Observable origen, Object evento) {
         if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
@@ -762,5 +768,56 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     }
 }
 
-
-
+//
+// // 1) Crear un modelo de tabla vacío
+//    DefaultTableModel modelo = new DefaultTableModel();
+//    modelo.setColumnIdentifiers(new String[]{
+//        "Item", "Comentario", "Estado", "Unidad", "Gestor", "Precio"
+//    });
+//
+//    // 2) Llenar el modelo con los pedidos que quedan
+//    for (Pedido pedido : pedidos) {
+//        modelo.addRow(new Object[]{
+//            pedido.getItem().getNombre(),
+//            pedido.getComentario(),
+//            pedido.getEstado(),                  // Su toString() debería ser legible
+//            pedido.getItem().getUnidadProcesadora(),
+//            pedido.getGestor(),
+//            pedido.getItem().getPrecioUnitario()
+//        });
+//    }
+//
+//    // 3) Asignar y refrescar la tabla
+//    tablaPedidos.setModel(modelo);
+//    tablaPedidos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+//    tablaPedidos.revalidate();
+//    tablaPedidos.repaint();
+//}
+//    private void cargarPedidosEnTabla(List<Pedido> pedidos) {
+//    // 0) Antes de pintar, chequeo y limpio pedidos sin stock
+//    Iterator<Pedido> it = pedidos.iterator();
+//    while (it.hasNext()) {
+//        Pedido p = it.next();
+//        // Si el estado no va a consumir nada, ingredientesParaConfirmar() devuelve lista vacía
+//        List<Ingrediente> porConfirmar = p.getEstado().ingredientesParaConfirmar(p);
+//        if (!porConfirmar.isEmpty()) {
+//            boolean faltaStock = false;
+//            for (Ingrediente ing : porConfirmar) {
+//                if (!ing.tieneStockSuficiente()) {
+//                    faltaStock = true;
+//                    break;
+//                }
+//            }
+//            if (faltaStock) {
+//                String nombreItem = p.getItem().getNombre();
+//                it.remove();  // quita de la lista
+//                JOptionPane.showMessageDialog(tablaPedidos,
+//                    "Lo sentimos, nos hemos quedado sin stock de “" 
+//                    + nombreItem 
+//                    + "” por lo que lo hemos quitado el pedido del servicio",
+//                    "Stock insuficiente",
+//                    JOptionPane.WARNING_MESSAGE
+//                );
+//            }
+//        }
+//    }

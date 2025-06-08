@@ -50,6 +50,13 @@ public class Item extends Observable implements Observador {
         return precioUnitario;
     }
 
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+    
+    
+    
+
     public void setPrecioUnitario(float precioUnitario) {
         this.precioUnitario = precioUnitario;
     }
