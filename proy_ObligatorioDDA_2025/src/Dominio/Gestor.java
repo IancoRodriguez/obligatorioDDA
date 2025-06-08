@@ -1,5 +1,6 @@
 package Dominio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Gestor extends Usuario {
@@ -21,6 +22,7 @@ public class Gestor extends Usuario {
         super(nombreCompleto, contrasena);
         this.nombreUsuario = nombreUsuario;
         this.UP = UP;
+        this.pedidosTomados = new ArrayList();
     }
     
     @Override

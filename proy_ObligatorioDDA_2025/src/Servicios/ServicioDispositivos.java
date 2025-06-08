@@ -40,14 +40,18 @@ public class ServicioDispositivos {
     }
 
     public List<Pedido> getPedidosConfirmados(String nombreUP) {
-    List<Pedido> pedidosPendientes = new ArrayList<>();
-    
-    for (Pedido pedido : getTodosLosPedidos()) {
-        pedido.getEstado().agregarSiEsConfirmado(pedido, pedidosPendientes, nombreUP);
+        
+        List<Pedido> pedidos = new ArrayList<>();
+        
+        for(Servicio s : getServicios() ){
+            for (Pedido pedido : s.getPedidos()) {
+                if(pedido.getEstado()  instanceof Confirmado && pedido.getItem().getUnidadProcesadora().getNombre() == nombreUP){
+                    pedidos.add(pedido);
+                } 
+            }          
+        }
+        return pedidos;
     }
-    
-    return pedidosPendientes;
-}
 
     public boolean agregar(Dispositivo d) {
         dispositivos.add(d);

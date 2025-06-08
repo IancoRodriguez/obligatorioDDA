@@ -21,7 +21,5 @@ public interface EstadoPedido {
     void finalizar();
     void validarEliminacion() throws ServicioException;
 
-
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP);
     List<Ingrediente> ingredientesParaConfirmar(Pedido pedido);
 }

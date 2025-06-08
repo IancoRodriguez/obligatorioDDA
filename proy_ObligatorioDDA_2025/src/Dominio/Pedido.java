@@ -12,17 +12,20 @@ public class Pedido {
     private Gestor gestor;
     private Item item;
     private EstadoPedido estado;
-    private String fechaHora;
+    private String fechaHora;   
+    private Servicio servicio;
+
 
     
 
 
-    public Pedido(Item item, String comentario) throws StockException {
+    public Pedido(Item item, String comentario, Servicio servicio) throws StockException {
         this.item = item;
         this.comentario = comentario != null ? comentario : ""; // Comentario opcional
         this.fechaHora = fechaHora();
         this.validar() ;
         this.estado = new SinConfirmar(this);
+        this.servicio = servicio;
         
     }
     
@@ -46,7 +49,10 @@ public class Pedido {
     public void setEstado(EstadoPedido estado) {
         this.estado = estado;
     }
-    
+
+    public Servicio getServicio() {
+        return servicio;
+    }
     
     public String getComentario() {
         return comentario;

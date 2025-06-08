@@ -30,11 +30,10 @@ public class Entregado implements EstadoPedido{
     }
 
     public void entregar() {
-        System.out.println("Ya fue entregado.");
+        System.out.println("Pedido ya fue entregado");
     }
 
     public void finalizar() {
-        System.out.println("Pedido finalizado.");
         pedido.setEstado(new Finalizado(pedido));
     }
 

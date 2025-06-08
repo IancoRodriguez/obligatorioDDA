@@ -65,11 +65,6 @@ public class SinConfirmar implements EstadoPedido {
     }
 
     @Override
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-
-    }
-
-    @Override
     public String toString() {
         return "Sin Confirmar";
     }

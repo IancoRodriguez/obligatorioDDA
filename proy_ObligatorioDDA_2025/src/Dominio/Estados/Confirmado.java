@@ -43,15 +43,7 @@ public class Confirmado implements EstadoPedido {
     public void validarEliminacion() {
   
     }
-
-  
-    @Override
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        if (pedido.getGestor().getNombreUP().equals(nombreUP)) {
-            pedidos.add(pedido);
-        }
-    }   
-
+     
     @Override
     public String toString() {
         return "Confirmado";

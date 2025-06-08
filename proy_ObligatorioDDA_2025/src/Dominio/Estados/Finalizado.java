@@ -41,13 +41,6 @@ public class Finalizado implements EstadoPedido{
         throw new ServicioException("No se puede eliminar un pedido finalizado.");
     }
 
-  
-
-    @Override
-    public void agregarSiEsConfirmado(Pedido pedido, List<Pedido> pedidos, String nombreUP) {
-        
-    }
-
     @Override
     public String toString() {
         return "Finalizado";

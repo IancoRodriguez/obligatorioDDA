@@ -537,9 +537,9 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             Item item = lItems.getSelectedValue();
             String comentario = tComentario.getText();
             Pedido nuevoPedido;
-
-            if (item != null) {
-                nuevoPedido = new Pedido(item, comentario);
+            
+            if(item!= null){
+                nuevoPedido = new Pedido(item, comentario, servicioActual);
                 servicioActual.agregarPedido(nuevoPedido);
                 cargarPedidosEnTabla(servicioActual.getPedidos());
             } else {
