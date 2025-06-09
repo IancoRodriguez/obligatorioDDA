@@ -26,25 +26,6 @@ public class SinConfirmar implements EstadoPedido {
     
  
     public void confirmar(Pedido pedido) throws StockException {
-        // 1) Validación por ingrediente usando tu helper
-        for (Ingrediente ing : pedido.getItem().getIngredientes()) {
-            if (!ing.tieneStockSuficiente()) {
-                Insumo ins = ing.getInsumo();
-                throw new StockException(
-                        "No hay stock suficiente de "
-                        + ins.getNombre()
-                        + " (necesita " + ing.getCantidad()
-                        + ", disponible " + ins.getStock() + ")"
-                );
-            }
-        }
-
-        // 2) Consumo real
-        for (Ingrediente ing : pedido.getItem().getIngredientes()) {
-            ing.getInsumo().consumirStock(ing.getCantidad());
-        }
-
-        // 3) Cambio de estado
         pedido.setEstado(new Confirmado(pedido));
     }
 

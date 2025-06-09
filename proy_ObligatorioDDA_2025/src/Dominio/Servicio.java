@@ -43,40 +43,40 @@ public class Servicio extends Observable {
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
-    public void confirmar() throws StockException {
-        // 1) Validación global con bucles anidados
-        for (Pedido p1 : pedidos) {
-            // Para cada ingrediente que *podría* consumirse en p1...
-            for (Ingrediente ing1 : p1.getEstado().ingredientesParaConfirmar(p1)) {
-                Insumo ins = ing1.getInsumo();
-                int totalRequerido = 0;
-
-                // Sumo la demanda de ese mismo insumo en todos los pedidos
-                for (Pedido p2 : pedidos) {
-                    for (Ingrediente ing2 : p2.getEstado().ingredientesParaConfirmar(p2)) {
-                        if (ing2.getInsumo().equals(ins)) {
-                            totalRequerido += ing2.getCantidad();
-                        }
-                    }
-                }
-
-                // Compruebo stock
-                if (ins.getStock() < totalRequerido) {
-                    throw new StockException(
-                            "Stock insuficiente de "
-                            + ins.getNombre()
-                            + " (necesario " + totalRequerido
-                            + ", disponible " + ins.getStock() + ")"
-                    );
-                }
-            }
-        }
-
-        // 2) Si todo pasó, confirmo uno a uno
-        for (Pedido p : pedidos) {
-            p.confirmar();  // cada EstadoPedido.confirmar() hará validación y consumo
+   public void confirmar() throws StockException {
+    // Paso 1: Calcular requerimientos totales (optimizado)
+    Map<Insumo, Integer> requerimientos = new HashMap<>();
+    for (Pedido pedido : pedidos) {
+        for (Ingrediente ing : pedido.getEstado().ingredientesParaConfirmar(pedido)) {
+            requerimientos.merge(ing.getInsumo(), ing.getCantidad(), Integer::sum);
         }
     }
+
+    // Paso 2: Validar stock global (sin consumir)
+    for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
+        Insumo insumo = entry.getKey();
+        int totalRequerido = entry.getValue();
+        if (insumo.getStock() < totalRequerido) {
+            throw new StockException(
+                "Stock insuficiente de " + insumo.getNombre() + 
+                " (necesario: " + totalRequerido + 
+                ", disponible: " + insumo.getStock() + ")"
+            );
+        }
+    }
+
+    // Paso 3: Consumir recursos (globalmente, no por pedido)
+    for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
+        Insumo insumo = entry.getKey();
+        int cantidad = entry.getValue();
+        insumo.consumirStock(cantidad); // ¡Implementa este método en Insumo!
+    }
+
+    // Paso 4: Cambiar estado de pedidos (sin consumir stock)
+    for (Pedido pedido : pedidos) {
+        pedido.getEstado().confirmar(pedido); // Nuevo método que no valida stock
+    }
+}
 
     public void validarStockPedidos() throws StockException {
         for (Pedido pedido : pedidos) {
