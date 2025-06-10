@@ -10,6 +10,8 @@ import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import Dominio.Item;
 import Dominio.Menu;
+import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Servicios.Fachada;
@@ -20,11 +22,12 @@ import java.util.List;
  *
  * @author ianco
  */
-public class PedidosControlador {
+public class PedidosControlador implements Observador{
     
     private ClienteView vista;
     private Fachada fachada;
     private Menu menu;
+    private Servicio servicioActual; // AGREGADO: Declarar la variable
     
     public PedidosControlador(ClienteView vista) {
         this.vista = vista;
@@ -213,20 +216,98 @@ public class PedidosControlador {
     
     /**
      * Maneja el cambio de categoría seleccionada
+     * MODIFICADO: Ahora incluye suscripción a observers
      */
     public void onCategoriaSeleccionada() {
-        cargarItemsPorCategoria();
+        Categoria categoria = vista.getCategoriaSeleccionada();
+        
+        if (categoria != null) {
+            List<Item> itemsDisponibles = new ArrayList<>();
+            
+            for (Item item : categoria.getItems()) {
+                // El CONTROLADOR se suscribe a cada item
+                item.desuscribir(this); // Evitar duplicados
+                item.subscribir(this);
+                
+                if (item.tieneStockDisponible()) {
+                    itemsDisponibles.add(item);
+                }
+            }
+            
+            vista.cargarItems(itemsDisponibles);
+        } else {
+            vista.cargarItems(new ArrayList<>());
+        }
     }
     
     /**
      * Actualiza la vista cuando el servicio cambia (por ejemplo, después del login)
+     * CORREGIDO: Solo un método onServicioActualizado
      */
     public void onServicioActualizado() {
-        Servicio servicioActual = vista.getServicioActual();
+        this.servicioActual = vista.getServicioActual();
+        
+        // Limpiar suscripciones anteriores si existía un servicio previo
+        if (this.servicioActual != null) {
+            this.servicioActual.desuscribir(this);
+        }
+        
+        // Suscribirse al nuevo servicio
         if (servicioActual != null) {
+            servicioActual.subscribir(this);
             actualizarVistaPedidos(servicioActual);
         } else {
             limpiarVista();
         }
+        
+        // Recargar categorías y items
+        cargarCategorias();
+    }
+    
+    /**
+     * AGREGADO: Método para suscribirse a una lista de items
+     */
+    public void suscribirseAItems(List<Item> items) {
+        for (Item item : items) {
+            item.desuscribir(this); // Evitar duplicados
+            item.subscribir(this);
+        }
+    }
+    
+    // IMPLEMENTAR Observer en el controlador
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        if (evento instanceof Observable.Evento) {
+            Observable.Evento tipoEvento = (Observable.Evento) evento;
+
+            switch (tipoEvento) {
+                case ITEM_ACTUALIZADO:
+                    handleItemActualizado((Item) origen);
+                    break;
+                case MONTO_ACTUALIZADO:
+                    handleMontoActualizado(origen);
+                    break;
+            }
+        }
+    }
+    
+    private void handleItemActualizado(Item item) {
+        if (item.tieneStockDisponible()) {
+            vista.actualizarItemEnLista(item);
+        } else {
+            vista.removerItemDeLista(item);
+        }
+    }
+    
+    private void handleMontoActualizado(Observable origen) {
+        if (origen == vista.getServicioActual()) {
+            vista.actualizarMontoTotal(vista.getServicioActual().getMontoTotal());
+        }
+    }
+    
+    // Método para manejar notificaciones delegadas (mantener temporalmente)
+    public void manejarNotificacion(Observable origen, Object evento) {
+        // Redirigir al método notificar
+        notificar(origen, evento);
     }
 }

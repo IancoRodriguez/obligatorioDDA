@@ -19,7 +19,7 @@ import java.util.List;
  
 public interface ClienteView {
     
-    // === MÉTODOS COMUNES ===
+   // === MÉTODOS COMUNES ===
     void mostrarError(String mensaje);
     void limpiarMensajesError();
     Dispositivo getDispositivo();
@@ -54,6 +54,6 @@ public interface ClienteView {
     
     // === NOTIFICACIONES (manejadas por controlador) ===
     void actualizarItemEnLista(Item item);
-    void removerItemDeLista(Item item);
+    void removerItemDeLista(Item item); // AGREGADO: método faltante
     void refrescarListaItems();
 }
