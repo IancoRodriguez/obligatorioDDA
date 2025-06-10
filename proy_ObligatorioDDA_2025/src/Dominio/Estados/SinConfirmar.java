@@ -55,6 +55,4 @@ public class SinConfirmar implements EstadoPedido {
         return pedido.getItem().getIngredientes();
     }
 
-    
-
 }

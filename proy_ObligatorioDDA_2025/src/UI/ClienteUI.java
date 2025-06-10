@@ -18,6 +18,8 @@ import Servicios.Fachada;
 import Dominio.Observer.Observable;
 import Dominio.Observer.Observador;
 import Servicios.Fachada;
+import UI.Controladores.LoginControlador;
+import UI.Controladores.LoginView;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,13 +48,14 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author ianco
  */
-public class ClienteUI extends javax.swing.JFrame implements Observador {
+public class ClienteUI extends javax.swing.JFrame implements Observador, LoginView {
 
     private Fachada f;
     private Dispositivo dispositivo;
     private Menu menu;
     private Servicio servicioActual;
-
+    private LoginControlador loginControlador;
+    
     private Categoria categoriaSeleccionada;
 
     public ClienteUI(Dispositivo dispositivo) {
@@ -62,6 +65,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
         this.f = Fachada.getInstancia();
         this.menu = Menu.getInstancia();
+
+        this.loginControlador = new LoginControlador(this, dispositivo);
 
         cargarCategorias();
         cargarItems();
@@ -75,36 +80,82 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
         });
     }
 
-    private void ingresar() throws UsuarioException, DispositivoException {
-        String usuario = jUsuario.getText();
-        String contrasena = new String(jContrasena.getPassword());
+    @Override
+    public String getUsuario() {
+        return jUsuario.getText();
+    }
 
-        try {
+    @Override
+    public String getContrasena() {
+        return new String(jContrasena.getPassword());
+    }
 
-            if (!usuario.isBlank() && !contrasena.isBlank()) {
-                servicioActual = login(usuario, contrasena);
+    @Override
+    public void mostrarError(String mensaje) {
+        msgError.setText(mensaje);
+    }
+    
+        @Override
+    public Dispositivo getDispositivo() {
+        return this.dispositivo;
+    }
 
-                //Suscribir después de inicializar 
-                this.servicioActual.subscribir(this);
+    @Override
+    public void limpiarSesionDispositivo() throws DispositivoException {
+         dispositivo.setServicioActivo(null);
+    }
 
-                usuarioLogueadoFlag.setVisible(true);
-                msgError.setText("");
-            } else {
-                cerrarSesion();
-                throw new UsuarioException("Revise las credenciales ingresadas");
+    @Override
+    public void setLogueado(boolean estado) {
+        usuarioLogueadoFlag.setVisible(estado);
+
+        // NUEVO: Actualizar referencia al servicio actual
+        if (estado) {
+            servicioActual = loginControlador.getServicioActual();
+            if (servicioActual != null) {
+                servicioActual.subscribir(this);
             }
-
-        } catch (UsuarioException ex) {
-            msgError.setText(ex.getMessage());
-        } catch (DispositivoException ex) {
-            msgError.setText(ex.getMessage());
+        } else {
+            servicioActual = null;
         }
-
     }
 
-    public Servicio login(String usuario, String contrasena) throws UsuarioException, DispositivoException {
-        return Fachada.getInstancia().loginCliente(usuario, contrasena, this.dispositivo);
+    @Override
+    public void limpiarCampos() {
+        jUsuario.setText("");
+        jContrasena.setText("");
     }
+
+//    private void ingresar() throws UsuarioException, DispositivoException {
+//        String usuario = jUsuario.getText();
+//        String contrasena = new String(jContrasena.getPassword());
+//
+//        try {
+//
+//            if (!usuario.isBlank() && !contrasena.isBlank()) {
+//                servicioActual = login(usuario, contrasena);
+//
+//                //Suscribir después de inicializar 
+//                this.servicioActual.subscribir(this);
+//
+//                usuarioLogueadoFlag.setVisible(true);
+//                msgError.setText("");
+//            } else {
+//                cerrarSesion();
+//                throw new UsuarioException("Revise las credenciales ingresadas");
+//            }
+//
+//        } catch (UsuarioException ex) {
+//            msgError.setText(ex.getMessage());
+//        } catch (DispositivoException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//
+//    }
+//
+//    public Servicio login(String usuario, String contrasena) throws UsuarioException, DispositivoException {
+//        return Fachada.getInstancia().loginCliente(usuario, contrasena, this.dispositivo);
+//    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -401,9 +452,9 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
                 .addComponent(msgFinServicio, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
                 .addGap(19, 19, 19))
         );
 
@@ -415,13 +466,15 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
     }//GEN-LAST:event_jUsuarioActionPerformed
 
     private void jBtnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnLoginActionPerformed
-        try {
-            ingresar();
-        } catch (UsuarioException ex) {
-            msgError.setText(ex.getMessage());
-        } catch (DispositivoException ex) {
-            msgError.setText(ex.getMessage());
-        }
+        loginControlador.procesarLogin();
+        
+//        try {
+//            ingresar();
+//        } catch (UsuarioException ex) {
+//            msgError.setText(ex.getMessage());
+//        } catch (DispositivoException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
     }//GEN-LAST:event_jBtnLoginActionPerformed
 
     private void btnConfirmarPedidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarPedidosActionPerformed
@@ -537,8 +590,8 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             Item item = lItems.getSelectedValue();
             String comentario = tComentario.getText();
             Pedido nuevoPedido;
-            
-            if(item!= null){
+
+            if (item != null) {
                 nuevoPedido = new Pedido(item, comentario, servicioActual);
                 servicioActual.agregarPedido(nuevoPedido);
                 cargarPedidosEnTabla(servicioActual.getPedidos());
@@ -613,7 +666,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 
     }
 
-       private void confimarPedidos() {
+    private void confimarPedidos() {
 
         try {
             if (servicioActual == null) {
@@ -724,16 +777,18 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
 //
 //    }
     private void cerrarSesion() {
-        try {
-            usuarioLogueadoFlag.setVisible(false);
-            jUsuario.setText("");
-            jContrasena.setText("");
-
-            servicioActual = null;
-            dispositivo.setServicioActivo(servicioActual);
-        } catch (DispositivoException ex) {
-            msgError.setText(ex.getMessage());
-        }
+         loginControlador.cerrarSesion();
+        
+//        try {
+//            usuarioLogueadoFlag.setVisible(false);
+//            jUsuario.setText("");
+//            jContrasena.setText("");
+//
+//            servicioActual = null;
+//            dispositivo.setServicioActivo(servicioActual);
+//        } catch (DispositivoException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
     }
 
     private void actualizarMonto() {
@@ -760,7 +815,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador {
             actualizarMonto();
         }
     }
+
+
+
 }
-
-
-
