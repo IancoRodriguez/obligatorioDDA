@@ -18,8 +18,13 @@ import Servicios.Fachada;
 import Dominio.Observer.Observable;
 import Dominio.Observer.Observador;
 import Servicios.Fachada;
+import UI.Controladores.ClienteView;
+import UI.Controladores.FinalizarServicioControlador;
+
 import UI.Controladores.LoginControlador;
-import UI.Controladores.LoginView;
+
+import UI.Controladores.PedidosControlador;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -48,14 +53,17 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author ianco
  */
-public class ClienteUI extends javax.swing.JFrame implements Observador, LoginView {
+public class ClienteUI extends javax.swing.JFrame implements Observador, ClienteView {
 
     private Fachada f;
     private Dispositivo dispositivo;
     private Menu menu;
     private Servicio servicioActual;
+
     private LoginControlador loginControlador;
-    
+    private PedidosControlador pedidosControlador;
+    private FinalizarServicioControlador finalizarServicioControlador;
+
     private Categoria categoriaSeleccionada;
 
     public ClienteUI(Dispositivo dispositivo) {
@@ -67,15 +75,17 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
         this.menu = Menu.getInstancia();
 
         this.loginControlador = new LoginControlador(this, dispositivo);
+        this.pedidosControlador = new PedidosControlador(this);
+        this.finalizarServicioControlador = new FinalizarServicioControlador(this);
 
-        cargarCategorias();
-        cargarItems();
+        pedidosControlador.inicializar();
+
         setVisible(true);
 
         // Listener para cargar la lista de items; 
         lCategorias.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                cargarItems();
+                pedidosControlador.onCategoriaSeleccionada(); // CAMBIO: usar controlador
             }
         });
     }
@@ -94,22 +104,21 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
     public void mostrarError(String mensaje) {
         msgError.setText(mensaje);
     }
-    
-        @Override
+
+    @Override
     public Dispositivo getDispositivo() {
         return this.dispositivo;
     }
 
     @Override
     public void limpiarSesionDispositivo() throws DispositivoException {
-         dispositivo.setServicioActivo(null);
+        dispositivo.setServicioActivo(null);
     }
 
     @Override
     public void setLogueado(boolean estado) {
         usuarioLogueadoFlag.setVisible(estado);
 
-        // NUEVO: Actualizar referencia al servicio actual
         if (estado) {
             servicioActual = loginControlador.getServicioActual();
             if (servicioActual != null) {
@@ -118,6 +127,9 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
         } else {
             servicioActual = null;
         }
+
+        // NUEVO: Notificar al controlador de pedidos sobre el cambio
+        pedidosControlador.onServicioActualizado();
     }
 
     @Override
@@ -156,7 +168,6 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
 //    public Servicio login(String usuario, String contrasena) throws UsuarioException, DispositivoException {
 //        return Fachada.getInstancia().loginCliente(usuario, contrasena, this.dispositivo);
 //    }
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -467,7 +478,7 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
 
     private void jBtnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnLoginActionPerformed
         loginControlador.procesarLogin();
-        
+
 //        try {
 //            ingresar();
 //        } catch (UsuarioException ex) {
@@ -478,19 +489,19 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
     }//GEN-LAST:event_jBtnLoginActionPerformed
 
     private void btnConfirmarPedidosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarPedidosActionPerformed
-        confimarPedidos();
+        pedidosControlador.confirmarPedidos();
     }//GEN-LAST:event_btnConfirmarPedidosActionPerformed
 
     private void btnFinalizarServicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarServicioActionPerformed
-        finalizarServicio();
+        finalizarServicioControlador.procesarFinalizarServicio();
     }//GEN-LAST:event_btnFinalizarServicioActionPerformed
 
     private void btnAgregarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarPedidoActionPerformed
-        registrarPedido();
+        pedidosControlador.registrarPedido();
     }//GEN-LAST:event_btnAgregarPedidoActionPerformed
 
     private void btnEliminarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarPedidoActionPerformed
-        eliminarPedido();
+        pedidosControlador.eliminarPedido();
     }//GEN-LAST:event_btnEliminarPedidoActionPerformed
 
 
@@ -529,228 +540,224 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
     private javax.swing.JLabel usuarioLogueadoFlag;
     // End of variables declaration//GEN-END:variables
 
-    private void cargarCategorias() {
-        try {
-            // 1. Obtener datos desde la fachada
-            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
-            for (Categoria cat : menu.getCategorias()) {
-                modelo.addElement(cat);
-            }
-
-            // 2. Configurar modelo y renderizador
-            lCategorias.setModel(modelo);
-            lCategorias.setCellRenderer(new RenderizadorListas<>(
-                    categoria -> categoria.getNombre()
-            ));
-
-        } catch (Exception ex) {
-            msgError.setText(ex.getMessage());
-        }
-    }
-
-    private void cargarItems() {
-        try {
-            // Obtener items de la fachada 
-            DefaultListModel<Item> modelo = new DefaultListModel<>();
-
-            Categoria c = lCategorias.getSelectedValue();
-
-            if (c != null) {
-                for (Item item : c.getItems()) {
-                    //desuscribir para evitar duplicados 
-                    item.desuscribir(this);
-
-                    // Suscribirse al item para recibir cambios
-                    item.subscribir(this);
-
-                    if (item.tieneStockDisponible()) {
-                        modelo.addElement(item);
-                    }
-                }
-            }
-
-            //Configurar modelo y renderizador 
-            lItems.setModel(modelo);
-            lItems.setCellRenderer(new RenderizadorListas<>(
-                    item -> item.getNombre() + " - $" + item.getPrecioUnitario()
-            ));
-        } catch (Exception ex) {
-            msgError.setText(ex.getMessage());
-        }
-
-    }
-
-    public void registrarPedido() {
-
-        try {
-
-            if (servicioActual == null) {
-                throw new ServicioException("Debe identificarse antes de agregar un pedido");
-            }
-            Item item = lItems.getSelectedValue();
-            String comentario = tComentario.getText();
-            Pedido nuevoPedido;
-
-            if (item != null) {
-                nuevoPedido = new Pedido(item, comentario, servicioActual);
-                servicioActual.agregarPedido(nuevoPedido);
-                cargarPedidosEnTabla(servicioActual.getPedidos());
-            } else {
-                throw new PedidoException("Debe seleccionar un item");
-            }
-
-        } catch (StockException ex) {
-            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
-            msgError.setText(ex.getMessage());
-        } catch (ServicioException ex) {
-            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
-            msgError.setText(ex.getMessage());
-        } catch (PedidoException ex) {
-            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
-            msgError.setText(ex.getMessage());
-        }
-
-    }
-
-    private void cargarPedidosEnTabla(List<Pedido> pedidos) {
-        // 1. Crear un modelo de tabla vacío
-        DefaultTableModel modelo = new DefaultTableModel();
-
-        // 2. Definir las columnas
-        modelo.setColumnIdentifiers(new String[]{"Item", "Comentario", "Estado", "Unidad", "Gestor", "Precio"});
-
-        // 3. Llenar el modelo con datos
-        for (Pedido pedido : pedidos) {
-            modelo.addRow(new Object[]{
-                pedido.getItem().getNombre(), // Asegúrate de que Item tenga toString()
-                pedido.getComentario(),
-                pedido.getEstado(),
-                pedido.getItem().getUnidadProcesadora(),
-                pedido.getGestor(),
-                pedido.getItem().getPrecioUnitario()
-            });
-        }
-
-        // 4. Asignar el modelo a la tabla
-        tablaPedidos.setModel(modelo);
-
-        // 5. Ajustar el ancho de las columnas (opcional)
-        tablaPedidos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-        // 6. Actualizar la interfaz
-        tablaPedidos.revalidate();
-        tablaPedidos.repaint();
-    }
-
-    private void eliminarPedido() {
-
-        try {
-
-            if (servicioActual == null) {
-                throw new ServicioException("Debe identificarse antes de eliminar pedidos");
-            }
-
-            if (tablaPedidos.getSelectedRow() != -1) {
-                Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
-                servicioActual.eliminarPedido(quitarPedido);
-                cargarPedidosEnTabla(servicioActual.getPedidos());
-            } else {
-                throw new PedidoException("Debe seleccionar un item a eliminar");
-            }
-
-        } catch (ServicioException ex) {
-            msgError.setText(ex.getMessage());
-        } catch (PedidoException ex) {
-            msgError.setText(ex.getMessage());
-        }
-
-    }
-
-    private void confimarPedidos() {
-
-        try {
-            if (servicioActual == null) {
-                throw new ServicioException("Debe identificarse antes de confirmar pedidos");
-            }
-            servicioActual.confirmar();
-            cargarPedidosEnTabla(servicioActual.getPedidos());
-        } catch (StockException ex) {
-            msgError.setText(ex.getMessage());
-            // Hay que renderizar en la tabla de pedidos solo aquellos que estan SIN CONFIRMAR
-            cargarPedidosEnTabla(servicioActual.pedidosConStock());
-        } catch (ServicioException ex) {
-            msgError.setText(ex.getMessage());
-        }
-    }
-
-    private void finalizarServicio() {
-        try {
-            if (servicioActual == null) {
-                throw new ServicioException("No hay servicio activo");
-            }
-
-            // Primer clic: Mostrar resumen
-            if (btnFinalizarServicio.getText().equals("Finalizar Servicio")) {
-                mostrarResumenPago(this.servicioActual);
-                btnFinalizarServicio.setText("CONFIRMAR PAGO");
-                return;
-            }
-
-            // Segundo clic: Confirmación obligatoria
-            if (btnFinalizarServicio.getText().equals("CONFIRMAR PAGO")) {
-                servicioActual.finalizar(); // Finaliza pedidos y aplica descuentos
-
-                // Feedback visual
-                msgFinServicio.setText(
-                        "<html><div style='color: green; text-align: center;'>"
-                        + "✅ <b>SERVICIO FINALIZADO</b></div></html>"
-                );
-
-                cerrarSesion(); // Libera tablet y limpia datos (tu método existente)
-                limpiarInterfaz(); // Limpia la tabla y restablece el botón
-            }
-
-        } catch (ServicioException ex) {
-            msgError.setText(ex.getMessage());
-            reiniciarFlujo();
-        }
-    }
-
+//    private void cargarCategorias() {
+//        try {
+//            // 1. Obtener datos desde la fachada
+//            DefaultListModel<Categoria> modelo = new DefaultListModel<>();
+//            for (Categoria cat : menu.getCategorias()) {
+//                modelo.addElement(cat);
+//            }
+//
+//            // 2. Configurar modelo y renderizador
+//            lCategorias.setModel(modelo);
+//            lCategorias.setCellRenderer(new RenderizadorListas<>(
+//                    categoria -> categoria.getNombre()
+//            ));
+//
+//        } catch (Exception ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//    }
+//    private void cargarItems() {
+//        try {
+//            // Obtener items de la fachada 
+//            DefaultListModel<Item> modelo = new DefaultListModel<>();
+//
+//            Categoria c = lCategorias.getSelectedValue();
+//
+//            if (c != null) {
+//                for (Item item : c.getItems()) {
+//                    //desuscribir para evitar duplicados 
+//                    item.desuscribir(this);
+//
+//                    // Suscribirse al item para recibir cambios
+//                    item.subscribir(this);
+//
+//                    if (item.tieneStockDisponible()) {
+//                        modelo.addElement(item);
+//                    }
+//                }
+//            }
+//
+//            //Configurar modelo y renderizador 
+//            lItems.setModel(modelo);
+//            lItems.setCellRenderer(new RenderizadorListas<>(
+//                    item -> item.getNombre() + " - $" + item.getPrecioUnitario()
+//            ));
+//        } catch (Exception ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//
+//    }
+//    public void registrarPedido() {
+//
+//        try {
+//
+//            if (servicioActual == null) {
+//                throw new ServicioException("Debe identificarse antes de agregar un pedido");
+//            }
+//            Item item = lItems.getSelectedValue();
+//            String comentario = tComentario.getText();
+//            Pedido nuevoPedido;
+//
+//            if (item != null) {
+//                nuevoPedido = new Pedido(item, comentario, servicioActual);
+//                servicioActual.agregarPedido(nuevoPedido);
+//                cargarPedidosEnTabla(servicioActual.getPedidos());
+//            } else {
+//                throw new PedidoException("Debe seleccionar un item");
+//            }
+//
+//        } catch (StockException ex) {
+//            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Sin stock", JOptionPane.ERROR_MESSAGE);
+//            msgError.setText(ex.getMessage());
+//        } catch (ServicioException ex) {
+//            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+//            msgError.setText(ex.getMessage());
+//        } catch (PedidoException ex) {
+//            //JOptionPane.showMessageDialog(this, ex.getMessage(), "Login incorrecto", JOptionPane.ERROR_MESSAGE);
+//            msgError.setText(ex.getMessage());
+//        }
+//
+//    }
+//
+//    private void cargarPedidosEnTabla(List<Pedido> pedidos) {
+//        // 1. Crear un modelo de tabla vacío
+//        DefaultTableModel modelo = new DefaultTableModel();
+//
+//        // 2. Definir las columnas
+//        modelo.setColumnIdentifiers(new String[]{"Item", "Comentario", "Estado", "Unidad", "Gestor", "Precio"});
+//
+//        // 3. Llenar el modelo con datos
+//        for (Pedido pedido : pedidos) {
+//            modelo.addRow(new Object[]{
+//                pedido.getItem().getNombre(), // Asegúrate de que Item tenga toString()
+//                pedido.getComentario(),
+//                pedido.getEstado(),
+//                pedido.getItem().getUnidadProcesadora(),
+//                pedido.getGestor(),
+//                pedido.getItem().getPrecioUnitario()
+//            });
+//        }
+//
+//        // 4. Asignar el modelo a la tabla
+//        tablaPedidos.setModel(modelo);
+//
+//        // 5. Ajustar el ancho de las columnas (opcional)
+//        tablaPedidos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+//
+//        // 6. Actualizar la interfaz
+//        tablaPedidos.revalidate();
+//        tablaPedidos.repaint();
+//    }
+//    private void eliminarPedido() {
+//
+//        try {
+//
+//            if (servicioActual == null) {
+//                throw new ServicioException("Debe identificarse antes de eliminar pedidos");
+//            }
+//
+//            if (tablaPedidos.getSelectedRow() != -1) {
+//                Pedido quitarPedido = servicioActual.getPedidos().get(tablaPedidos.getSelectedRow());
+//                servicioActual.eliminarPedido(quitarPedido);
+//                cargarPedidosEnTabla(servicioActual.getPedidos());
+//            } else {
+//                throw new PedidoException("Debe seleccionar un item a eliminar");
+//            }
+//
+//        } catch (ServicioException ex) {
+//            msgError.setText(ex.getMessage());
+//        } catch (PedidoException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//
+//    }
+//    private void confimarPedidos() {
+//
+//        try {
+//            if (servicioActual == null) {
+//                throw new ServicioException("Debe identificarse antes de confirmar pedidos");
+//            }
+//            servicioActual.confirmar();
+//            cargarPedidosEnTabla(servicioActual.getPedidos());
+//        } catch (StockException ex) {
+//            msgError.setText(ex.getMessage());
+//            // Hay que renderizar en la tabla de pedidos solo aquellos que estan SIN CONFIRMAR
+//            cargarPedidosEnTabla(servicioActual.pedidosConStock());
+//        } catch (ServicioException ex) {
+//            msgError.setText(ex.getMessage());
+//        }
+//    }
+//    private void finalizarServicio() {
+//        try {
+//            if (servicioActual == null) {
+//                throw new ServicioException("No hay servicio activo");
+//            }
+//
+//            // Primer clic: Mostrar resumen
+//            if (btnFinalizarServicio.getText().equals("Finalizar Servicio")) {
+//                mostrarResumenPago(this.servicioActual);
+//                btnFinalizarServicio.setText("CONFIRMAR PAGO");
+//                return;
+//            }
+//
+//            // Segundo clic: Confirmación obligatoria
+//            if (btnFinalizarServicio.getText().equals("CONFIRMAR PAGO")) {
+//                servicioActual.finalizar(); // Finaliza pedidos y aplica descuentos
+//
+//                // Feedback visual
+//                msgFinServicio.setText(
+//                        "<html><div style='color: green; text-align: center;'>"
+//                        + "✅ <b>SERVICIO FINALIZADO</b></div></html>"
+//                );
+//
+//                cerrarSesion(); // Libera tablet y limpia datos (tu método existente)
+//                limpiarInterfaz(); // Limpia la tabla y restablece el botón
+//            }
+//
+//        } catch (ServicioException ex) {
+//            msgError.setText(ex.getMessage());
+//            reiniciarFlujo();
+//        }
+//    }
 // Métodos auxiliares
-    private void mostrarResumenPago(Servicio servicio) {
-
-        // 1. Obtener costo inicial
-        double costoInicial = servicio.getMontoTotal();
-
-        // 2. Aplicar beneficio (esto debería modificar el estado del servicio)
-        servicio.aplicarBeneficiosCliente();
-
-        // 3. Obtener costo FINAL después del descuento
-        double costoFinal = servicio.getMontoTotal();
-
-        // Obtenemos directamente el mensaje de beneficio del tipo de cliente
-        String mensajeBeneficio = servicio.getCliente().getTipoCliente().getMensajeBeneficio();
-
-        // Construimos el resumen sin mostrar el monto del descuento explícitamente
-        String resumen = "Resumen de Pago\n"
-                + "---------------\n"
-                + "Beneficio:  " + mensajeBeneficio + "\n"
-                + "---------------\n"
-                + "Total:      " + formatoMoneda(costoFinal);
-
-        msgFinServicio.setText(resumen);
-    }
-
+//    private void mostrarResumenPago(Servicio servicio) {
+//
+//        // 1. Obtener costo inicial
+//        double costoInicial = servicio.getMontoTotal();
+//
+//        // 2. Aplicar beneficio (esto debería modificar el estado del servicio)
+//        servicio.aplicarBeneficiosCliente();
+//
+//        // 3. Obtener costo FINAL después del descuento
+//        double costoFinal = servicio.getMontoTotal();
+//
+//        // Obtenemos directamente el mensaje de beneficio del tipo de cliente
+//        String mensajeBeneficio = servicio.getCliente().getTipoCliente().getMensajeBeneficio();
+//
+//        // Construimos el resumen sin mostrar el monto del descuento explícitamente
+//        String resumen = "Resumen de Pago\n"
+//                + "---------------\n"
+//                + "Beneficio:  " + mensajeBeneficio + "\n"
+//                + "---------------\n"
+//                + "Total:      " + formatoMoneda(costoFinal);
+//
+//        msgFinServicio.setText(resumen);
+//    }
     private String formatoMoneda(double valor) {
         return String.format("$%,.2f", valor);
     }
 
-    private void limpiarInterfaz() {
-        cargarPedidosEnTabla(new ArrayList<>()); // Limpia la tabla de pedidos
+    @Override
+    public void limpiarInterfaz() {
+        actualizarTablaPedidos(new ArrayList<>()); // Limpia la tabla de pedidos
         btnFinalizarServicio.setText("Finalizar Servicio"); // Restablece el botón
+        msgFinServicio.setText(""); // Limpia mensaje
     }
 
-    private void reiniciarFlujo() {
+    @Override
+    public void reiniciarFlujo() {
         btnFinalizarServicio.setText("Finalizar Servicio");
         msgFinServicio.setText("");
     }
@@ -776,9 +783,10 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
 //        
 //
 //    }
-    private void cerrarSesion() {
-         loginControlador.cerrarSesion();
-        
+    @Override
+    public void cerrarSesion() {
+        loginControlador.cerrarSesion();
+
 //        try {
 //            usuarioLogueadoFlag.setVisible(false);
 //            jUsuario.setText("");
@@ -796,26 +804,196 @@ public class ClienteUI extends javax.swing.JFrame implements Observador, LoginVi
         jlMontoTotal.setText(String.format("Total: $%.2f", monto));
     }
 
+//    @Override
+//    public void notificar(Observable origen, Object evento) {
+//        if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
+//            DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
+//            Item item = (Item) origen;
+//
+//            if (item.isDisponible()) {
+//                if (!model.contains(item)) {
+//                    model.addElement(item);
+//                }
+//            } else {
+//                model.removeElement(item);
+//            }
+//        }
+//
+//        if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
+//            actualizarMonto();
+//        }
+//    }
     @Override
-    public void notificar(Observable origen, Object evento) {
-        if (evento instanceof Observable.Evento && evento == Observable.Evento.ITEM_ACTUALIZADO) {
-            DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
-            Item item = (Item) origen;
+    public Item getItemSeleccionado() {
+        return lItems.getSelectedValue();
+    }
 
-            if (item.isDisponible()) {
-                if (!model.contains(item)) {
-                    model.addElement(item);
-                }
-            } else {
-                model.removeElement(item);
+    @Override
+    public Categoria getCategoriaSeleccionada() {
+        return lCategorias.getSelectedValue();
+    }
+
+    @Override
+    public String getComentario() {
+        return tComentario.getText();
+    }
+
+    @Override
+    public int getPedidoSeleccionadoIndex() {
+        return tablaPedidos.getSelectedRow();
+    }
+
+    @Override
+    public void cargarCategorias(List<Categoria> categorias) {
+        DefaultListModel<Categoria> modelo = new DefaultListModel<>();
+        for (Categoria cat : categorias) {
+            modelo.addElement(cat);
+        }
+        lCategorias.setModel(modelo);
+        lCategorias.setCellRenderer(new RenderizadorListas<>(
+                categoria -> categoria.getNombre()
+        ));
+    }
+
+    @Override
+    public void cargarItems(List<Item> items) {
+        DefaultListModel<Item> modelo = new DefaultListModel<>();
+
+        for (Item item : items) {
+            // Desuscribir para evitar duplicados
+            item.desuscribir(this);
+            // Suscribirse al item para recibir cambios
+            item.subscribir(this);
+            modelo.addElement(item);
+        }
+
+        lItems.setModel(modelo);
+        lItems.setCellRenderer(new RenderizadorListas<>(
+                item -> item.getNombre() + " - $" + item.getPrecioUnitario()
+        ));
+    }
+
+    @Override
+    public void actualizarTablaPedidos(List<Pedido> pedidos) {
+        DefaultTableModel modelo = new DefaultTableModel();
+        modelo.setColumnIdentifiers(new String[]{"Item", "Comentario", "Estado", "Unidad", "Gestor", "Precio"});
+
+        for (Pedido pedido : pedidos) {
+            modelo.addRow(new Object[]{
+                pedido.getItem().getNombre(),
+                pedido.getComentario(),
+                pedido.getEstado(),
+                pedido.getItem().getUnidadProcesadora(),
+                pedido.getGestor(),
+                pedido.getItem().getPrecioUnitario()
+            });
+        }
+
+        tablaPedidos.setModel(modelo);
+        tablaPedidos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tablaPedidos.revalidate();
+        tablaPedidos.repaint();
+    }
+
+    @Override
+    public void actualizarMontoTotal(double monto) {
+        jlMontoTotal.setText(String.format("Total: $%.2f", monto));
+    }
+
+    @Override
+    public void limpiarComentario() {
+        tComentario.setText("");
+    }
+
+ 
+
+    @Override
+    public void limpiarMensajesError() {
+        msgError.setText("");
+    }
+
+    @Override
+    public Servicio getServicioActual() {
+        return servicioActual;
+    }
+
+    @Override
+    public void mostrarResumenPago(String resumen) {
+        msgFinServicio.setText(resumen);
+    }
+
+    @Override
+    public void cambiarTextoBotonFinalizar(String texto) {
+        btnFinalizarServicio.setText(texto);
+    }
+
+    @Override
+    public void mostrarMensajeExito(String mensaje) {
+        msgFinServicio.setText(mensaje);
+    }
+
+    //Nuevos metodos para el observer 
+    @Override
+    public void actualizarItemEnLista(Item item) {
+        DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
+
+        // Buscar el item en el modelo y actualizarlo
+        for (int i = 0; i < model.getSize(); i++) {
+            Item itemEnLista = model.getElementAt(i);
+            if (itemEnLista.equals(item)) {
+                // Actualizar el item (el renderizador se encargará de mostrar los cambios)
+                model.setElementAt(item, i);
+                break;
             }
         }
 
-        if (evento == Observable.Evento.MONTO_ACTUALIZADO && origen == servicioActual) {
-            actualizarMonto();
+        // Refrescar la lista
+        lItems.revalidate();
+        lItems.repaint();
+    }
+
+    @Override
+    public void removerItemDeLista(Item item) {
+        DefaultListModel<Item> model = (DefaultListModel<Item>) lItems.getModel();
+        model.removeElement(item);
+
+        // Desuscribirse del item
+        item.desuscribir(this);
+    }
+
+    @Override
+    public void refrescarListaItems() {
+        // Delegar al controlador para recargar items
+        if (pedidosControlador != null) {
+            pedidosControlador.onCategoriaSeleccionada();
         }
     }
 
+    // Método notificar actualizado para usar las nuevas interfaces
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        if (evento instanceof Observable.Evento) {
+            Observable.Evento tipoEvento = (Observable.Evento) evento;
 
+            switch (tipoEvento) {
+                case ITEM_ACTUALIZADO:
+                    Item item = (Item) origen;
+                    if (item.tieneStockDisponible()) {
+                        actualizarItemEnLista(item);
+                    } else {
+                        removerItemDeLista(item);
+                    }
+                    break;
 
+                case MONTO_ACTUALIZADO:
+                    if (origen == servicioActual) {
+                        actualizarMontoTotal(servicioActual.getMontoTotal());
+                    }
+                    break;
+
+                // Otros casos según necesites...
+            }
+        }
+
+    }
 }

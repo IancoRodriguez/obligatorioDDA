@@ -17,13 +17,13 @@ import Servicios.Fachada;
 
 
 public class LoginControlador {
-    private final LoginView view;
+    private final ClienteView view;
     private final Fachada fachada;
     private final Dispositivo dispositivo;
     private Servicio servicioActual;
     
     // Constructor que acepta vista y dispositivo
-    public LoginControlador(LoginView view, Dispositivo dispositivo) {
+    public LoginControlador(ClienteView view, Dispositivo dispositivo) {
         this.view = view;
         this.fachada = Fachada.getInstancia();
         this.dispositivo = dispositivo;
