@@ -14,10 +14,14 @@ public class Servicio extends Observable {
     private Cliente cliente;
     private List<Pedido> pedidos;
     private double montoTotal;
+    
+    // NUEVO: Para trackear qué pedidos ya consumieron stock
+    private List<Pedido> pedidosConfirmados;
 
     public Servicio(Cliente cliente) {
         this.cliente = cliente;
         this.pedidos = new ArrayList<>();
+        this.pedidosConfirmados = new ArrayList<>();
     }
 
     // Agrega un pedido al servicio
@@ -29,80 +33,96 @@ public class Servicio extends Observable {
 
     // Eliminar pedido del servicio 
     public void eliminarPedido(Pedido pedido) throws ServicioException {
-        // 1. Valida si se puede eliminar (solo permitido para estado Confirmado)
-        pedido.validarEliminacion();
+        // Si el pedido estaba confirmado, reintegrar stock
+        if (pedidosConfirmados.contains(pedido)) {
+            reintegrarStock(pedido);
+            pedidosConfirmados.remove(pedido);
+        }
 
-        // 2. Reintegrar stock (ya que sabemos que está confirmado)
-        reintegrarStock(pedido);
-
-        // 3. Eliminar de la lista de pedidos
+        // Eliminar de la lista de pedidos
         pedidos.remove(pedido);
 
-        // 4. Actualizar monto total
+        // Actualizar monto total
         montoTotal -= pedido.calcularTotal();
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
-   public void confirmar() throws StockException {
-    // Paso 1: Calcular requerimientos totales (optimizado)
-    Map<Insumo, Integer> requerimientos = new HashMap<>();
-    for (Pedido pedido : pedidos) {
-        for (Ingrediente ing : pedido.getEstado().ingredientesParaConfirmar(pedido)) {
-            requerimientos.merge(ing.getInsumo(), ing.getCantidad(), Integer::sum);
-        }
-    }
-
-    // Paso 2: Validar stock global (sin consumir)
-    for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
-        Insumo insumo = entry.getKey();
-        int totalRequerido = entry.getValue();
-        if (insumo.getStock() < totalRequerido) {
-            throw new StockException(
-                "Stock insuficiente de " + insumo.getNombre() + 
-                " (necesario: " + totalRequerido + 
-                ", disponible: " + insumo.getStock() + ")"
-            );
-        }
-    }
-
-    // Paso 3: Consumir recursos (globalmente, no por pedido)
-    for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
-        Insumo insumo = entry.getKey();
-        int cantidad = entry.getValue();
-        insumo.consumirStock(cantidad); // ¡Implementa este método en Insumo!
-    }
-
-    // Paso 4: Cambiar estado de pedidos (sin consumir stock)
-    for (Pedido pedido : pedidos) {
-        pedido.getEstado().confirmar(pedido); // Nuevo método que no valida stock
-    }
-}
-
-    public void validarStockPedidos() throws StockException {
+    public void confirmar() throws StockException {
+        // Solo confirmar pedidos que no estén ya confirmados
+        List<Pedido> pedidosPorConfirmar = new ArrayList<>();
         for (Pedido pedido : pedidos) {
+            if (!pedidosConfirmados.contains(pedido)) {
+                pedidosPorConfirmar.add(pedido);
+            }
+        }
+        
+        if (pedidosPorConfirmar.isEmpty()) {
+            return; // No hay nada que confirmar
+        }
+
+        // Calcular requerimientos solo de pedidos nuevos
+        Map<Insumo, Integer> requerimientos = calcularRequerimientos(pedidosPorConfirmar);
+
+        // Validar stock disponible
+        validarStockDisponible(requerimientos);
+
+        // Consumir stock
+        consumirStock(requerimientos);
+
+        // Marcar pedidos como confirmados
+        for (Pedido pedido : pedidosPorConfirmar) {
+            pedido.getEstado().confirmar(pedido);
+            pedidosConfirmados.add(pedido);
+        }
+    }
+
+    private Map<Insumo, Integer> calcularRequerimientos(List<Pedido> pedidosAConfirmar) {
+        Map<Insumo, Integer> requerimientos = new HashMap<>();
+        
+        for (Pedido pedido : pedidosAConfirmar) {
             for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
                 Insumo insumo = ingrediente.getInsumo();
-                int cantidadNecesariaTotal = 0;
+                int cantidad = ingrediente.getCantidad();
+                requerimientos.merge(insumo, cantidad, Integer::sum);
+            }
+        }
+        
+        return requerimientos;
+    }
 
-                // Sumo todas las cantidades necesarias de este insumo en la lista de pedidos
-                for (Pedido p : pedidos) {
-                    for (Ingrediente ing : p.getItem().getIngredientes()) {
-                        if (ing.getInsumo().equals(insumo)) {
-                            cantidadNecesariaTotal += ing.getCantidad();
-                        }
-                    }
-                }
-
-                // Verifico si hay suficiente stock para este insumo
-                if (insumo.getStock() < cantidadNecesariaTotal) {
-                    throw new StockException("Nos hemos quedado sin stock de " + pedido.getItem().getNombre() + " y no pudimos avisarte antes!");
-                }
+    private void validarStockDisponible(Map<Insumo, Integer> requerimientos) throws StockException {
+        for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
+            Insumo insumo = entry.getKey();
+            int cantidadRequerida = entry.getValue();
+            
+            if (insumo.getStock() < cantidadRequerida) {
+                throw new StockException(
+                    "Stock insuficiente de " + insumo.getNombre() + 
+                    " (necesario: " + cantidadRequerida + 
+                    ", disponible: " + insumo.getStock() + ")"
+                );
             }
         }
     }
 
+    private void consumirStock(Map<Insumo, Integer> requerimientos) throws StockException {
+        for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
+            Insumo insumo = entry.getKey();
+            int cantidad = entry.getValue();
+            insumo.consumirStock(cantidad);
+        }
+    }
+
+    private void reintegrarStock(Pedido pedido) {
+        for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+            Insumo insumo = ingrediente.getInsumo();
+            int cantidad = ingrediente.getCantidad();
+            insumo.agregarStock(cantidad);
+        }
+    }
+
     public List<Pedido> pedidosConStock() {
-        List<Pedido> aux = new ArrayList();
+        List<Pedido> aux = new ArrayList<>();
         for (Pedido pedido : pedidos) {
             if (pedido.getItem().tieneStockDisponible()) {
                 aux.add(pedido);
@@ -112,7 +132,7 @@ public class Servicio extends Observable {
     }
 
     public List<Pedido> pedidosEliminados() {
-        List<Pedido> aux = new ArrayList();
+        List<Pedido> aux = new ArrayList<>();
         for (Pedido pedido : pedidos) {
             if (!pedido.getItem().tieneStockDisponible()) {
                 aux.add(pedido);
@@ -123,36 +143,18 @@ public class Servicio extends Observable {
 
     // Finaliza el servicio y aplica beneficios
     public void finalizar() throws ServicioException {
-
         for (Pedido p : pedidos) {
             p.finalizar();
         }
     }
 
     public void aplicarBeneficiosCliente() {
-
         montoTotal = cliente.getTipoCliente()
                 .aplicarBeneficio(pedidos, montoTotal);
     }
 
-    private void reintegrarStock(Pedido pedido) {
-        Item item = pedido.getItem();  // Obtener el único ítem del pedido
-
-        for (Ingrediente ingrediente : item.getIngredientes()) {
-            Insumo insumo = ingrediente.getInsumo();
-            double cantidad = ingrediente.getCantidad();  // Cantidad por unidad
-
-            // Convertir a entero (redondeando) si es necesario
-            int cantidadEntera = (int) Math.round(cantidad);
-
-            // Usar el método existente de Insumo
-            insumo.agregarStock(cantidadEntera);
-        }
-
-    }
-
     // ======================
-    // Getters
+    // Getters y Setters
     // ======================
     public Cliente getCliente() {
         return cliente;
@@ -179,20 +181,17 @@ public class Servicio extends Observable {
     }
 
     public List<Item> getItemsPorUP(UnidadProcesadora UP) {
-
-        List<Item> itemsDeLaUP = new ArrayList();
+        List<Item> itemsDeLaUP = new ArrayList<>();
         for (Pedido p : pedidos) {
             if (p.getItem().getUnidadProcesadora().equals(UP)) {
                 itemsDeLaUP.add(p.getItem());
             }
         }
-
         return itemsDeLaUP;
     }
     
-    
     public List<Pedido> mostrarPedidosPorUP(UnidadProcesadora UP) {
-        List<Pedido> res = new ArrayList();
+        List<Pedido> res = new ArrayList<>();
         for (Pedido pedido : pedidos) {
             if(pedido.getItem().getUnidadProcesadora().equals(UP)){
                 res.add(pedido);
@@ -205,9 +204,10 @@ public class Servicio extends Observable {
         return this.cliente.getNombreCompleto();
     }
     
-    
-    
-   
+    // NUEVO: Método para debugging
+    public boolean estaPedidoConfirmado(Pedido pedido) {
+        return pedidosConfirmados.contains(pedido);
+    }
 }
 
 /*
