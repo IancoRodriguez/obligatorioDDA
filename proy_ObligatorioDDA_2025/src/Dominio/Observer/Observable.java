@@ -14,7 +14,7 @@ import java.util.List;
  */
 public abstract class Observable {
     private List<Observador> subscriptores;
-    public enum Evento {ITEM_ACTUALIZADO, STOCK_ACTUALIZADO, STOCK_INSUFICIENTE, MONTO_ACTUALIZADO, PEDIDO_CONFIRMADO, PEDIDOS_ELIMINADOS_POR_STOCK}
+    public enum Evento {ITEM_ACTUALIZADO, STOCK_ACTUALIZADO, STOCK_INSUFICIENTE, MONTO_ACTUALIZADO, PEDIDO_CONFIRMADO, PEDIDOS_ELIMINADOS_POR_STOCK, PEDIDOS_CONFIRMADOS}
 
     public Observable() {
         this.subscriptores = new ArrayList();

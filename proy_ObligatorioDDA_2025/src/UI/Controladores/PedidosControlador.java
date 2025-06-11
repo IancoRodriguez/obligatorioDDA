@@ -177,25 +177,25 @@ public class PedidosControlador implements Observador {
 
             // Guardar estado inicial
             int pedidosIniciales = servicioActual.getPedidos().size();
-            List<String> itemsIniciales = new ArrayList<>();
-            for (Pedido p : servicioActual.getPedidos()) {
-                itemsIniciales.add(p.getItem().getNombre());
-            }
 
             // Llamar al método confirmar del servicio
             servicioActual.confirmar();
 
-            // Verificar resultado
+            // CRÍTICO: SIEMPRE actualizar la vista después de confirmar
+            // independientemente de si hubo eliminaciones o no
+            actualizarVistaPedidos(servicioActual);
+            cargarItemsPorCategoria();
+
+            // Verificar resultado y mostrar mensaje apropiado
             int pedidosFinales = servicioActual.getPedidos().size();
 
             if (pedidosFinales > 0) {
                 // Hay pedidos confirmados exitosamente
                 vista.mostrarMensajeExito("Pedidos confirmados exitosamente");
+            } else if (pedidosIniciales > pedidosFinales) {
+                // Solo había pedidos que se eliminaron por falta de stock
+                vista.mostrarError("No se pudieron confirmar los pedidos por falta de stock");
             }
-
-            // La tabla se actualiza automáticamente por las notificaciones del observer
-            // Recargar items por si cambió el stock
-            cargarItemsPorCategoria();
 
         } catch (StockException ex) {
             // Este caso ya no debería ocurrir con la nueva lógica
@@ -358,8 +358,6 @@ public class PedidosControlador implements Observador {
                     handleMontoActualizado(origen);
                     break;
                 case PEDIDOS_ELIMINADOS_POR_STOCK:
-                    // PROBLEMA: En este caso no tenemos los mensajes porque solo pasamos el tipo de evento
-                    // Necesitamos manejar esto diferente
                     handlePedidosEliminadosSinMensajes(origen);
                     break;
             }
@@ -373,9 +371,27 @@ public class PedidosControlador implements Observador {
                 // Si no es una lista de strings, manejo genérico
                 handlePedidosEliminadosSinMensajes(origen);
             }
-        } // CASO 3: Cualquier otro tipo de evento relacionado con pedidos eliminados
+        } // CASO 3: Evento de pedidos confirmados (string)
+        else if (evento instanceof String) {
+            String eventoStr = (String) evento;
+            if ("PEDIDOS_CONFIRMADOS".equals(eventoStr)) {
+                handlePedidosConfirmados(origen);
+            }
+        } // CASO 4: Cualquier otro tipo de evento relacionado con pedidos eliminados
         else {
             handlePedidosEliminadosSinMensajes(origen);
+        }
+    }
+
+    /**
+     * Maneja la confirmación de pedidos - actualiza la tabla para mostrar
+     * estados
+     */
+    private void handlePedidosConfirmados(Observable origen) {
+        if (origen == vista.getServicioActual()) {
+            // Actualizar la tabla para mostrar los nuevos estados
+            actualizarVistaPedidos(vista.getServicioActual());
+            cargarItemsPorCategoria();
         }
     }
 
@@ -405,6 +421,7 @@ public class PedidosControlador implements Observador {
             cargarItemsPorCategoria();
         }
     }
+
 
 
 

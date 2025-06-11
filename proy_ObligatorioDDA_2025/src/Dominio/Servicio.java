@@ -157,7 +157,14 @@ public class Servicio extends Observable {
             pedido.getEstado().confirmar(pedido);
             pedidosConfirmados.add(pedido);
         }
+
+        // CRÍTICO: Notificar que los pedidos cambiaron de estado
+        // Esto fuerza la actualización de la tabla para mostrar los estados actualizados
+        notificar(Evento.PEDIDOS_CONFIRMADOS); // Si existe este evento
+        // O alternativamente:
+        notificar("PEDIDOS_CONFIRMADOS"); // Como string genérico
     }
+
 
     private void separarPedidosPorStock(List<Pedido> pedidosPorConfirmar,
             List<Pedido> pedidosViables,

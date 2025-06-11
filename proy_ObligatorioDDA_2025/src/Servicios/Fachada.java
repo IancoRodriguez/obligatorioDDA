@@ -95,9 +95,6 @@ public class Fachada {
         return sDispositivos.getServicios();
         
     }
-     
-    
-    
-    
+
 }
 
