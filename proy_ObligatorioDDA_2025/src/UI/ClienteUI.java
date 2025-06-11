@@ -385,7 +385,7 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
                 .addGap(84, 84, 84))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(msgFinServicio, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(msgFinServicio, javax.swing.GroupLayout.PREFERRED_SIZE, 468, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(

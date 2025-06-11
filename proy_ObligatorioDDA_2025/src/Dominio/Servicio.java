@@ -14,8 +14,8 @@ public class Servicio extends Observable {
     private Cliente cliente;
     private List<Pedido> pedidos;
     private double montoTotal;
-    
-    // NUEVO: Para trackear qué pedidos ya consumieron stock
+
+    // Para trackear qué pedidos ya consumieron stock
     private List<Pedido> pedidosConfirmados;
 
     public Servicio(Cliente cliente) {
@@ -48,20 +48,164 @@ public class Servicio extends Observable {
     }
 
     public void confirmar() throws StockException {
-        // Solo confirmar pedidos que no estén ya confirmados
+        // Obtener pedidos pendientes de confirmación
         List<Pedido> pedidosPorConfirmar = new ArrayList<>();
         for (Pedido pedido : pedidos) {
             if (!pedidosConfirmados.contains(pedido)) {
                 pedidosPorConfirmar.add(pedido);
             }
         }
-        
+
         if (pedidosPorConfirmar.isEmpty()) {
             return; // No hay nada que confirmar
         }
 
+        // Calcular requerimientos totales
+        Map<Insumo, Integer> requerimientosTotales = calcularRequerimientos(pedidosPorConfirmar);
+
+        // Separar pedidos viables de los que no tienen stock
+        List<Pedido> pedidosViables = new ArrayList<>();
+        List<Pedido> pedidosSinStock = new ArrayList<>();
+
+        determinarPedidosViables(pedidosPorConfirmar, requerimientosTotales, pedidosViables, pedidosSinStock);
+
+        // Procesar eliminaciones automáticas PRIMERO
+        if (!pedidosSinStock.isEmpty()) {
+            procesarEliminacionesAutomaticas(pedidosSinStock);
+        }
+
+        // Confirmar pedidos viables si los hay
+        if (!pedidosViables.isEmpty()) {
+            confirmarPedidosViables(pedidosViables);
+        }
+    }
+
+    private void determinarPedidosViables(List<Pedido> pedidosPorConfirmar,
+            Map<Insumo, Integer> requerimientosTotales,
+            List<Pedido> pedidosViables,
+            List<Pedido> pedidosSinStock) {
+
+        // Crear copia del stock disponible para simular consumo
+        Map<Insumo, Integer> stockSimulado = new HashMap<>();
+        for (Insumo insumo : requerimientosTotales.keySet()) {
+            stockSimulado.put(insumo, insumo.getStock());
+        }
+
+        // Procesar pedidos en orden (FIFO - primero en entrar, primero en confirmarse)
+        for (Pedido pedido : pedidosPorConfirmar) {
+            boolean pedidoViable = true;
+
+            // Verificar si este pedido específico se puede satisfacer
+            for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+                Insumo insumo = ingrediente.getInsumo();
+                int cantidadNecesaria = ingrediente.getCantidad();
+
+                Integer stockDisponible = stockSimulado.get(insumo);
+                if (stockDisponible == null || stockDisponible < cantidadNecesaria) {
+                    pedidoViable = false;
+                    break;
+                }
+            }
+
+            if (pedidoViable) {
+                pedidosViables.add(pedido);
+                // Simular consumo de stock para el próximo pedido
+                for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+                    Insumo insumo = ingrediente.getInsumo();
+                    int cantidadNecesaria = ingrediente.getCantidad();
+                    stockSimulado.put(insumo, stockSimulado.get(insumo) - cantidadNecesaria);
+                }
+            } else {
+                pedidosSinStock.add(pedido);
+            }
+        }
+    }
+
+    private void procesarEliminacionesAutomaticas(List<Pedido> pedidosSinStock) {
+        List<String> mensajesEliminacion = new ArrayList<>();
+
+        for (Pedido pedido : pedidosSinStock) {
+            // Crear mensaje de eliminación
+            String mensaje = "Nos hemos quedado sin stock de "
+                    + pedido.getItem().getNombre()
+                    + " y no pudimos avisarte antes!";
+            mensajesEliminacion.add(mensaje);
+
+            // Eliminar pedido del servicio
+            pedidos.remove(pedido);
+            montoTotal -= pedido.calcularTotal();
+        }
+
+        // CORREGIDO: Notificar con los mensajes directamente como objeto
+        if (!mensajesEliminacion.isEmpty()) {
+            // Enviar los mensajes como el objeto del evento (no como segundo parámetro)
+            notificar(mensajesEliminacion);
+            // Luego actualizar el monto
+            notificar(Evento.MONTO_ACTUALIZADO);
+        }
+    }
+
+    private void confirmarPedidosViables(List<Pedido> pedidosViables) throws StockException {
+        // Calcular requerimientos de pedidos viables
+        Map<Insumo, Integer> requerimientosViables = calcularRequerimientos(pedidosViables);
+
+        // Consumir stock real
+        consumirStock(requerimientosViables);
+
+        // Confirmar pedidos
+        for (Pedido pedido : pedidosViables) {
+            pedido.getEstado().confirmar(pedido);
+            pedidosConfirmados.add(pedido);
+        }
+    }
+
+    private void separarPedidosPorStock(List<Pedido> pedidosPorConfirmar,
+            List<Pedido> pedidosViables,
+            List<Pedido> pedidosSinStock) {
+
+        for (Pedido pedido : pedidosPorConfirmar) {
+            if (pedidoTieneStockDisponible(pedido)) {
+                pedidosViables.add(pedido);
+            } else {
+                pedidosSinStock.add(pedido);
+            }
+        }
+    }
+
+    private boolean pedidoTieneStockDisponible(Pedido pedido) {
+        for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+            if (ingrediente.getInsumo().getStock() < ingrediente.getCantidad()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private List<Pedido> identificarYEliminarPedidosSinStock(List<Pedido> pedidosAEvaluar) {
+        List<Pedido> pedidosAEliminar = new ArrayList<>();
+
+        for (Pedido pedido : pedidosAEvaluar) {
+            if (!pedido.getItem().tieneStockDisponible()) {
+                pedidosAEliminar.add(pedido);
+            }
+        }
+
+        // Eliminar los pedidos sin stock
+        for (Pedido pedido : pedidosAEliminar) {
+            try {
+                eliminarPedido(pedido);
+            } catch (ServicioException e) {
+                // Log del error, pero continuar
+                System.err.println("Error al eliminar pedido sin stock: " + e.getMessage());
+            }
+        }
+
+        return pedidosAEliminar;
+    }
+
+    private void confirmarPedidosConStock(List<Pedido> pedidosAConfirmar) throws StockException {
         // Calcular requerimientos solo de pedidos nuevos
-        Map<Insumo, Integer> requerimientos = calcularRequerimientos(pedidosPorConfirmar);
+        Map<Insumo, Integer> requerimientos = calcularRequerimientos(pedidosAConfirmar);
 
         // Validar stock disponible
         validarStockDisponible(requerimientos);
@@ -70,7 +214,7 @@ public class Servicio extends Observable {
         consumirStock(requerimientos);
 
         // Marcar pedidos como confirmados
-        for (Pedido pedido : pedidosPorConfirmar) {
+        for (Pedido pedido : pedidosAConfirmar) {
             pedido.getEstado().confirmar(pedido);
             pedidosConfirmados.add(pedido);
         }
@@ -78,7 +222,7 @@ public class Servicio extends Observable {
 
     private Map<Insumo, Integer> calcularRequerimientos(List<Pedido> pedidosAConfirmar) {
         Map<Insumo, Integer> requerimientos = new HashMap<>();
-        
+
         for (Pedido pedido : pedidosAConfirmar) {
             for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
                 Insumo insumo = ingrediente.getInsumo();
@@ -86,7 +230,7 @@ public class Servicio extends Observable {
                 requerimientos.merge(insumo, cantidad, Integer::sum);
             }
         }
-        
+
         return requerimientos;
     }
 
@@ -94,12 +238,12 @@ public class Servicio extends Observable {
         for (Map.Entry<Insumo, Integer> entry : requerimientos.entrySet()) {
             Insumo insumo = entry.getKey();
             int cantidadRequerida = entry.getValue();
-            
+
             if (insumo.getStock() < cantidadRequerida) {
                 throw new StockException(
-                    "Stock insuficiente de " + insumo.getNombre() + 
-                    " (necesario: " + cantidadRequerida + 
-                    ", disponible: " + insumo.getStock() + ")"
+                        "Stock insuficiente de " + insumo.getNombre()
+                        + " (necesario: " + cantidadRequerida
+                        + ", disponible: " + insumo.getStock() + ")"
                 );
             }
         }
@@ -118,6 +262,30 @@ public class Servicio extends Observable {
             Insumo insumo = ingrediente.getInsumo();
             int cantidad = ingrediente.getCantidad();
             insumo.agregarStock(cantidad);
+        }
+    }
+
+    // Clase interna para el resultado de confirmación
+    public static class ConfirmacionResult {
+
+        private final List<Pedido> pedidosEliminados;
+        private final boolean confirmacionExitosa;
+
+        public ConfirmacionResult(List<Pedido> pedidosEliminados, boolean confirmacionExitosa) {
+            this.pedidosEliminados = pedidosEliminados;
+            this.confirmacionExitosa = confirmacionExitosa;
+        }
+
+        public List<Pedido> getPedidosEliminados() {
+            return pedidosEliminados;
+        }
+
+        public boolean isConfirmacionExitosa() {
+            return confirmacionExitosa;
+        }
+
+        public boolean hayPedidosEliminados() {
+            return !pedidosEliminados.isEmpty();
         }
     }
 
@@ -189,88 +357,23 @@ public class Servicio extends Observable {
         }
         return itemsDeLaUP;
     }
-    
+
     public List<Pedido> mostrarPedidosPorUP(UnidadProcesadora UP) {
         List<Pedido> res = new ArrayList<>();
         for (Pedido pedido : pedidos) {
-            if(pedido.getItem().getUnidadProcesadora().equals(UP)){
+            if (pedido.getItem().getUnidadProcesadora().equals(UP)) {
                 res.add(pedido);
             }
         }
         return res;
     }
-    
-    public String getNombreCliente(){
+
+    public String getNombreCliente() {
         return this.cliente.getNombreCompleto();
     }
-    
-    // NUEVO: Método para debugging
+
+    // Método para debugging
     public boolean estaPedidoConfirmado(Pedido pedido) {
         return pedidosConfirmados.contains(pedido);
     }
 }
-
-/*
-private void asignarUnidadesProcesadoras() {
-        for (Pedido pedido : pedidos) {
-            String unidad = determinarUnidadProcesadora(pedido);
-            pedido.setUnidadProcesadora(unidad);
-            pedido.setEstado("Confirmado");
-        }
-    }
-
- */
-// Confirma el servicio y valida el stock
-//    public void confirmar() throws StockException {
-//        try {
-//            validarStockPedidos();
-//            for (Pedido p : pedidos) {
-//                if(p.getEstado().esSinConfirmar()){
-//                    for (Ingrediente i : p.getItem().getIngredientes()) {
-//                        i.getInsumo().consumirStock(i.getCantidad());
-//                    }
-//                }
-//                p.confirmar();
-//            }
-//
-//        } catch (StockException e) {
-//           throw e;
-//        }
-//
-//    } 
-// versio con map 
-//
-//public void confirmar() throws StockException {
-//        // 1) Validación global con bucles anidados
-//        for (Pedido p1 : pedidos) {
-//            // Para cada ingrediente que *podría* consumirse en p1...
-//            for (Ingrediente ing1 : p1.getEstado().ingredientesParaConfirmar(p1)) {
-//                Insumo ins = ing1.getInsumo();
-//                int totalRequerido = 0;
-//
-//                // Sumo la demanda de ese mismo insumo en todos los pedidos
-//                for (Pedido p2 : pedidos) {
-//                    for (Ingrediente ing2 : p2.getEstado().ingredientesParaConfirmar(p2)) {
-//                        if (ing2.getInsumo().equals(ins)) {
-//                            totalRequerido += ing2.getCantidad();
-//                        }
-//                    }
-//                }
-//
-//                // Compruebo stock
-//                if (ins.getStock() < totalRequerido) {
-//                    throw new StockException(
-//                        "Stock insuficiente de " 
-//                        + ins.getNombre() 
-//                        + " (necesario " + totalRequerido 
-//                        + ", disponible " + ins.getStock() + ")"
-//                    );
-//                }
-//            }
-//        }
-//
-//        // 2) Si todo pasó, confirmo uno a uno
-//        for (Pedido p : pedidos) {
-//            p.confirmar();  // cada EstadoPedido.confirmar() hará validación y consumo
-//        }
-//    }

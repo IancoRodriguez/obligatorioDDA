@@ -14,7 +14,7 @@ import java.util.List;
  */
 public abstract class Observable {
     private List<Observador> subscriptores;
-    public enum Evento {ITEM_ACTUALIZADO, STOCK_ACTUALIZADO, STOCK_INSUFICIENTE, MONTO_ACTUALIZADO, PEDIDO_CONFIRMADO}
+    public enum Evento {ITEM_ACTUALIZADO, STOCK_ACTUALIZADO, STOCK_INSUFICIENTE, MONTO_ACTUALIZADO, PEDIDO_CONFIRMADO, PEDIDOS_ELIMINADOS_POR_STOCK}
 
     public Observable() {
         this.subscriptores = new ArrayList();
@@ -30,9 +30,40 @@ public abstract class Observable {
     
     public void notificar(Object evento){
         for(Observador o : subscriptores){
-            o.notificar(this , evento);
+            o.notificar(this, evento);
         }
     }
     
+    // Método sobrecargado para casos donde necesitas enviar datos adicionales
+    public void notificar(Evento tipoEvento, Object datos){
+        EventoConDatos eventoCompleto = new EventoConDatos(tipoEvento, datos);
+        notificar(eventoCompleto);
+    }
     
+    // Clase interna para encapsular evento + datos
+    public static class EventoConDatos {
+        private final Evento tipo;
+        private final Object datos;
+        
+        public EventoConDatos(Evento tipo, Object datos) {
+            this.tipo = tipo;
+            this.datos = datos;
+        }
+        
+        public Evento getTipo() {
+            return tipo;
+        }
+        
+        public Object getDatos() {
+            return datos;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public <T> T getDatos(Class<T> tipoEsperado) {
+            if (datos != null && tipoEsperado.isAssignableFrom(datos.getClass())) {
+                return (T) datos;
+            }
+            return null;
+        }
+    }
 }
