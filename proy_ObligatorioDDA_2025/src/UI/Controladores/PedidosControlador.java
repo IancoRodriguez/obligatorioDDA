@@ -282,8 +282,31 @@ public class PedidosControlador implements Observador {
 
     @Override
     public void notificar(Observable origen, Object evento) {
+<<<<<<< Updated upstream
         // CASO 1: Lista de mensajes de eliminación (lo más importante)
         if (evento instanceof List) {
+=======
+        // CASO 1: Evento es del tipo Observable.Evento
+        if (evento instanceof Observable.Evento) {
+            Observable.Evento tipoEvento = (Observable.Evento) evento;
+
+            switch (tipoEvento) {
+                case ITEM_ACTUALIZADO:
+                    handleItemActualizado((Item) origen);
+                    break;
+                case ITEM_SIN_STOCK:  // NUEVO CASE
+                    handleItemSinStock((Item) origen);
+                    break;
+                case MONTO_ACTUALIZADO:
+                    handleMontoActualizado(origen);
+                    break;
+                case PEDIDOS_ELIMINADOS_POR_STOCK:
+                    handlePedidosEliminadosSinMensajes(origen);
+                    break;
+            }
+        } // CASO 2: El evento es una lista de mensajes (viene del método procesarEliminacionesAutomaticas)
+        else if (evento instanceof List) {
+>>>>>>> Stashed changes
             try {
                 @SuppressWarnings("unchecked")
                 List<String> mensajes = (List<String>) evento;
@@ -318,6 +341,41 @@ public class PedidosControlador implements Observador {
         }
     }
 
+// NUEVO MÉTODO: Maneja cuando un item se queda sin stock
+    private void handleItemSinStock(Item item) {
+        Servicio servicioActual = vista.getServicioActual();
+        if (servicioActual == null) {
+            return; // No hay servicio activo
+        }
+
+        // Buscar pedidos de este item que no estén confirmados
+        List<Pedido> pedidosAEliminar = new ArrayList<>();
+
+        for (Pedido pedido : servicioActual.getPedidos()) {
+            // Solo eliminar pedidos no confirmados
+            if (pedido.getItem().equals(item) && !servicioActual.estaPedidoConfirmado(pedido)) {
+                pedidosAEliminar.add(pedido);
+            }
+        }
+
+        // Eliminar los pedidos y mostrar mensajes
+        for (Pedido pedido : pedidosAEliminar) {
+            try {
+                servicioActual.eliminarPedido(pedido);
+                vista.mostrarError("Lo sentimos, nos hemos quedado sin stock de "
+                        + item.getNombre() + " por lo que lo hemos quitado el pedido del servicio");
+            } catch (ServicioException e) {
+                vista.mostrarError("Error al eliminar pedido: " + e.getMessage());
+            }
+        }
+
+        // Actualizar la vista si se eliminaron pedidos
+        if (!pedidosAEliminar.isEmpty()) {
+            actualizarVistaPedidos(servicioActual);
+            cargarItemsPorCategoria(); // Recargar items disponibles
+        }
+    }
+
     /**
      * CRÍTICO: Maneja eliminaciones automáticas por stock agotado
      */
@@ -344,9 +402,20 @@ public class PedidosControlador implements Observador {
         }
     }
 
+<<<<<<< Updated upstream
     /**
      * Maneja actualización de monto
      */
+=======
+    private void handleItemActualizado(Item item) {
+        if (item.tieneStockDisponible()) {
+            vista.actualizarItemEnLista(item);
+        } else {
+            vista.removerItemDeLista(item);
+        }
+    }
+
+>>>>>>> Stashed changes
     private void handleMontoActualizado(Observable origen) {
         if (origen == vista.getServicioActual()) {
             vista.actualizarMontoTotal(vista.getServicioActual().getMontoTotal());

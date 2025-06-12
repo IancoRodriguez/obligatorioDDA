@@ -8,9 +8,15 @@ import java.util.List;
 public class Insumo extends Observable {
     private String nombre;
     private int stock;
+<<<<<<< Updated upstream
     private int stockMinimo; // Manteniendo el campo que tenías
     
     // Constructor que coincide con tu carga de datos
+=======
+    private int stockMinimo;
+
+    // Constructor con validaciones - MANTENIENDO LOS 3 PARÁMETROS
+>>>>>>> Stashed changes
     public Insumo(String nombre, int stock, int stockMinimo) {
         this.nombre = nombre;
         this.stock = stock;
@@ -71,9 +77,55 @@ public class Insumo extends Observable {
     public void setStockMinimo(int stockMinimo) {
         this.stockMinimo = stockMinimo;
     }
+<<<<<<< Updated upstream
     
+=======
+
+    // Método para agregar stock
+    public void agregarStock(int cantidad) {
+        if (cantidad < 0) {
+            throw new IllegalArgumentException("La cantidad no puede ser negativa");
+        }
+        this.stock += cantidad;
+        notificar(Evento.STOCK_ACTUALIZADO);
+    }
+
+    // Método para consumir stock (con validación de stock mínimo)
+    public void consumirStock(int cantidad) throws StockException {
+        if (cantidad < 0) {
+            throw new StockException("La cantidad no puede ser negativa");
+        }
+        if (this.stock < cantidad) {
+            throw new StockException("Stock insuficiente de " + nombre + 
+                " (disponible: " + stock + ", necesario: " + cantidad + ")");
+        }
+        
+        boolean stockSuficienteAntes = this.stock > 0;
+        this.stock -= cantidad;
+        boolean stockSuficienteDespues = this.stock > 0;
+        
+        // Notificar cambio de stock
+        notificar(Evento.STOCK_ACTUALIZADO);
+        
+        // Si cae por debajo del mínimo, notificar
+        if (this.stock < this.stockMinimo) {
+            notificar(Evento.STOCK_INSUFICIENTE);
+        }
+        
+        // NUEVO: Si se agotó el stock (pasó de >0 a 0), notificar agotamiento
+        if (stockSuficienteAntes && !stockSuficienteDespues) {
+            notificar(Evento.STOCK_AGOTADO);
+        }
+    }
+
+    // Representación legible del objeto
+>>>>>>> Stashed changes
     @Override
     public String toString() {
         return nombre + " (Stock: " + stock + ")";
     }
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
