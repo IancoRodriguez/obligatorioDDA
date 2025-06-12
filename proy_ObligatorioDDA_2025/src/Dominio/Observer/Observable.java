@@ -14,7 +14,11 @@ import java.util.List;
  */
 public abstract class Observable {
     private List<Observador> subscriptores;
+<<<<<<< Updated upstream
     public enum Evento {ITEM_ACTUALIZADO, STOCK_ACTUALIZADO, STOCK_INSUFICIENTE, MONTO_ACTUALIZADO, PEDIDO_CONFIRMADO}
+=======
+    public enum Evento {ITEM_ACTUALIZADO, STOCK_ACTUALIZADO, STOCK_INSUFICIENTE, MONTO_ACTUALIZADO, PEDIDO_CONFIRMADO, PEDIDOS_ELIMINADOS_POR_STOCK, PEDIDOS_CONFIRMADOS, ITEM_SIN_STOCK, INSUMO_AGOTADO}
+>>>>>>> Stashed changes
 
     public Observable() {
         this.subscriptores = new ArrayList();

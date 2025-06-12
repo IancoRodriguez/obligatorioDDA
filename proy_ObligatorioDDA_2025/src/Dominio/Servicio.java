@@ -4,12 +4,13 @@ import Dominio.Estados.Confirmado;
 import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Servicio extends Observable {
+public class Servicio extends Observable implements Observador {
 
     private Cliente cliente;
     private List<Pedido> pedidos;
@@ -24,6 +25,10 @@ public class Servicio extends Observable {
     public void agregarPedido(Pedido pedido) throws ServicioException {
         pedidos.add(pedido);
         montoTotal += pedido.calcularTotal();
+        
+        // NUEVO: Suscribirse a los insumos del pedido para detectar cuando se agoten
+        suscribirseAInsumosDePedido(pedido);
+        
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
@@ -32,10 +37,17 @@ public class Servicio extends Observable {
         // 1. Valida si se puede eliminar (solo permitido para estado Confirmado)
         pedido.validarEliminacion();
 
+<<<<<<< Updated upstream
         // 2. Reintegrar stock (ya que sabemos que está confirmado)
         reintegrarStock(pedido);
 
         // 3. Eliminar de la lista de pedidos
+=======
+        // NUEVO: Desuscribirse de los insumos del pedido
+        desuscribirseDeInsumosDePedido(pedido);
+
+        // Eliminar de la lista de pedidos
+>>>>>>> Stashed changes
         pedidos.remove(pedido);
 
         // 4. Actualizar monto total
@@ -43,6 +55,7 @@ public class Servicio extends Observable {
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
+<<<<<<< Updated upstream
    public void confirmar() throws StockException {
     // Paso 1: Calcular requerimientos totales (optimizado)
     Map<Insumo, Integer> requerimientos = new HashMap<>();
@@ -79,6 +92,77 @@ public class Servicio extends Observable {
 }
 
     public void validarStockPedidos() throws StockException {
+=======
+    // NUEVO: Método para suscribirse a los insumos de un pedido
+    private void suscribirseAInsumosDePedido(Pedido pedido) {
+        for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+            Insumo insumo = ingrediente.getInsumo();
+            insumo.subscribir(this);
+        }
+    }
+
+    // NUEVO: Método para desuscribirse de los insumos de un pedido
+    private void desuscribirseDeInsumosDePedido(Pedido pedido) {
+        for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+            Insumo insumo = ingrediente.getInsumo();
+            insumo.desuscribir(this);
+        }
+    }
+
+    // NUEVO: Implementación del patrón Observer para detectar insumos agotados
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        if (origen instanceof Insumo && evento instanceof Evento) {
+            Evento tipoEvento = (Evento) evento;
+            
+            if (tipoEvento == Evento.INSUMO_AGOTADO) {
+                eliminarPedidosPorInsumoAgotado((Insumo) origen);
+            }
+        }
+    }
+
+    // NUEVO: Elimina automáticamente pedidos cuando un insumo se agota
+    private void eliminarPedidosPorInsumoAgotado(Insumo insumoAgotado) {
+        List<Pedido> pedidosAEliminar = new ArrayList<>();
+        List<String> mensajesEliminacion = new ArrayList<>();
+
+        // Buscar pedidos pendientes (no confirmados) que usen este insumo
+        for (Pedido pedido : pedidos) {
+            if (!pedidosConfirmados.contains(pedido)) {
+                // Verificar si el pedido usa el insumo agotado
+                for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+                    if (ingrediente.getInsumo().equals(insumoAgotado)) {
+                        pedidosAEliminar.add(pedido);
+                        
+                        // Crear mensaje según la consigna
+                        String mensaje = "Lo sentimos, nos hemos quedado sin stock de " 
+                                + pedido.getItem().getNombre() 
+                                + " por lo que lo hemos quitado el pedido del servicio";
+                        mensajesEliminacion.add(mensaje);
+                        break; // Solo necesitamos encontrar una coincidencia
+                    }
+                }
+            }
+        }
+
+        // Eliminar pedidos y actualizar monto
+        for (Pedido pedido : pedidosAEliminar) {
+            pedidos.remove(pedido);
+            montoTotal -= pedido.calcularTotal();
+            desuscribirseDeInsumosDePedido(pedido);
+        }
+
+        // Notificar cambios si hubo eliminaciones
+        if (!pedidosAEliminar.isEmpty()) {
+            notificar(mensajesEliminacion); // Enviar mensajes de eliminación
+            notificar(Evento.MONTO_ACTUALIZADO); // Actualizar monto
+        }
+    }
+
+    public void confirmar() throws StockException {
+        // Obtener pedidos pendientes de confirmación
+        List<Pedido> pedidosPorConfirmar = new ArrayList<>();
+>>>>>>> Stashed changes
         for (Pedido pedido : pedidos) {
             for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
                 Insumo insumo = ingrediente.getInsumo();
@@ -204,6 +288,7 @@ public class Servicio extends Observable {
     public String getNombreCliente(){
         return this.cliente.getNombreCompleto();
     }
+<<<<<<< Updated upstream
     
     
     
@@ -274,3 +359,11 @@ private void asignarUnidadesProcesadoras() {
 //            p.confirmar();  // cada EstadoPedido.confirmar() hará validación y consumo
 //        }
 //    }
+=======
+
+    // Método para debugging
+    public boolean estaPedidoConfirmado(Pedido pedido) {
+        return pedidosConfirmados.contains(pedido);
+    }
+}
+>>>>>>> Stashed changes
