@@ -196,6 +196,7 @@ public class Item extends Observable implements Observador {
     }
     
     public Categoria getCategoria() {
+<<<<<<< Updated upstream
         return categoria;
     }
     
@@ -207,7 +208,35 @@ public class Item extends Observable implements Observador {
 
     public void setUnidadProcesadora(UnidadProcesadora unidadProcesadora) {
         this.unidadProcesadora = unidadProcesadora;
+=======
+        return this.categoria;
     }
+
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void verificarDisponibilidad() {
+    boolean antes = disponible;
+    disponible = true;
+    for (Ingrediente ing : ingredientes) {
+        if (!ing.tieneStockSuficiente()) {
+            disponible = false;
+            break;
+        }
+>>>>>>> Stashed changes
+    }
+    
+    // Si cambió de disponible a no disponible, notificar
+    if (antes && !disponible) {
+        notificar(Observable.Evento.ITEM_SIN_STOCK);
+    }
+    
+    // Notificar actualización general
+    if (disponible != antes) {
+        notificar(Observable.Evento.ITEM_ACTUALIZADO);
+    }
+}
 
 >>>>>>> Stashed changes
     @Override

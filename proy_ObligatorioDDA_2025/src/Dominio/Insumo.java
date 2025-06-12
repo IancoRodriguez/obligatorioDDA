@@ -16,6 +16,9 @@ public class Insumo extends Observable {
     private int stockMinimo;
 
     // Constructor con validaciones - MANTENIENDO LOS 3 PARÁMETROS
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     public Insumo(String nombre, int stock, int stockMinimo) {
         this.nombre = nombre;
@@ -125,6 +128,9 @@ public class Insumo extends Observable {
         return nombre + " (Stock: " + stock + ")";
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 }
 =======
 }
