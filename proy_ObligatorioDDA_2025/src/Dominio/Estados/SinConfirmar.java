@@ -7,6 +7,7 @@ package Dominio.Estados;
 import Dominio.Excepciones.StockException;
 import Dominio.Ingrediente;
 import Dominio.Insumo;
+import Dominio.Observer.Observable;
 import Dominio.Pedido;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +27,9 @@ public class SinConfirmar implements EstadoPedido {
     
  
     public void confirmar(Pedido pedido) throws StockException {
-        pedido.setEstado(new Confirmado(pedido));
+        
+        pedido.setEstado(new Confirmado(pedido));     
+        
     }
 
     public void procesar() {

@@ -9,13 +9,14 @@ import Dominio.Excepciones.UsuarioException;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
 import Dominio.Gestor;
+import Dominio.Observer.Observable;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServicioUsuarios {
+public class ServicioUsuarios extends Observable{
 
     private List<Cliente> clientes;
     private List<Gestor> gestores;
@@ -48,15 +49,22 @@ public class ServicioUsuarios {
         Servicio s = new Servicio(cliente);
         cliente.setServicio(s);
         dispositivo.setServicioActivo(s);
+        
+        notificar(Evento.NUEVO_SERVICIO);
         return s;
         
     }
 
-    public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException, DispositivoException {
-        return (Gestor) login(nombre, contrasena, this.gestores);
+    public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException {
+        try{
+            return (Gestor) login(nombre, contrasena, this.gestores);
+        }catch(UsuarioException ex){
+            throw ex;
+        }
+        
     }
 
-    private Usuario login(String nombre, String contrasena, List<? extends Usuario> listaUsuarios) throws UsuarioException, DispositivoException {
+    private Usuario login(String nombre, String contrasena, List<? extends Usuario> listaUsuarios) throws UsuarioException {
         if (nombre == null || nombre.isEmpty() || contrasena == null || contrasena.isEmpty()) {
             return null;
         }

@@ -4,6 +4,7 @@
  */
 package UI;
 
+import Dominio.Excepciones.UsuarioException;
 import Dominio.Usuario;
 import javax.swing.JOptionPane;
 
@@ -28,6 +29,7 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         tContrasena = new javax.swing.JPasswordField();
         jButtonLogin = new javax.swing.JButton();
+        msgError = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -48,6 +50,8 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
             }
         });
 
+        msgError.setForeground(new java.awt.Color(255, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -67,7 +71,10 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
                                 .addComponent(tNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(142, 142, 142)
-                        .addComponent(jButtonLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jButtonLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(123, 123, 123)
+                        .addComponent(msgError, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -81,7 +88,9 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(tContrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(msgError)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(jButtonLogin)
                 .addContainerGap())
         );
@@ -102,6 +111,7 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
     private javax.swing.JButton jButtonLogin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelNombre;
+    private javax.swing.JLabel msgError;
     private javax.swing.JPasswordField tContrasena;
     private javax.swing.JTextField tNombre;
     // End of variables declaration//GEN-END:variables
@@ -110,18 +120,24 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
         String usuario = tNombre.getText();
         String contrasena = new String(tContrasena.getPassword());
 
-        Usuario usuarioLogueado = login(usuario, contrasena);
+        try{
+            Usuario usuarioLogueado = login(usuario, contrasena);
 
-        if (usuarioLogueado == null) {
-            JOptionPane.showMessageDialog(this, "Usuario o contrasena invalidas.", "Login incorrecto", JOptionPane.WARNING_MESSAGE);
-            return;
+            if (usuarioLogueado == null) {
+                msgError.setText("Usuario o contrasena invalidas.");
+                return;
+            }
+
+            this.abrirSiguienteVentana(usuarioLogueado);
+            setVisible(false);
+        }catch(UsuarioException ex){
+            msgError.setText(ex.getMessage());
         }
- 
-        this.abrirSiguienteVentana(usuarioLogueado);
-        setVisible(false);
+        
+        
     }
 
     public abstract void abrirSiguienteVentana(Usuario usuarioLogueado);
 
-    public abstract Usuario login(String usuario, String contrasena);
+    public abstract Usuario login(String usuario, String contrasena) throws UsuarioException;
 }

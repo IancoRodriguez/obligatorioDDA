@@ -24,16 +24,12 @@ public class VentanaLoginGestor extends VentanaLogin{
     }
 
     @Override
-    public Usuario login(String usuario, String contrasena) {
+    public Usuario login(String usuario, String contrasena) throws UsuarioException {
         try {
             return Fachada.getInstancia().loginGestor(usuario, contrasena);
         } catch (UsuarioException ex) {
-            Logger.getLogger(VentanaLoginGestor.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (DispositivoException ex) {
-            Logger.getLogger(VentanaLoginGestor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-        
-        
+            throw ex;
+        } 
+
     }
 }

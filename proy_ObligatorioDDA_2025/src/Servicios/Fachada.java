@@ -8,12 +8,14 @@ import Dominio.Excepciones.UsuarioException;
 import Dominio.Gestor;
 import Dominio.Item;
 import Dominio.Menu;
+import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.UnidadProcesadora;
 import java.util.List;
 
-public class Fachada {
+public class Fachada extends Observable implements Observador  {
 
     private static Fachada instancia;
     private ServicioUsuarios sUsuarios;
@@ -24,6 +26,8 @@ public class Fachada {
     private Fachada() {
         this.sUsuarios = new ServicioUsuarios();
         this.sDispositivos = new ServicioDispositivos();
+        
+        this.sUsuarios.subscribir(this);
      }
 
     public static Fachada getInstancia() {
@@ -50,7 +54,7 @@ public class Fachada {
         return sUsuarios.loginCliente(nombre, contrasena, d);
     }
 
-    public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException, DispositivoException {
+    public Gestor loginGestor(String nombre, String contrasena) throws UsuarioException {
         return sUsuarios.loginGestor(nombre, contrasena);
     }
 
@@ -94,6 +98,13 @@ public class Fachada {
     public List<Servicio> getServicios() {
         return sDispositivos.getServicios();
         
+    }
+
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        if (evento instanceof Observable.Evento && evento == Observable.Evento.NUEVO_SERVICIO) {
+            notificar(Evento.NUEVO_SERVICIO);
+        }
     }
      
     

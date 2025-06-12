@@ -6,6 +6,8 @@ package UI;
 
 import Dominio.Gestor;
 import Dominio.Item;
+import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Dominio.Usuario;
@@ -18,7 +20,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 
-public class GestorUI extends javax.swing.JFrame {
+public class GestorUI extends javax.swing.JFrame implements Observador {
     private Gestor gestor; 
     private Fachada f;
     
@@ -31,6 +33,10 @@ public class GestorUI extends javax.swing.JFrame {
         
         cargarNombreUP(gestor);
         cargarPedidosPendientesUP();
+        f.subscribir(this);
+        suscribirAServicios();
+        
+        
     }
     
     
@@ -38,15 +44,14 @@ public class GestorUI extends javax.swing.JFrame {
         String labelContent = g.getNombreCompleto() + " | Area: "+ g.getNombreUP();
         jLabel2.setText(labelContent);       
     }          
+    
+    private void suscribirAServicios(){
+        for(Servicio s : f.getServicios()){
+            s.desuscribir(this);
+            s.subscribir(this);
+        }
+    }
      
-    public void tomarPedido(Pedido p){
-        f.tomarPedido(this.gestor,p);
-    }
-    
-    public void finalizarPedido(Pedido p){
-       // f.finalizarPedido(this.gestor, p);
-    }
-    
     private void cargarPedidosPendientesUP() {
         try {
             DefaultListModel<Pedido> modelo = new DefaultListModel<>();
@@ -54,14 +59,13 @@ public class GestorUI extends javax.swing.JFrame {
             for(Pedido p : f.getPedidosConfirmados(gestor.getUP().getNombre())){
                 modelo.addElement(p);
             }
-
+            
             jListadoPedidos.setModel(modelo);        
             jListadoPedidos.setCellRenderer(new RenderizadorListas<>(
                     p ->p.getItem().getNombre() + " - Cliente: " + p.getServicio().getNombreCliente() + " - " + p.getFechaHora()
             ));
         } catch (Exception ex) {
             msgError.setText(ex.getMessage());
-
         }
     }
     
@@ -86,11 +90,12 @@ public class GestorUI extends javax.swing.JFrame {
     }
    
     private void tomarPedido(){
-        tomarPedido(jListadoPedidos.getSelectedValue());
+        if(this.jListadoPedidos.getSelectedValue() != null)
+            f.tomarPedido(this.gestor,jListadoPedidos.getSelectedValue());
+        
         cargarPedidosPendientesUP();
         cargarPedidosTomados();
     }
-    
     private void entregarPedido(){
         int posPedido = tablaPedidosTomados.getSelectedRow();
         Pedido p = this.gestor.getPedidosTomados().get(posPedido);
@@ -105,7 +110,6 @@ public class GestorUI extends javax.swing.JFrame {
         cargarPedidosTomados();
                 
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -229,7 +233,7 @@ public class GestorUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnTomarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTomarPedidoActionPerformed
-        tomarPedido();
+       tomarPedido();
     }//GEN-LAST:event_btnTomarPedidoActionPerformed
 
     private void btnFinalizarPedidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarPedidoActionPerformed
@@ -253,4 +257,18 @@ public class GestorUI extends javax.swing.JFrame {
     private javax.swing.JLabel msgError;
     private javax.swing.JTable tablaPedidosTomados;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        
+        if (evento instanceof Observable.Evento && evento == Observable.Evento.NUEVO_SERVICIO) {
+            suscribirAServicios();
+        }
+        
+        if (evento instanceof Observable.Evento && evento == Observable.Evento.PEDIDO_CAMBIO_ESTADO) {
+            cargarPedidosPendientesUP();
+        }
+        
+        
+    }
 }

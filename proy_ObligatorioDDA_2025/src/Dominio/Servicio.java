@@ -37,6 +37,8 @@ public class Servicio extends Observable {
 
         // 3. Eliminar de la lista de pedidos
         pedidos.remove(pedido);
+        notificar(Evento.PEDIDO_CAMBIO_ESTADO);
+
 
         // 4. Actualizar monto total
         montoTotal -= pedido.calcularTotal();
@@ -71,10 +73,13 @@ public class Servicio extends Observable {
         int cantidad = entry.getValue();
         insumo.consumirStock(cantidad); // ¡Implementa este método en Insumo!
     }
-
+    
+    
+    
     // Paso 4: Cambiar estado de pedidos (sin consumir stock)
     for (Pedido pedido : pedidos) {
         pedido.getEstado().confirmar(pedido); // Nuevo método que no valida stock
+        notificar(Evento.PEDIDO_CAMBIO_ESTADO);
     }
 }
 
