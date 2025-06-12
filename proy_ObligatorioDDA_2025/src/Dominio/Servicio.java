@@ -351,16 +351,46 @@ public class Servicio extends Observable implements Observador {
         }
     }
 
-    @Override
-    public void notificar(Observable origen, Object evento) {
-        // Si es notificación de stock actualizado de un insumo
-        if (origen instanceof Insumo && evento == Observable.Evento.STOCK_ACTUALIZADO) {
-            // NUEVO: Solo verificar eliminaciones si NO estamos confirmando nuestros propios pedidos
-            if (!confirmandoPedidos) {
-                verificarYEliminarPedidosSinStock();
-            }
+  @Override
+public void notificar(Observable origen, Object evento) {
+    // Si es notificación de stock actualizado de un insumo
+    if (origen instanceof Insumo && evento == Observable.Evento.STOCK_ACTUALIZADO) {
+        // NUEVO: Solo verificar eliminaciones si NO estamos confirmando nuestros propios pedidos
+        // Y si NO hay NINGÚN servicio en proceso de confirmación
+        if (!confirmandoPedidos && !hayAlgunServicioConfirmando()) {
+            verificarYEliminarPedidosSinStock();
         }
     }
+}
+
+/**
+ * NUEVO: Método para verificar si algún servicio está confirmando
+ * Esto evita eliminaciones automáticas durante confirmaciones
+ */
+private boolean hayAlgunServicioConfirmando() {
+    // Aquí necesitarías acceso a la Fachada o un registro global
+    // Por simplicidad, puedes usar una variable estática
+    return ServicioConfirmando.hayConfirmacionEnProceso();
+}
+
+/**
+ * NUEVA: Clase helper para coordinar confirmaciones globalmente
+ */
+public static class ServicioConfirmando {
+    private static boolean confirmacionEnProceso = false;
+    
+    public static void iniciarConfirmacion() {
+        confirmacionEnProceso = true;
+    }
+    
+    public static void finalizarConfirmacion() {
+        confirmacionEnProceso = false;
+    }
+    
+    public static boolean hayConfirmacionEnProceso() {
+        return confirmacionEnProceso;
+    }
+}
 
     // Clase interna para el resultado de confirmación
 //    public static class ConfirmacionResult {
