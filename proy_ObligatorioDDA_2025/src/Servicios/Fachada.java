@@ -15,20 +15,18 @@ import Dominio.Servicio;
 import Dominio.UnidadProcesadora;
 import java.util.List;
 
-public class Fachada extends Observable implements Observador  {
+public class Fachada extends Observable implements Observador {
 
     private static Fachada instancia;
     private ServicioUsuarios sUsuarios;
     private ServicioDispositivos sDispositivos;
 
-    
-    
     private Fachada() {
         this.sUsuarios = new ServicioUsuarios();
         this.sDispositivos = new ServicioDispositivos();
-        
+
         this.sUsuarios.subscribir(this);
-     }
+    }
 
     public static Fachada getInstancia() {
         if (instancia == null) {
@@ -48,9 +46,9 @@ public class Fachada extends Observable implements Observador  {
     public boolean agregar(Gestor gestor) {
         return sUsuarios.agregar(gestor);
     }
- 
-    
-    public Servicio loginCliente(String nombre, String contrasena, Dispositivo d) throws UsuarioException, DispositivoException {
+
+    public Servicio loginCliente(String nombre, String contrasena, Dispositivo d)
+            throws UsuarioException, DispositivoException {
         return sUsuarios.loginCliente(nombre, contrasena, d);
     }
 
@@ -61,13 +59,12 @@ public class Fachada extends Observable implements Observador  {
     public boolean agregar(Dispositivo d) {
         return sDispositivos.agregar(d);
     }
-    
-    //Getters y setters 
+
+    // Getters y setters
 
     public List<Pedido> getTodosLosPedidos() {
         return sDispositivos.getTodosLosPedidos();
     }
-    
 
     public List<Dispositivo> getDispositivos() {
         return sDispositivos.getDispositivos();
@@ -81,23 +78,21 @@ public class Fachada extends Observable implements Observador  {
         return sUsuarios.getGestores();
     }
 
-   
-
-    // La idea de este metodo es tomar el pedido seleccionado, 
-    // sumarlo al listado que tiene el gestor de pedidos y cambiarle el estado en el listado de sPedidos
+    // La idea de este metodo es tomar el pedido seleccionado,
+    // sumarlo al listado que tiene el gestor de pedidos y cambiarle el estado en el
+    // listado de sPedidos
     public void tomarPedido(Gestor gestor, Pedido p) {
         sUsuarios.tomarPedido(gestor, p);
-        //sPedidos.cambiarEstado(p);
+        // sPedidos.cambiarEstado(p);
     }
 
     public List<Pedido> getPedidosConfirmados(String nombreUP) {
         return sDispositivos.getPedidosConfirmados(nombreUP);
     }
-    
 
     public List<Servicio> getServicios() {
         return sDispositivos.getServicios();
-        
+
     }
 
     @Override
@@ -106,9 +101,5 @@ public class Fachada extends Observable implements Observador  {
             notificar(Evento.NUEVO_SERVICIO);
         }
     }
-     
-    
-    
-    
-}
 
+}
