@@ -4,12 +4,13 @@ import Dominio.Estados.Confirmado;
 import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
 import Dominio.Observer.Observable;
+import Dominio.Observer.Observador;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Servicio extends Observable {
+public class Servicio extends Observable implements Observador {
 
     private Cliente cliente;
     private List<Pedido> pedidos;
@@ -28,6 +29,14 @@ public class Servicio extends Observable {
     public void agregarPedido(Pedido pedido) throws ServicioException {
         pedidos.add(pedido);
         montoTotal += pedido.calcularTotal();
+        
+        // NUEVO: Suscribirse a los insumos del nuevo pedido
+        for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+            Insumo insumo = ingrediente.getInsumo();
+            insumo.desuscribir(this); // Evitar duplicados
+            insumo.subscribir(this);
+        }
+        
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
@@ -165,7 +174,6 @@ public class Servicio extends Observable {
         notificar("PEDIDOS_CONFIRMADOS"); // Como string genérico
     }
 
-
     private void separarPedidosPorStock(List<Pedido> pedidosPorConfirmar,
             List<Pedido> pedidosViables,
             List<Pedido> pedidosSinStock) {
@@ -269,6 +277,15 @@ public class Servicio extends Observable {
             Insumo insumo = ingrediente.getInsumo();
             int cantidad = ingrediente.getCantidad();
             insumo.agregarStock(cantidad);
+        }
+    }
+
+    @Override
+    public void notificar(Observable origen, Object evento) {
+        // Si es notificación de stock actualizado de un insumo
+        if (origen instanceof Insumo && evento == Observable.Evento.STOCK_ACTUALIZADO) {
+            // Verificar si algún pedido pendiente se quedó sin stock
+            verificarYEliminarPedidosSinStock();
         }
     }
 
@@ -382,5 +399,78 @@ public class Servicio extends Observable {
     // Método para debugging
     public boolean estaPedidoConfirmado(Pedido pedido) {
         return pedidosConfirmados.contains(pedido);
+    }
+
+    /**
+     * Suscribe el servicio a todos los insumos de sus pedidos pendientes para
+     * recibir notificaciones de cambios de stock
+     */
+    public void suscribirseAInsumos() {
+        for (Pedido pedido : pedidos) {
+            if (!pedidosConfirmados.contains(pedido)) { // Solo pedidos pendientes
+                for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+                    Insumo insumo = ingrediente.getInsumo();
+                    insumo.desuscribir(this); // Evitar duplicados
+                    insumo.subscribir(this);
+                }
+            }
+        }
+    }
+
+    /**
+     * Desuscribe el servicio de todos los insumos
+     */
+    public void desuscribirseDeInsumos() {
+        for (Pedido pedido : pedidos) {
+            for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
+                Insumo insumo = ingrediente.getInsumo();
+                insumo.desuscribir(this);
+            }
+        }
+    }
+
+    /**
+     * Verifica y elimina automáticamente pedidos que se quedaron sin stock
+     * Llamado cuando se recibe notificación de cambio de stock
+     */
+    private void verificarYEliminarPedidosSinStock() {
+        List<Pedido> pedidosAEliminar = new ArrayList<>();
+
+        // Buscar pedidos pendientes que ya no tienen stock
+        for (Pedido pedido : pedidos) {
+            if (!pedidosConfirmados.contains(pedido)) { // Solo pedidos pendientes
+                if (!pedido.getItem().tieneStockDisponible()) {
+                    pedidosAEliminar.add(pedido);
+                }
+            }
+        }
+
+        // Eliminar pedidos sin stock
+        if (!pedidosAEliminar.isEmpty()) {
+            List<String> mensajesEliminacion = new ArrayList<>();
+
+            for (Pedido pedido : pedidosAEliminar) {
+                try {
+                    // Crear mensaje antes de eliminar
+                    String mensaje = "Nos hemos quedado sin stock de "
+                            + pedido.getItem().getNombre()
+                            + " y no pudimos avisarte antes!";
+                    mensajesEliminacion.add(mensaje);
+
+                    // Eliminar pedido (esto actualiza el monto automáticamente)
+                    pedidos.remove(pedido);
+                    montoTotal -= pedido.calcularTotal();
+
+                } catch (Exception e) {
+                    System.err.println("Error al eliminar pedido automáticamente: " + e.getMessage());
+                }
+            }
+
+            // Notificar eliminaciones automáticas
+            if (!mensajesEliminacion.isEmpty()) {
+                notificar(mensajesEliminacion);
+                notificar(Evento.MONTO_ACTUALIZADO);
+            }
+        }
     }
 }

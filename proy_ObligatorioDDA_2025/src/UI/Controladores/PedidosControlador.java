@@ -274,9 +274,17 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    /**
-     * Limpia todos los datos de pedidos en la vista
-     */
+    public void cerrarSesion() {
+        if (this.servicioActual != null) {
+            this.servicioActual.desuscribirseDeInsumos(); // NUEVO
+            this.servicioActual.desuscribir(this);
+        }
+
+        // Limpiar vista
+        limpiarVista();
+        this.servicioActual = null;
+    }
+
     public void limpiarVista() {
         vista.actualizarTablaPedidos(new ArrayList<>());
         vista.actualizarMontoTotal(0.0);
@@ -315,16 +323,19 @@ public class PedidosControlador implements Observador {
      * login) CORREGIDO: Solo un método onServicioActualizado
      */
     public void onServicioActualizado() {
-        this.servicioActual = vista.getServicioActual();
-
-        // Limpiar suscripciones anteriores si existía un servicio previo
+        // Limpiar suscripciones del servicio anterior
         if (this.servicioActual != null) {
             this.servicioActual.desuscribir(this);
+            this.servicioActual.desuscribirseDeInsumos(); // NUEVO
         }
 
-        // Suscribirse al nuevo servicio
+        // Actualizar referencia al servicio actual
+        this.servicioActual = vista.getServicioActual();
+
+        // Configurar nuevo servicio
         if (servicioActual != null) {
             servicioActual.subscribir(this);
+            servicioActual.suscribirseAInsumos(); // NUEVO - Auto-suscribirse a insumos
             actualizarVistaPedidos(servicioActual);
         } else {
             limpiarVista();
@@ -421,9 +432,6 @@ public class PedidosControlador implements Observador {
             cargarItemsPorCategoria();
         }
     }
-
-
-
 
     private void handleItemActualizado(Item item) {
         if (item.tieneStockDisponible()) {
