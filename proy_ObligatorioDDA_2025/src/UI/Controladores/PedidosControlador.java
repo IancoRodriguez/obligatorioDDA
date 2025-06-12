@@ -8,6 +8,7 @@ import Dominio.Categoria;
 import Dominio.Excepciones.PedidoException;
 import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
+import Dominio.Ingrediente;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Observer.Observable;
@@ -175,22 +176,28 @@ public class PedidosControlador implements Observador {
                 return;
             }
 
-            // NUEVO: Capturar estado inicial para comparar después
-            List<Pedido> pedidosIniciales = new ArrayList<>(servicioActual.getPedidos());
-            List<String> nombresIniciales = new ArrayList<>();
-            for (Pedido p : pedidosIniciales) {
-                nombresIniciales.add(p.getItem().getNombre());
+            // Verificar si hay pedidos pendientes
+            List<Pedido> pedidosPendientes = new ArrayList<>();
+            for (Pedido p : servicioActual.getPedidos()) {
+                if (!servicioActual.estaPedidoConfirmado(p)) {
+                    pedidosPendientes.add(p);
+                }
             }
 
-            // Llamar al método confirmar del servicio
-            servicioActual.confirmar();
+            if (pedidosPendientes.isEmpty()) {
+                vista.mostrarError("No hay pedidos pendientes para confirmar");
+                return;
+            }
 
-            // SIEMPRE actualizar la vista después de confirmar
+            // Llamar al método confirmar del servicio y obtener resultado
+            Servicio.ConfirmacionResult resultado = servicioActual.confirmar();
+
+            // Actualizar vista SIEMPRE
             actualizarVistaPedidos(servicioActual);
             cargarItemsPorCategoria();
 
-            // NUEVO: Analizar qué pasó y mostrar mensaje apropiado
-            mostrarResultadoConfirmacion(nombresIniciales, servicioActual.getPedidos());
+            // Mostrar mensaje basado en el resultado
+            mostrarResultadoConfirmacion(resultado);
 
         } catch (StockException ex) {
             vista.mostrarError("Error de stock: " + ex.getMessage());
@@ -206,35 +213,87 @@ public class PedidosControlador implements Observador {
         }
     }
 
-// NUEVO: Método para mostrar el resultado completo de la confirmación
-    private void mostrarResultadoConfirmacion(List<String> nombresIniciales, List<Pedido> pedidosFinales) {
-        // Obtener nombres de pedidos que quedaron
-        List<String> nombresFinales = new ArrayList<>();
-        List<String> nombresConfirmados = new ArrayList<>();
-
-        for (Pedido p : pedidosFinales) {
-            nombresFinales.add(p.getItem().getNombre());
-            if (p.getEstado() instanceof Dominio.Estados.Confirmado) {
-                nombresConfirmados.add(p.getItem().getNombre());
-            }
-        }
-
-        // Determinar cuáles se eliminaron
-        List<String> nombresEliminados = new ArrayList<>(nombresIniciales);
-        nombresEliminados.removeAll(nombresFinales);
-
-        // Construir mensaje
+    /**
+     * MÉTODO NUEVO: Muestra el resultado de la confirmación basado en
+     * ConfirmacionResult
+     */
+    private void mostrarResultadoConfirmacion(Servicio.ConfirmacionResult resultado) {
         StringBuilder mensaje = new StringBuilder();
+        boolean hayEliminados = resultado.hayPedidosEliminados();
+        boolean hayConfirmados = resultado.hayPedidosConfirmados();
 
-        if (!nombresEliminados.isEmpty()) {
+        // Mostrar pedidos eliminados
+        if (hayEliminados) {
             mensaje.append("❌ Pedidos eliminados por falta de stock:\n");
-            for (String nombre : nombresEliminados) {
-                mensaje.append("• ").append(nombre).append("\n");
+            for (Pedido pedido : resultado.getPedidosEliminados()) {
+                mensaje.append("• Nos hemos quedado sin stock de ")
+                        .append(pedido.getItem().getNombre())
+                        .append(" y no pudimos avisarte antes!\n");
             }
             mensaje.append("\n");
         }
 
-        if (!nombresConfirmados.isEmpty()) {
+        // Mostrar pedidos confirmados
+        if (hayConfirmados) {
+            mensaje.append("✅ Pedidos confirmados exitosamente:\n");
+            for (Pedido pedido : resultado.getPedidosConfirmados()) {
+                mensaje.append("• ").append(pedido.getItem().getNombre()).append("\n");
+            }
+        }
+
+        // Mostrar mensaje apropiado
+        if (hayConfirmados && hayEliminados) {
+            vista.mostrarMensajeExito("Confirmación parcial:\n\n" + mensaje.toString());
+        } else if (hayConfirmados && !hayEliminados) {
+            vista.mostrarMensajeExito(mensaje.toString());
+        } else if (hayEliminados && !hayConfirmados) {
+            vista.mostrarError("No se pudieron confirmar los pedidos:\n\n" + mensaje.toString());
+        }
+    }
+
+    /**
+     * CORREGIDO: Analiza el resultado de la confirmación comparando estado
+     * inicial vs final (Mantener este método por si quieres usarlo con la
+     * versión original)
+     */
+    private void analizarYMostrarResultadoConfirmacion(List<String> nombresIniciales, Servicio servicio) {
+        // Obtener estado final
+        List<Pedido> pedidosFinales = servicio.getPedidos();
+        List<String> nombresFinales = new ArrayList<>();
+        List<String> nombresConfirmados = new ArrayList<>();
+
+        for (Pedido p : pedidosFinales) {
+            String nombre = p.getItem().getNombre();
+            nombresFinales.add(nombre);
+
+            // CORREGIDO: Verificar si fue confirmado usando el método del servicio
+            if (servicio.estaPedidoConfirmado(p)) {
+                // Solo agregar si estaba en la lista inicial (es decir, fue recién confirmado)
+                if (nombresIniciales.contains(nombre)) {
+                    nombresConfirmados.add(nombre);
+                }
+            }
+        }
+
+        // Determinar cuáles fueron eliminados
+        List<String> nombresEliminados = new ArrayList<>(nombresIniciales);
+        nombresEliminados.removeAll(nombresFinales);
+
+        // Construir y mostrar mensaje
+        StringBuilder mensaje = new StringBuilder();
+        boolean hayEliminados = !nombresEliminados.isEmpty();
+        boolean hayConfirmados = !nombresConfirmados.isEmpty();
+
+        if (hayEliminados) {
+            mensaje.append("❌ Pedidos eliminados por falta de stock:\n");
+            for (String nombre : nombresEliminados) {
+                mensaje.append("• Nos hemos quedado sin stock de ").append(nombre)
+                        .append(" y no pudimos avisarte antes!\n");
+            }
+            mensaje.append("\n");
+        }
+
+        if (hayConfirmados) {
             mensaje.append("✅ Pedidos confirmados exitosamente:\n");
             for (String nombre : nombresConfirmados) {
                 mensaje.append("• ").append(nombre).append("\n");
@@ -242,17 +301,23 @@ public class PedidosControlador implements Observador {
         }
 
         // Mostrar mensaje apropiado
-        if (!nombresConfirmados.isEmpty()) {
+        if (hayConfirmados && hayEliminados) {
+            // Caso mixto: algunos confirmados, algunos eliminados
+            vista.mostrarMensajeExito("Confirmación parcial:\n\n" + mensaje.toString());
+        } else if (hayConfirmados && !hayEliminados) {
+            // Solo confirmaciones exitosas
             vista.mostrarMensajeExito(mensaje.toString());
-        } else if (!nombresEliminados.isEmpty()) {
-            vista.mostrarError("No se pudieron confirmar los pedidos:\n" + mensaje.toString());
+        } else if (hayEliminados && !hayConfirmados) {
+            // Solo eliminaciones
+            vista.mostrarError("No se pudieron confirmar los pedidos:\n\n" + mensaje.toString());
         }
     }
 
-// 2. En el método handlePedidosEliminadosConMensajes - MEJORAR los mensajes automáticos
+// MEJORAR el método para manejar mensajes automáticos de eliminación
     private void handlePedidosEliminadosConMensajes(Observable origen, List<String> mensajes) {
         if (origen == vista.getServicioActual()) {
-            // MEJORAR: Mostrar un mensaje consolidado más claro
+            // Solo mostrar estos mensajes si NO estamos en proceso de confirmación
+            // (para evitar mensajes duplicados)
             StringBuilder mensajeCompleto = new StringBuilder();
             mensajeCompleto.append("⚠️ Pedidos eliminados automáticamente:\n\n");
 
@@ -262,7 +327,6 @@ public class PedidosControlador implements Observador {
 
             mensajeCompleto.append("\nEstos pedidos fueron eliminados porque otros clientes consumieron el stock mientras navegabas.");
 
-            // Mostrar como un solo mensaje más informativo
             vista.mostrarError(mensajeCompleto.toString());
 
             // Actualizar la tabla inmediatamente
@@ -270,7 +334,6 @@ public class PedidosControlador implements Observador {
             cargarItemsPorCategoria();
         }
     }
-
 //    /**
 //     * Muestra los mensajes apropiados según el resultado de la confirmación
 //     */
@@ -463,7 +526,6 @@ public class PedidosControlador implements Observador {
 //            cargarItemsPorCategoria();
 //        }
 //    }
-
     /**
      * Maneja eliminaciones cuando NO tenemos mensajes específicos
      */
