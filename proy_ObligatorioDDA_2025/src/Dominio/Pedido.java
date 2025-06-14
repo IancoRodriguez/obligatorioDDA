@@ -13,10 +13,7 @@ public class Pedido {
     private Item item;
     private EstadoPedido estado;
     private String fechaHora;   
-    private Servicio servicio;
-
-
-    
+    private Servicio servicio;   
 
 
     public Pedido(Item item, String comentario, Servicio servicio) throws StockException {
@@ -95,18 +92,12 @@ public class Pedido {
     }
 
     
-    
-    
     // Métodos delegados
-    public void confirmar() throws StockException  { estado.confirmar(this); } 
-    public void procesar()       { estado.procesar(); }
-    public void entregar()       { estado.entregar(); }
-    public void finalizar()      { estado.finalizar(); }
+    public void confirmar() throws StockException, ServicioException { estado.confirmar(); } 
+    public void procesar() throws ServicioException  { estado.procesar(); }
+    public void entregar() throws ServicioException  { estado.entregar(); }
+    public void finalizar() throws ServicioException { estado.finalizar(); }
     public void validarEliminacion() throws ServicioException {estado.validarEliminacion();}
 
-    
-    
-    
-        
 
 }

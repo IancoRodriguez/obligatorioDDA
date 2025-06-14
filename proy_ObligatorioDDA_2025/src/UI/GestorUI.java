@@ -5,17 +5,14 @@
 package UI;
 
 import Dominio.Gestor;
-import Dominio.Observer.Observable;
-import Dominio.Observer.Observador;
 import Dominio.Pedido;
-import Dominio.Servicio;
-import Servicios.Fachada;
 import UI.Controladores.GestorView;
 import UI.Controladores.ProcesarPedidosGestorControlador;
 import UI.Renderizadores.RenderizadorListas;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JTable;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -32,8 +29,7 @@ public class GestorUI extends javax.swing.JFrame implements GestorView {
         
         this.gestor = gestor;
         this.controlador = new ProcesarPedidosGestorControlador(gestor, this);
-        
-        
+                
     }
     
     @Override
@@ -99,11 +95,16 @@ public class GestorUI extends javax.swing.JFrame implements GestorView {
     public void finalizarPedido(){
         int posPedido = tablaPedidosTomados.getSelectedRow();
         this.controlador.finalizarPedidio(posPedido);
+    }
+    
+    public void mostrarMensajeSistema(String mensaje){
+        msgError.setText(mensaje);
+        msgError.setVisible(true);
+
+        Timer timer = new Timer(4000, e -> msgError.setText(""));
+        timer.setRepeats(false);
+        timer.start();
         
-        /*Pedido p = this.gestor.getPedidosTomados().get(posPedido);
-        p.finalizar();
-        cargarPedidosTomados();*/
-                
     }
 
     /**

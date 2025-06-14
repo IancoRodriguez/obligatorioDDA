@@ -1,18 +1,15 @@
 package Servicios;
 
-import Dominio.Categoria;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
 import Dominio.Excepciones.DispositivoException;
+import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.UsuarioException;
 import Dominio.Gestor;
-import Dominio.Item;
-import Dominio.Menu;
 import Dominio.Observer.Observable;
 import Dominio.Observer.Observador;
 import Dominio.Pedido;
 import Dominio.Servicio;
-import Dominio.UnidadProcesadora;
 import java.util.List;
 
 public class Fachada extends Observable implements Observador {
@@ -78,12 +75,9 @@ public class Fachada extends Observable implements Observador {
         return sUsuarios.getGestores();
     }
 
-    // La idea de este metodo es tomar el pedido seleccionado,
-    // sumarlo al listado que tiene el gestor de pedidos y cambiarle el estado en el
-    // listado de sPedidos
-    public void tomarPedido(Gestor gestor, Pedido p) {
-        sUsuarios.tomarPedido(gestor, p);
-        // sPedidos.cambiarEstado(p);
+    
+    public void tomarPedido(Gestor gestor, Pedido p) throws ServicioException {
+        sUsuarios.tomarPedido(gestor, p);        
     }
 
     public List<Pedido> getPedidosConfirmados(String nombreUP) {

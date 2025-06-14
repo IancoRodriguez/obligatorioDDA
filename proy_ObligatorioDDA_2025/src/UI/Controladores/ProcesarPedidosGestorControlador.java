@@ -1,12 +1,15 @@
 
 package UI.Controladores;
 
+import Dominio.Excepciones.ServicioException;
 import Dominio.Gestor;
 import Dominio.Observer.Observable;
 import Dominio.Observer.Observador;
 import Dominio.Pedido;
 import Dominio.Servicio;
 import Servicios.Fachada;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class ProcesarPedidosGestorControlador implements Observador {
@@ -56,25 +59,37 @@ public class ProcesarPedidosGestorControlador implements Observador {
     }
     
     public void tomarPedido(Pedido p){
-        f.tomarPedido(this.gestor, p);     
-        
-        cargarPedidosPendientesUP();
-        cargarPedidosTomados();
+        try{
+            f.tomarPedido(this.gestor, p);     
+            cargarPedidosPendientesUP();
+            cargarPedidosTomados();
+            
+        }catch(ServicioException ex){
+            this.vistaGestor.mostrarMensajeSistema(ex.getMessage());
+        }
     }
     
     public void entregarPedido(int posPedido){
-        if(posPedido >= 0){
-            Pedido p = this.gestor.getPedidosTomados().get(posPedido);
-            p.entregar();
-            cargarPedidosTomados();
+        try{
+            if(posPedido >= 0){
+                Pedido p = this.gestor.getPedidosTomados().get(posPedido);
+                p.entregar();
+                cargarPedidosTomados();
+            }
+        }catch (ServicioException ex) {
+            this.vistaGestor.mostrarMensajeSistema(ex.getMessage());
         }
     }
     
     public void finalizarPedidio(int posPedido){
-        if(posPedido >= 0){
-            Pedido p = this.gestor.getPedidosTomados().get(posPedido);
-            p.finalizar();
-            cargarPedidosTomados();
+        try{
+            if(posPedido >= 0){
+                Pedido p = this.gestor.getPedidosTomados().get(posPedido);
+                p.finalizar();
+                cargarPedidosTomados();
+            }
+        }catch (ServicioException ex) {
+            this.vistaGestor.mostrarMensajeSistema(ex.getMessage());
         }
     }
     

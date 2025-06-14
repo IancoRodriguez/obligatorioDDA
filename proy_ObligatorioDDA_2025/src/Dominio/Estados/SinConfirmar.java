@@ -26,7 +26,7 @@ public class SinConfirmar implements EstadoPedido {
 
     
  
-    public void confirmar(Pedido pedido) throws StockException {
+    public void confirmar() throws StockException {
         
         pedido.setEstado(new Confirmado(pedido));     
         

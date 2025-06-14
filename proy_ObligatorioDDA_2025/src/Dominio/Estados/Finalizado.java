@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
@@ -10,10 +7,7 @@ import Dominio.Pedido;
 import java.util.Collections;
 import java.util.List;
 
-/**
- *
- * @author ianco
- */
+
 public class Finalizado implements EstadoPedido{
     private Pedido pedido;
 
@@ -21,20 +15,20 @@ public class Finalizado implements EstadoPedido{
         this.pedido = pedido;
     }
 
-    public void confirmar(Pedido pedido) {
-        System.out.println("Ya finalizado. No se puede confirmar.");
+    public void confirmar() throws ServicioException {
+        throw new ServicioException("Ya finalizado. No se puede confirmar.");
     }
 
-    public void procesar() {
-        System.out.println("Ya fue procesado.");
+    public void procesar() throws ServicioException {
+        throw new ServicioException("Ya fue procesado.");
     }
 
-    public void entregar() {
-        System.out.println("Ya fue entregado.");
+    public void entregar() throws ServicioException {
+        throw new ServicioException("Ya fue entregado.");
     }
 
-    public void finalizar() {
-        System.out.println("Ya está finalizado.");
+    public void finalizar() throws ServicioException {
+        throw new ServicioException("Ya está finalizado.");
     }
 
     public void validarEliminacion() throws ServicioException {

@@ -14,5 +14,6 @@ public interface GestorView {
     void tomarPedido();
     void entregarPedido();
     void finalizarPedido();
+    void mostrarMensajeSistema(String mensaje);
     
 }

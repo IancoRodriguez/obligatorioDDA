@@ -1,18 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Dominio.Estados;
 
 import Dominio.Excepciones.ServicioException;
+import Dominio.Excepciones.StockException;
 import Dominio.Ingrediente;
 import Dominio.Pedido;
 import java.util.List;
 
-/**
- *
- * @author ianco
- */
 public class Procesando implements EstadoPedido {
 
     private Pedido pedido;
@@ -21,24 +15,24 @@ public class Procesando implements EstadoPedido {
         this.pedido = pedido;
     }
 
-    public void confirmar(Pedido pedido) {
-        System.out.println("Ya fue confirmado.");
+    public void confirmar() throws StockException, ServicioException  {
+        throw new ServicioException("Ya fue confirmado.");
     }
 
-    public void procesar() {
-        System.out.println("Pedido en proceso");
+    public void procesar() throws ServicioException {
+        throw new ServicioException("Pedido en proceso");
     }
 
     public void entregar() {
         pedido.setEstado(new Entregado(pedido));
     }
 
-    public void finalizar() {
-        System.out.println("No se puede finalizar sin entregar.");
+    public void finalizar() throws ServicioException {
+        throw new ServicioException("No se puede finalizar sin entregar.");
     }
 
     public void validarEliminacion() throws ServicioException {
-        throw new ServicioException("Un poco tarde…Ya estamos\n" + "elaborando este pedido!");
+        throw new ServicioException("Un poco tarde…Ya estamos elaborando este pedido!");
     }
 
     @Override
@@ -48,7 +42,8 @@ public class Procesando implements EstadoPedido {
 
     @Override
     public List<Ingrediente> ingredientesParaConfirmar(Pedido pedido) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return null;
     }
 
+    
 }

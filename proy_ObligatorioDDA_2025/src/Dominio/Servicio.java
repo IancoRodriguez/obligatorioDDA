@@ -58,7 +58,7 @@ public class Servicio extends Observable implements Observador {
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
-    public void confirmar() throws StockException {
+    public void confirmar() throws StockException, ServicioException {
         // Obtener pedidos pendientes de confirmación
         List<Pedido> pedidosPorConfirmar = new ArrayList<>();
         for (Pedido pedido : pedidos) {
@@ -135,7 +135,7 @@ public class Servicio extends Observable implements Observador {
         }
     }
 
-    private void confirmarPedidosViables(List<Pedido> pedidosViables) throws StockException {
+    private void confirmarPedidosViables(List<Pedido> pedidosViables) throws StockException, ServicioException {
         // NUEVO: Activar bandera antes de consumir stock
         confirmandoPedidos = true;
 
@@ -148,14 +148,15 @@ public class Servicio extends Observable implements Observador {
 
             // Confirmar pedidos (cambiar estado)
             for (Pedido pedido : pedidosViables) {
-                pedido.getEstado().confirmar(pedido);
+                pedido.getEstado().confirmar();
                 pedidosConfirmados.add(pedido);
             }
 
             // Notificar que hay pedidos confirmados (para actualizar la tabla)
             notificar("PEDIDOS_CONFIRMADOS");
             notificar(Evento.PEDIDO_CAMBIO_ESTADO);
-
+        }catch(ServicioException ex){
+            throw ex;
         } finally {
             // NUEVO: Desactivar bandera al finalizar (en bloque finally para garantizar
             // ejecución)
@@ -253,7 +254,7 @@ public class Servicio extends Observable implements Observador {
         return pedidosAEliminar;
     }
 
-    private void confirmarPedidosConStock(List<Pedido> pedidosAConfirmar) throws StockException {
+    private void confirmarPedidosConStock(List<Pedido> pedidosAConfirmar) throws StockException, ServicioException {
         // Calcular requerimientos solo de pedidos nuevos
         Map<Insumo, Integer> requerimientos = calcularRequerimientos(pedidosAConfirmar);
 
@@ -265,7 +266,7 @@ public class Servicio extends Observable implements Observador {
 
         // Marcar pedidos como confirmados
         for (Pedido pedido : pedidosAConfirmar) {
-            pedido.getEstado().confirmar(pedido);
+            pedido.getEstado().confirmar();
             pedidosConfirmados.add(pedido);
         }
     }

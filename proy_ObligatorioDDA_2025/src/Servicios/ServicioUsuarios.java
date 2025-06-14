@@ -8,6 +8,7 @@ import Dominio.Excepciones.DispositivoException;
 import Dominio.Excepciones.UsuarioException;
 import Dominio.Cliente;
 import Dominio.Dispositivo;
+import Dominio.Excepciones.ServicioException;
 import Dominio.Gestor;
 import Dominio.Observer.Observable;
 import Dominio.Pedido;
@@ -88,7 +89,7 @@ public class ServicioUsuarios extends Observable{
     }
 
     //metodos gestores
-    public void tomarPedido(Gestor gestor, Pedido p) {
+    public void tomarPedido(Gestor gestor, Pedido p) throws ServicioException {
         p.procesar();
         gestor.setPedidosTomados(p);
     }
