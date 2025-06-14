@@ -5,58 +5,49 @@
 package UI;
 
 import Dominio.Gestor;
-import Dominio.Item;
 import Dominio.Observer.Observable;
 import Dominio.Observer.Observador;
 import Dominio.Pedido;
 import Dominio.Servicio;
-import Dominio.Usuario;
 import Servicios.Fachada;
+import UI.Controladores.GestorView;
+import UI.Controladores.ProcesarPedidosGestorControlador;
 import UI.Renderizadores.RenderizadorListas;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 
-public class GestorUI extends javax.swing.JFrame implements Observador {
+public class GestorUI extends javax.swing.JFrame implements GestorView {
     private Gestor gestor; 
-    private Fachada f;
     
-    public GestorUI(Gestor gestor) {
+    // Controladores
+    
+    private ProcesarPedidosGestorControlador controlador;
+    
+    public GestorUI(Gestor gestor){
+        
+        initComponents();      
         
         this.gestor = gestor;
-        this.f = Fachada.getInstancia();
-        
-        initComponents();       
-        
-        cargarNombreUP(gestor);
-        cargarPedidosPendientesUP();
-        f.subscribir(this);
-        suscribirAServicios();
+        this.controlador = new ProcesarPedidosGestorControlador(gestor, this);
         
         
     }
     
-    
-    public void cargarNombreUP(Gestor g){
-        String labelContent = g.getNombreCompleto() + " | Area: "+ g.getNombreUP();
+    @Override
+    public void cargarNombreUP(String nombreGestor, String nombreUP){
+        String labelContent = nombreGestor + " | Area: " + nombreUP;
         jLabel2.setText(labelContent);       
     }          
-    
-    private void suscribirAServicios(){
-        for(Servicio s : f.getServicios()){
-            s.desuscribir(this);
-            s.subscribir(this);
-        }
-    }
      
-    private void cargarPedidosPendientesUP() {
+    @Override
+    public void cargarPedidosPendientesUP(List<Pedido> pedidosPendientes) {
         try {
             DefaultListModel<Pedido> modelo = new DefaultListModel<>();
 
-            for(Pedido p : f.getPedidosConfirmados(gestor.getUP().getNombre())){
+            for(Pedido p : pedidosPendientes){
                 modelo.addElement(p);
             }
             
@@ -69,11 +60,12 @@ public class GestorUI extends javax.swing.JFrame implements Observador {
         }
     }
     
-    private void cargarPedidosTomados(){
+    @Override
+    public void cargarPedidosTomados(List<Pedido> pedidosTomadosPorGestor){
         DefaultTableModel modelo = new DefaultTableModel();
         modelo.setColumnIdentifiers(new String[]{"Nombre item", "Descripcion", "Cliente", "FechaHora", "Estado"});
 
-         for (Pedido pedido : this.gestor.getPedidosTomados()) {
+         for (Pedido pedido : pedidosTomadosPorGestor) {
              modelo.addRow(new Object[]{
                  pedido.getItem().getNombre(),
                  pedido.getComentario(),
@@ -89,25 +81,28 @@ public class GestorUI extends javax.swing.JFrame implements Observador {
          tablaPedidosTomados.repaint();
     }
    
-    private void tomarPedido(){
+    @Override
+    public void tomarPedido(){
         if(this.jListadoPedidos.getSelectedValue() != null)
-            f.tomarPedido(this.gestor,jListadoPedidos.getSelectedValue());
-        
-        cargarPedidosPendientesUP();
-        cargarPedidosTomados();
-    }
-    private void entregarPedido(){
-        int posPedido = tablaPedidosTomados.getSelectedRow();
-        Pedido p = this.gestor.getPedidosTomados().get(posPedido);
-        p.entregar();
-        cargarPedidosTomados();
+            this.controlador.tomarPedido(jListadoPedidos.getSelectedValue());
                 
     }
-    private void finalizarPedido(){
+    
+    @Override
+    public void entregarPedido(){
         int posPedido = tablaPedidosTomados.getSelectedRow();
-        Pedido p = this.gestor.getPedidosTomados().get(posPedido);
+        this.controlador.entregarPedido(posPedido);
+                        
+    }
+    
+    @Override
+    public void finalizarPedido(){
+        int posPedido = tablaPedidosTomados.getSelectedRow();
+        this.controlador.finalizarPedidio(posPedido);
+        
+        /*Pedido p = this.gestor.getPedidosTomados().get(posPedido);
         p.finalizar();
-        cargarPedidosTomados();
+        cargarPedidosTomados();*/
                 
     }
 
@@ -258,17 +253,5 @@ public class GestorUI extends javax.swing.JFrame implements Observador {
     private javax.swing.JTable tablaPedidosTomados;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void notificar(Observable origen, Object evento) {
-        
-        if (evento instanceof Observable.Evento && evento == Observable.Evento.NUEVO_SERVICIO) {
-            suscribirAServicios();
-        }
-        
-        if (evento instanceof Observable.Evento && evento == Observable.Evento.PEDIDO_CAMBIO_ESTADO) {
-            cargarPedidosPendientesUP();
-        }
-        
-        
-    }
+    
 }
