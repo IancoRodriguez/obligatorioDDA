@@ -1,20 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Dominio.Estados;
 
-import Dominio.Excepciones.ServicioException;
-import Dominio.Excepciones.StockException;
 import Dominio.Ingrediente;
 import Dominio.Pedido;
 import java.util.Collections;
 import java.util.List;
 
-/**
- *
- * @author ianco
- */
+
 public class Confirmado implements EstadoPedido {
     private Pedido pedido;
 
@@ -22,7 +14,7 @@ public class Confirmado implements EstadoPedido {
         this.pedido = pedido;
     }
 
-    public void confirmar(Pedido pedido) {
+    public void confirmar() {
         System.out.println("ya esta conf");
               
     }
