@@ -24,7 +24,7 @@ public class Finalizado implements EstadoPedido{
     }
 
     public void entregar() throws ServicioException {
-        throw new ServicioException("Ya fue entregado.");
+        pedido.setEstado(new Entregado(pedido));
     }
 
     public void finalizar() throws ServicioException {

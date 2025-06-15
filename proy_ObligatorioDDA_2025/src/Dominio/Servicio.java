@@ -43,6 +43,8 @@ public class Servicio extends Observable implements Observador {
 
     // Eliminar pedido del servicio
     public void eliminarPedido(Pedido pedido) throws ServicioException {
+        
+        pedido.validarEliminacion();
         // Si el pedido estaba confirmado, reintegrar stock
         if (pedidosConfirmados.contains(pedido)) {
             reintegrarStock(pedido);
