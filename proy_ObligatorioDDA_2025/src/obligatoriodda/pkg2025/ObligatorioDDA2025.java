@@ -20,7 +20,6 @@ import Dominio.UnidadProcesadora;
 import Servicios.Fachada;
 
 import UI.ClienteUI;
-import UI.VentanaLoginCliente;
 import UI.VentanaPrincipal;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,15 +141,3 @@ public class ObligatorioDDA2025 {
  
     }
 }
-
-/*
-   SwingUtilities.invokeLater(() -> {
-            // 1. Ventana principal del gestor
-            new VentanaPrincipal().setVisible(true);
-
-            // 2. Ventanas de login para cada dispositivo
-            for (Dispositivo dispositivo : f.getDispositivos()) {
-                new VentanaLoginCliente(dispositivo).setVisible(true); // Pasar el dispositivo asociado
-            }
-        });
- */

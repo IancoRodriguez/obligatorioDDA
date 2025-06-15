@@ -1,6 +1,7 @@
 
 package Dominio.Estados;
 
+import Dominio.Excepciones.ServicioException;
 import Dominio.Ingrediente;
 import Dominio.Pedido;
 import java.util.Collections;
@@ -14,22 +15,20 @@ public class Confirmado implements EstadoPedido {
         this.pedido = pedido;
     }
 
-    public void confirmar() {
-        System.out.println("ya esta conf");
-              
+    public void confirmar() throws ServicioException {
+        throw new ServicioException("El pedido ya está confirmado");
     }
 
     public void procesar() {
-        System.out.println("Pedido en procesamiento.");
         pedido.setEstado(new Procesando(pedido));
     }
 
-    public void entregar() {
-        System.out.println("No se puede entregar sin procesar.");
+    public void entregar() throws ServicioException {
+        throw new ServicioException("No se puede entregar sin procesar.");
     }
 
-    public void finalizar() {
-        System.out.println("No se puede finalizar sin entregar.");
+    public void finalizar() throws ServicioException {
+        throw new ServicioException("No se puede finalizar sin entregar.");
     }
 
     public void validarEliminacion() {

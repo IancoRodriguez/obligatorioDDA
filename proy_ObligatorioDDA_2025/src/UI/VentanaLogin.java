@@ -6,8 +6,6 @@ package UI;
 
 import Dominio.Excepciones.UsuarioException;
 import Dominio.Usuario;
-import javax.swing.JOptionPane;
-
 
 public abstract class VentanaLogin extends javax.swing.JFrame {
 

@@ -1,22 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UI;
 
-import Dominio.Excepciones.DispositivoException;
 import Dominio.Excepciones.UsuarioException;
 import Dominio.Gestor;
 import Dominio.Usuario;
-import Servicios.Fachada;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import UI.Controladores.LoginGestorControlador;
 
 
 
 public class VentanaLoginGestor extends VentanaLogin{
     
+    private LoginGestorControlador controlador;
+    
+    public VentanaLoginGestor(){
+        this.controlador = new LoginGestorControlador();
+    }
 
     @Override
     public void abrirSiguienteVentana(Usuario gestor) {
@@ -26,7 +24,7 @@ public class VentanaLoginGestor extends VentanaLogin{
     @Override
     public Usuario login(String usuario, String contrasena) throws UsuarioException {
         try {
-            return Fachada.getInstancia().loginGestor(usuario, contrasena);
+            return controlador.loginGestor(usuario, contrasena);
         } catch (UsuarioException ex) {
             throw ex;
         } 
