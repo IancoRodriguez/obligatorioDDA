@@ -40,7 +40,7 @@ public class PedidosControlador implements Observador {
      */
     public void inicializar() {
         cargarCategorias();
-        vista.limpiarMensajesError();
+        vista.limpiarMensajesError();        
     }
 
     /**
@@ -180,6 +180,8 @@ public class PedidosControlador implements Observador {
 
             // Llamar al método confirmar del servicio
             servicioActual.confirmar();
+            
+            this.servicioActual.subscribir(this);
 
             // CRÍTICO: SIEMPRE actualizar la vista después de confirmar
             // independientemente de si hubo eliminaciones o no
@@ -371,6 +373,9 @@ public class PedidosControlador implements Observador {
                 case PEDIDOS_ELIMINADOS_POR_STOCK:
                     handlePedidosEliminadosSinMensajes(origen);
                     break;
+                case PEDIDO_CAMBIO_ESTADO:
+                    actualizarVistaPedidos(servicioActual);
+                    break;
             }
         } // CASO 2: El evento es una lista de mensajes (viene del método procesarEliminacionesAutomaticas)
         else if (evento instanceof List) {
@@ -452,4 +457,6 @@ public class PedidosControlador implements Observador {
         // Redirigir al método notificar
         notificar(origen, evento);
     }
+    
+   
 }

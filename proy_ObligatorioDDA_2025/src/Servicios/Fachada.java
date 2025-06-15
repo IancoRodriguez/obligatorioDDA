@@ -79,6 +79,15 @@ public class Fachada extends Observable implements Observador {
     public void tomarPedido(Gestor gestor, Pedido p) throws ServicioException {
         sUsuarios.tomarPedido(gestor, p);        
     }
+    
+    public void entregarPedido(Gestor gestor, Pedido p) throws ServicioException {
+        sUsuarios.entregarPedido(gestor, p);        
+    }
+
+    public void finalizarPedido(Gestor gestor, Pedido p) throws ServicioException {
+        sUsuarios.finalizarPedido(gestor, p);        
+    }
+
 
     public List<Pedido> getPedidosConfirmados(String nombreUP) {
         return sDispositivos.getPedidosConfirmados(nombreUP);

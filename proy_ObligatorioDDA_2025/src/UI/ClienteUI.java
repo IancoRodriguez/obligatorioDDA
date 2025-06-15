@@ -6,46 +6,20 @@ package UI;
 
 import UI.Renderizadores.RenderizadorListas;
 import Dominio.Categoria;
-import Dominio.Cliente;
 import Dominio.Dispositivo;
 import Dominio.Excepciones.*;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Pedido;
 import Dominio.Servicio;
-import Dominio.Usuario;
-import Servicios.Fachada;
-import Dominio.Observer.Observable;
-import Dominio.Observer.Observador;
-import Servicios.Fachada;
 import UI.Controladores.ClienteView;
 import UI.Controladores.FinalizarServicioControlador;
-
 import UI.Controladores.LoginControlador;
-
 import UI.Controladores.PedidosControlador;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -54,7 +28,6 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ClienteUI extends javax.swing.JFrame implements ClienteView {
 
-    private Fachada f;
     private Dispositivo dispositivo;
     private Menu menu;
     private Servicio servicioActual;
@@ -70,7 +43,6 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
         usuarioLogueadoFlag.setVisible(false);
         this.dispositivo = dispositivo;
 
-        this.f = Fachada.getInstancia();
         this.menu = Menu.getInstancia();
 
         this.loginControlador = new LoginControlador(this, dispositivo);
@@ -84,7 +56,7 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
         // Listener para cargar la lista de items; 
         lCategorias.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                pedidosControlador.onCategoriaSeleccionada(); // CAMBIO: usar controlador
+                pedidosControlador.onCategoriaSeleccionada();
             }
         });
     }
@@ -556,7 +528,6 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
                 item -> item.getNombre() + " - $" + item.getPrecioUnitario()
         ));
 
-        // CORREGIDO: El controlador se encarga de las suscripciones
         pedidosControlador.suscribirseAItems(items);
     }
 
@@ -605,7 +576,6 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
         }
     }
 
-// CORREGIDO: Método setLogueado que probablemente falta implementar
     @Override
     public void setLogueado(boolean estado) {
         usuarioLogueadoFlag.setVisible(estado);

@@ -73,7 +73,8 @@ public class ProcesarPedidosGestorControlador implements Observador {
         try{
             if(posPedido >= 0){
                 Pedido p = this.gestor.getPedidosTomados().get(posPedido);
-                p.entregar();
+                f.entregarPedido(gestor, p);
+                //p.entregar();
                 cargarPedidosTomados();
             }
         }catch (ServicioException ex) {
@@ -85,7 +86,8 @@ public class ProcesarPedidosGestorControlador implements Observador {
         try{
             if(posPedido >= 0){
                 Pedido p = this.gestor.getPedidosTomados().get(posPedido);
-                p.finalizar();
+                f.finalizarPedido(gestor, p);
+                //p.finalizar();
                 cargarPedidosTomados();
             }
         }catch (ServicioException ex) {

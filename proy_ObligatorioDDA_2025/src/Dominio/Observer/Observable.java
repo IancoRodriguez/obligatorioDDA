@@ -38,13 +38,11 @@ public abstract class Observable {
         }
     }
 
-    // Método sobrecargado para casos donde necesitas enviar datos adicionales
     public void notificar(Evento tipoEvento, Object datos) {
         EventoConDatos eventoCompleto = new EventoConDatos(tipoEvento, datos);
         notificar(eventoCompleto);
     }
 
-    // Clase interna para encapsular evento + datos
     public static class EventoConDatos {
         private final Evento tipo;
         private final Object datos;
