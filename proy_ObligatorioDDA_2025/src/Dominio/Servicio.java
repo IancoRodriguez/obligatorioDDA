@@ -58,7 +58,7 @@ public class Servicio extends Observable implements Observador {
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
-    public void confirmar() throws StockException, ServicioException {
+    public ConfirmacionResult confirmar() throws StockException, ServicioException {
         // Obtener pedidos pendientes de confirmación
         List<Pedido> pedidosPorConfirmar = new ArrayList<>();
         for (Pedido pedido : pedidos) {
@@ -68,7 +68,7 @@ public class Servicio extends Observable implements Observador {
         }
 
         if (pedidosPorConfirmar.isEmpty()) {
-            return; // No hay nada que confirmar
+            return new ConfirmacionResult(new ArrayList<>(), new ArrayList<>());
         }
 
         // PASO 1: Separar pedidos viables de los no viables
@@ -77,14 +77,56 @@ public class Servicio extends Observable implements Observador {
 
         determinarPedidosViables(pedidosPorConfirmar, pedidosViables, pedidosSinStock);
 
-        // PASO 2: Procesar eliminaciones automáticas SOLO si hay pedidos sin stock
+        // PASO 2: Procesar eliminaciones automáticas
+        List<Pedido> pedidosEliminados = new ArrayList<>();
         if (!pedidosSinStock.isEmpty()) {
+            pedidosEliminados.addAll(pedidosSinStock);
             procesarEliminacionesAutomaticas(pedidosSinStock);
         }
 
-        // PASO 3: Confirmar pedidos viables SOLO si los hay
+        // PASO 3: Confirmar pedidos viables
+        List<Pedido> pedidosConfirmadosEnEstaOperacion = new ArrayList<>();
         if (!pedidosViables.isEmpty()) {
+            pedidosConfirmadosEnEstaOperacion.addAll(pedidosViables);
             confirmarPedidosViables(pedidosViables);
+        }
+
+        // Retornar resultado
+        return new ConfirmacionResult(pedidosEliminados, pedidosConfirmadosEnEstaOperacion);
+    }
+
+    /**
+     * CLASE MODIFICADA: ConfirmacionResult Ahora incluye tanto pedidos
+     * eliminados como confirmados
+     */
+    public static class ConfirmacionResult {
+
+        private final List<Pedido> pedidosEliminados;
+        private final List<Pedido> pedidosConfirmados;
+
+        public ConfirmacionResult(List<Pedido> pedidosEliminados, List<Pedido> pedidosConfirmados) {
+            this.pedidosEliminados = new ArrayList<>(pedidosEliminados);
+            this.pedidosConfirmados = new ArrayList<>(pedidosConfirmados);
+        }
+
+        public List<Pedido> getPedidosEliminados() {
+            return pedidosEliminados;
+        }
+
+        public List<Pedido> getPedidosConfirmados() {
+            return pedidosConfirmados;
+        }
+
+        public boolean hayPedidosEliminados() {
+            return !pedidosEliminados.isEmpty();
+        }
+
+        public boolean hayPedidosConfirmados() {
+            return !pedidosConfirmados.isEmpty();
+        }
+
+        public boolean isConfirmacionExitosa() {
+            return hayPedidosConfirmados();
         }
     }
 
@@ -155,7 +197,7 @@ public class Servicio extends Observable implements Observador {
             // Notificar que hay pedidos confirmados (para actualizar la tabla)
             notificar("PEDIDOS_CONFIRMADOS");
             notificar(Evento.PEDIDO_CAMBIO_ESTADO);
-        }catch(ServicioException ex){
+        } catch (ServicioException ex) {
             throw ex;
         } finally {
             // NUEVO: Desactivar bandera al finalizar (en bloque finally para garantizar
@@ -321,35 +363,66 @@ public class Servicio extends Observable implements Observador {
         if (origen instanceof Insumo && evento == Observable.Evento.STOCK_ACTUALIZADO) {
             // NUEVO: Solo verificar eliminaciones si NO estamos confirmando nuestros
             // propios pedidos
-            if (!confirmandoPedidos) {
+            // Y si NO hay NINGÚN servicio en proceso de confirmación
+            if (!confirmandoPedidos && !hayAlgunServicioConfirmando()) {
                 verificarYEliminarPedidosSinStock();
             }
         }
     }
 
-    // Clase interna para el resultado de confirmación
-    public static class ConfirmacionResult {
+    /**
+     * NUEVO: Método para verificar si algún servicio está confirmando
+     * Esto evita eliminaciones automáticas durante confirmaciones
+     */
+    private boolean hayAlgunServicioConfirmando() {
+        // Aquí necesitarías acceso a la Fachada o un registro global
+        // Por simplicidad, puedes usar una variable estática
+        return ServicioConfirmando.hayConfirmacionEnProceso();
+    }
 
-        private final List<Pedido> pedidosEliminados;
-        private final boolean confirmacionExitosa;
+    /**
+     * NUEVA: Clase helper para coordinar confirmaciones globalmente
+     */
+    public static class ServicioConfirmando {
+        private static boolean confirmacionEnProceso = false;
 
-        public ConfirmacionResult(List<Pedido> pedidosEliminados, boolean confirmacionExitosa) {
-            this.pedidosEliminados = pedidosEliminados;
-            this.confirmacionExitosa = confirmacionExitosa;
+        public static void iniciarConfirmacion() {
+            confirmacionEnProceso = true;
         }
 
-        public List<Pedido> getPedidosEliminados() {
-            return pedidosEliminados;
+        public static void finalizarConfirmacion() {
+            confirmacionEnProceso = false;
         }
 
-        public boolean isConfirmacionExitosa() {
-            return confirmacionExitosa;
-        }
-
-        public boolean hayPedidosEliminados() {
-            return !pedidosEliminados.isEmpty();
+        public static boolean hayConfirmacionEnProceso() {
+            return confirmacionEnProceso;
         }
     }
+
+    // Clase interna para el resultado de confirmación
+    // public static class ConfirmacionResult {
+    //
+    // private final List<Pedido> pedidosEliminados;
+    // private final boolean confirmacionExitosa;
+    //
+    // public ConfirmacionResult(List<Pedido> pedidosEliminados, boolean
+    // confirmacionExitosa) {
+    // this.pedidosEliminados = pedidosEliminados;
+    // this.confirmacionExitosa = confirmacionExitosa;
+    // }
+    //
+    // public List<Pedido> getPedidosEliminados() {
+    // return pedidosEliminados;
+    // }
+    //
+    // public boolean isConfirmacionExitosa() {
+    // return confirmacionExitosa;
+    // }
+    //
+    // public boolean hayPedidosEliminados() {
+    // return !pedidosEliminados.isEmpty();
+    // }
+    // }
 
     public List<Pedido> pedidosConStock() {
         List<Pedido> aux = new ArrayList<>();
@@ -434,9 +507,20 @@ public class Servicio extends Observable implements Observador {
         return this.cliente.getNombreCompleto();
     }
 
-    // Método para debugging
+    // Método para verificar si un pedido ya está confirmado
     public boolean estaPedidoConfirmado(Pedido pedido) {
         return pedidosConfirmados.contains(pedido);
+    }
+
+    // Método para obtener solo los pedidos pendientes de confirmación
+    public List<Pedido> getPedidosPendientes() {
+        List<Pedido> pendientes = new ArrayList<>();
+        for (Pedido pedido : pedidos) {
+            if (!pedidosConfirmados.contains(pedido)) {
+                pendientes.add(pedido);
+            }
+        }
+        return pendientes;
     }
 
     /**
