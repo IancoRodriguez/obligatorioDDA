@@ -4,15 +4,10 @@
  */
 package UI;
 
-/**
- *
- * @author dgreg
- */
+
 public class VentanaPrincipal extends javax.swing.JFrame {
 
-    /**
-     * Creates new form VentanaPrincipal
-     */
+    
     public VentanaPrincipal() {
         initComponents();
         this.setLocationRelativeTo(null);

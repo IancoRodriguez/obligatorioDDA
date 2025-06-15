@@ -2,7 +2,6 @@
 package UI.Controladores;
 
 import Dominio.Excepciones.UsuarioException;
-import Dominio.Gestor;
 import Dominio.Usuario;
 import Servicios.Fachada;
 

@@ -12,11 +12,7 @@ import Dominio.Pedido;
 import Dominio.Servicio;
 import java.util.List;
 
-/**
- *
- * @author ianco
- */
- 
+
 public interface ClienteView {
     
    // === MÉTODOS COMUNES ===
@@ -52,8 +48,8 @@ public interface ClienteView {
     void reiniciarFlujo();
     void cerrarSesion();
     
-    // === NOTIFICACIONES (manejadas por controlador) ===
+    // === NOTIFICACIONES ===
     void actualizarItemEnLista(Item item);
-    void removerItemDeLista(Item item); // AGREGADO: método faltante
+    void removerItemDeLista(Item item); 
     void refrescarListaItems();
 }
