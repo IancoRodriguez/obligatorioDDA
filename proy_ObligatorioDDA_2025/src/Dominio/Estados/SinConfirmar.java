@@ -1,21 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Dominio.Estados;
 
 import Dominio.Excepciones.StockException;
 import Dominio.Ingrediente;
-import Dominio.Insumo;
-import Dominio.Observer.Observable;
 import Dominio.Pedido;
-import java.util.Collections;
 import java.util.List;
 
-/**
- *
- * @author ianco
- */
+
 public class SinConfirmar implements EstadoPedido {
 
     private Pedido pedido;

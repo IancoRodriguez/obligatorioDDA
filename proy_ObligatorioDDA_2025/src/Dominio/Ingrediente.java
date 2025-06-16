@@ -4,10 +4,9 @@ import java.util.Objects;
 
 public class Ingrediente  {
 
-    private final Insumo insumo;  // El insumo no cambia luego de la creación
-    private int cantidad;         // La cantidad sí puede modificarse con validación
+    private final Insumo insumo;  
+    private int cantidad;         
 
-    // Constructor con validaciones
     public Ingrediente(Insumo insumo, int cantidad) {
         if (insumo == null) {
             throw new IllegalArgumentException("El insumo no puede ser nulo");
@@ -29,7 +28,7 @@ public class Ingrediente  {
         return cantidad;
     }
 
-    // Setter para cantidad con validación
+    // Setters
     public void setCantidad(int cantidad) {
         if (cantidad <= 0) {
             throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
@@ -37,7 +36,6 @@ public class Ingrediente  {
         this.cantidad = cantidad;
     }
 
-    // Representación legible del objeto
     @Override
     public String toString() {
         return String.format(
@@ -47,7 +45,6 @@ public class Ingrediente  {
         );
     }
 
-    // Implementación de equals() y hashCode()
     @Override
     public boolean equals(Object o) {
         if (this == o) {

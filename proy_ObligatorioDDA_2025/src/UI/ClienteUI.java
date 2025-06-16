@@ -463,8 +463,8 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
     @Override
     public void limpiarInterfaz() {
         actualizarTablaPedidos(new ArrayList<>()); // Limpia la tabla de pedidos
-        btnFinalizarServicio.setText("Finalizar Servicio"); // Restablece el botón
-        msgFinServicio.setText(""); // Limpia mensaje
+        btnFinalizarServicio.setText("Finalizar Servicio"); 
+        msgFinServicio.setText(""); 
     }
 
     @Override
@@ -570,7 +570,6 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
 
     @Override
     public void refrescarListaItems() {
-        // Delegar al controlador para recargar items
         if (pedidosControlador != null) {
             pedidosControlador.onCategoriaSeleccionada();
         }

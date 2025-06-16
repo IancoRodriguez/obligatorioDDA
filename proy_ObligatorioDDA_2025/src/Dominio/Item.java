@@ -26,11 +26,10 @@ public class Item extends Observable implements Observador {
         if (unidadProcesadora == null) {
             throw new IllegalArgumentException("La unidad procesadora es obligatoria");
         }
-        if (categoria == null) { // Validación nueva para categoría
+        if (categoria == null) { 
             throw new IllegalArgumentException("La categoría es obligatoria");
         }
 
-        // Inicialización de atributos
         this.Nombre = Nombre;
         this.precioUnitario = precioUnitario;
         this.unidadProcesadora = unidadProcesadora;
@@ -111,7 +110,7 @@ public class Item extends Observable implements Observador {
 
     @Override
     public void notificar(Observable origen, Object evento) {
-        // Si el stock de un insumo cambia, re-verificamos disponibilidad
+        // Si el stock de un insumo cambia, verificamos disponibilidad
         if (evento == Evento.STOCK_ACTUALIZADO) {
             verificarDisponibilidad();
         }

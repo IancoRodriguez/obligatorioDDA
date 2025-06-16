@@ -17,7 +17,7 @@ public class Servicio extends Observable implements Observador {
     private double montoTotal;
     private boolean confirmandoPedidos = false;
 
-    // Para trackear qué pedidos ya consumieron stock
+    // Para ver que pedidos ya consumieron stock
     private List<Pedido> pedidosConfirmados;
 
     public Servicio(Cliente cliente) {
@@ -26,12 +26,11 @@ public class Servicio extends Observable implements Observador {
         this.pedidosConfirmados = new ArrayList<>();
     }
 
-    // Agrega un pedido al servicio
     public void agregarPedido(Pedido pedido) throws ServicioException {
         pedidos.add(pedido);
         montoTotal += pedido.calcularTotal();
 
-        // NUEVO: Suscribirse a los insumos del nuevo pedido
+        // Suscribirse a los insumos del nuevo pedido
         for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
             Insumo insumo = ingrediente.getInsumo();
             insumo.desuscribir(this); // Evitar duplicados
@@ -41,7 +40,6 @@ public class Servicio extends Observable implements Observador {
         notificar(Evento.MONTO_ACTUALIZADO);
     }
 
-    // Eliminar pedido del servicio
     public void eliminarPedido(Pedido pedido) throws ServicioException {
         
         pedido.validarEliminacion();
@@ -73,20 +71,20 @@ public class Servicio extends Observable implements Observador {
             return new ConfirmacionResult(new ArrayList<>(), new ArrayList<>());
         }
 
-        // PASO 1: Separar pedidos viables de los no viables
+        // Separar pedidos viables de los no viables
         List<Pedido> pedidosViables = new ArrayList<>();
         List<Pedido> pedidosSinStock = new ArrayList<>();
 
         determinarPedidosViables(pedidosPorConfirmar, pedidosViables, pedidosSinStock);
 
-        // PASO 2: Procesar eliminaciones automáticas
+        // Procesar eliminaciones automáticas
         List<Pedido> pedidosEliminados = new ArrayList<>();
         if (!pedidosSinStock.isEmpty()) {
             pedidosEliminados.addAll(pedidosSinStock);
             procesarEliminacionesAutomaticas(pedidosSinStock);
         }
 
-        // PASO 3: Confirmar pedidos viables
+        // Confirmar pedidos viables
         List<Pedido> pedidosConfirmadosEnEstaOperacion = new ArrayList<>();
         if (!pedidosViables.isEmpty()) {
             pedidosConfirmadosEnEstaOperacion.addAll(pedidosViables);
@@ -97,10 +95,7 @@ public class Servicio extends Observable implements Observador {
         return new ConfirmacionResult(pedidosEliminados, pedidosConfirmadosEnEstaOperacion);
     }
 
-    /**
-     * CLASE MODIFICADA: ConfirmacionResult Ahora incluye tanto pedidos
-     * eliminados como confirmados
-     */
+    
     public static class ConfirmacionResult {
 
         private final List<Pedido> pedidosEliminados;
@@ -136,7 +131,6 @@ public class Servicio extends Observable implements Observador {
             List<Pedido> pedidosViables,
             List<Pedido> pedidosSinStock) {
 
-        // Crear mapa de stock disponible actual
         Map<Insumo, Integer> stockDisponible = new HashMap<>();
 
         // Inicializar con el stock actual de cada insumo
@@ -149,7 +143,7 @@ public class Servicio extends Observable implements Observador {
             }
         }
 
-        // Procesar pedidos en orden (FIFO - primero en entrar, primero en confirmarse)
+        // Procesar pedidos en orden 
         for (Pedido pedido : pedidosPorConfirmar) {
             boolean pedidoViable = true;
 
@@ -180,17 +174,17 @@ public class Servicio extends Observable implements Observador {
     }
 
     private void confirmarPedidosViables(List<Pedido> pedidosViables) throws StockException, ServicioException {
-        // NUEVO: Activar bandera antes de consumir stock
+        // Bandera antes de consumir stock
         confirmandoPedidos = true;
 
         try {
             // Calcular requerimientos de pedidos viables
             Map<Insumo, Integer> requerimientosViables = calcularRequerimientos(pedidosViables);
 
-            // Consumir stock real - ESTO dispara las notificaciones a otros servicios
+            // Consumir stock real - esto dispara las notificaciones a otros servicios
             consumirStock(requerimientosViables);
 
-            // Confirmar pedidos (cambiar estado)
+            // Confirmar pedidos
             for (Pedido pedido : pedidosViables) {
                 pedido.getEstado().confirmar();
                 pedidosConfirmados.add(pedido);
@@ -202,8 +196,6 @@ public class Servicio extends Observable implements Observador {
         } catch (ServicioException ex) {
             throw ex;
         } finally {
-            // NUEVO: Desactivar bandera al finalizar (en bloque finally para garantizar
-            // ejecución)
             confirmandoPedidos = false;
         }
     }
@@ -212,7 +204,6 @@ public class Servicio extends Observable implements Observador {
         List<String> mensajesEliminacion = new ArrayList<>();
 
         for (Pedido pedido : pedidosSinStock) {
-            // Crear mensaje de eliminación
             String mensaje = "Nos hemos quedado sin stock de "
                     + pedido.getItem().getNombre()
                     + " y no pudimos avisarte antes!";
@@ -223,37 +214,14 @@ public class Servicio extends Observable implements Observador {
             montoTotal -= pedido.calcularTotal();
         }
 
-        // CORREGIDO: Notificar con los mensajes directamente como objeto
         if (!mensajesEliminacion.isEmpty()) {
-            // Enviar los mensajes como el objeto del evento (no como segundo parámetro)
+            // Enviar los mensajes como el objeto del evento
             notificar(mensajesEliminacion);
             // Luego actualizar el monto
             notificar(Evento.MONTO_ACTUALIZADO);
         }
     }
 
-    // private void confirmarPedidosViables(List<Pedido> pedidosViables) throws
-    // StockException {
-    // // Calcular requerimientos de pedidos viables
-    // Map<Insumo, Integer> requerimientosViables =
-    // calcularRequerimientos(pedidosViables);
-    //
-    // // Consumir stock real
-    // consumirStock(requerimientosViables);
-    //
-    // // Confirmar pedidos
-    // for (Pedido pedido : pedidosViables) {
-    // pedido.getEstado().confirmar(pedido);
-    // pedidosConfirmados.add(pedido);
-    // }
-    //
-    // // CRÍTICO: Notificar que los pedidos cambiaron de estado
-    // // Esto fuerza la actualización de la tabla para mostrar los estados
-    // actualizados
-    // notificar(Evento.PEDIDOS_CONFIRMADOS); // Si existe este evento
-    // // O alternativamente:
-    // notificar("PEDIDOS_CONFIRMADOS"); // Como string genérico
-    // }
     private void separarPedidosPorStock(List<Pedido> pedidosPorConfirmar,
             List<Pedido> pedidosViables,
             List<Pedido> pedidosSinStock) {
@@ -304,11 +272,9 @@ public class Servicio extends Observable implements Observador {
 
         // Validar stock disponible
         validarStockDisponible(requerimientos);
-
-        // Consumir stock
         consumirStock(requerimientos);
 
-        // Marcar pedidos como confirmados
+        // CAmbiar estado de pedidos a confirmados
         for (Pedido pedido : pedidosAConfirmar) {
             pedido.getEstado().confirmar();
             pedidosConfirmados.add(pedido);
@@ -363,28 +329,19 @@ public class Servicio extends Observable implements Observador {
     public void notificar(Observable origen, Object evento) {
         // Si es notificación de stock actualizado de un insumo
         if (origen instanceof Insumo && evento == Observable.Evento.STOCK_ACTUALIZADO) {
-            // NUEVO: Solo verificar eliminaciones si NO estamos confirmando nuestros
-            // propios pedidos
-            // Y si NO hay NINGÚN servicio en proceso de confirmación
+            // Verificar si no hay un servicio en proceso de confirmación
             if (!confirmandoPedidos && !hayAlgunServicioConfirmando()) {
                 verificarYEliminarPedidosSinStock();
             }
         }
     }
 
-    /**
-     * NUEVO: Método para verificar si algún servicio está confirmando
-     * Esto evita eliminaciones automáticas durante confirmaciones
-     */
+    
     private boolean hayAlgunServicioConfirmando() {
-        // Aquí necesitarías acceso a la Fachada o un registro global
-        // Por simplicidad, puedes usar una variable estática
         return ServicioConfirmando.hayConfirmacionEnProceso();
     }
 
-    /**
-     * NUEVA: Clase helper para coordinar confirmaciones globalmente
-     */
+    
     public static class ServicioConfirmando {
         private static boolean confirmacionEnProceso = false;
 
@@ -401,30 +358,7 @@ public class Servicio extends Observable implements Observador {
         }
     }
 
-    // Clase interna para el resultado de confirmación
-    // public static class ConfirmacionResult {
-    //
-    // private final List<Pedido> pedidosEliminados;
-    // private final boolean confirmacionExitosa;
-    //
-    // public ConfirmacionResult(List<Pedido> pedidosEliminados, boolean
-    // confirmacionExitosa) {
-    // this.pedidosEliminados = pedidosEliminados;
-    // this.confirmacionExitosa = confirmacionExitosa;
-    // }
-    //
-    // public List<Pedido> getPedidosEliminados() {
-    // return pedidosEliminados;
-    // }
-    //
-    // public boolean isConfirmacionExitosa() {
-    // return confirmacionExitosa;
-    // }
-    //
-    // public boolean hayPedidosEliminados() {
-    // return !pedidosEliminados.isEmpty();
-    // }
-    // }
+    
 
     public List<Pedido> pedidosConStock() {
         List<Pedido> aux = new ArrayList<>();
@@ -525,25 +459,20 @@ public class Servicio extends Observable implements Observador {
         return pendientes;
     }
 
-    /**
-     * Suscribe el servicio a todos los insumos de sus pedidos pendientes para
-     * recibir notificaciones de cambios de stock
-     */
+    
     public void suscribirseAInsumos() {
         for (Pedido pedido : pedidos) {
-            if (!pedidosConfirmados.contains(pedido)) { // Solo pedidos pendientes
+            if (!pedidosConfirmados.contains(pedido)) { 
                 for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
                     Insumo insumo = ingrediente.getInsumo();
-                    insumo.desuscribir(this); // Evitar duplicados
+                    insumo.desuscribir(this); 
                     insumo.subscribir(this);
                 }
             }
         }
     }
 
-    /**
-     * Desuscribe el servicio de todos los insumos
-     */
+    
     public void desuscribirseDeInsumos() {
         for (Pedido pedido : pedidos) {
             for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
@@ -553,17 +482,14 @@ public class Servicio extends Observable implements Observador {
         }
     }
 
-    /**
-     * Verifica y elimina automáticamente pedidos que se quedaron sin stock
-     * Llamado cuando se recibe notificación de cambio de stock
-     */
+    
     private void verificarYEliminarPedidosSinStock() {
         List<Pedido> pedidosAEliminar = new ArrayList<>();
 
         // SOLO verificar pedidos PENDIENTES (no confirmados)
-        for (Pedido pedido : new ArrayList<>(pedidos)) { // Copia para evitar ConcurrentModificationException
+        for (Pedido pedido : new ArrayList<>(pedidos)) { 
             if (!pedidosConfirmados.contains(pedido)) { // Solo pedidos pendientes
-                // Verificar si TODOS los ingredientes del pedido tienen stock suficiente
+                // Verificar si todos los ingredientes del pedido tienen stock suficiente
                 boolean tieneStockCompleto = true;
                 for (Ingrediente ingrediente : pedido.getItem().getIngredientes()) {
                     Insumo insumo = ingrediente.getInsumo();
@@ -584,7 +510,6 @@ public class Servicio extends Observable implements Observador {
             List<String> mensajesEliminacion = new ArrayList<>();
 
             for (Pedido pedido : pedidosAEliminar) {
-                // Crear mensaje antes de eliminar
                 String mensaje = "Nos hemos quedado sin stock de "
                         + pedido.getItem().getNombre()
                         + " y no pudimos avisarte antes!";
@@ -595,7 +520,6 @@ public class Servicio extends Observable implements Observador {
                 montoTotal -= pedido.calcularTotal();
             }
 
-            // Notificar eliminaciones automáticas
             notificar(mensajesEliminacion);
             notificar(Evento.MONTO_ACTUALIZADO);
         }
