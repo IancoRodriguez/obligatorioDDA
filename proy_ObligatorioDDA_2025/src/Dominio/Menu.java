@@ -47,7 +47,6 @@ public class Menu {
         return null; // No se encontró
     }
 
-    // Representación legible
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Menú:\n");

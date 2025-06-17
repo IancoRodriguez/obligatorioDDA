@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package UI.Controladores;
 
 import Dominio.Dispositivo;
@@ -10,10 +6,7 @@ import Dominio.Excepciones.UsuarioException;
 import Dominio.Servicio;
 import Servicios.Fachada;
 
-/**
- *
- * @author ianco
- */
+
 
 
 public class LoginControlador {
@@ -29,22 +22,17 @@ public class LoginControlador {
         this.dispositivo = dispositivo;
     }
     
-    /**
-     * Procesa el intento de login del usuario
-     * Valida credenciales y maneja el estado de la sesión
-     */
+    
     public void procesarLogin() {
         try {
             String usuario = view.getUsuario();
             String contrasena = view.getContrasena();
             
-            // Validación básica en el controlador
             if (usuario == null || usuario.isBlank() || 
                 contrasena == null || contrasena.isBlank()) {
                 throw new UsuarioException("Revise las credenciales ingresadas");
             }
             
-            // Procesar login a través de la fachada
             servicioActual = fachada.loginCliente(usuario, contrasena, dispositivo);
             
             // Actualizar vista en caso de éxito
@@ -60,9 +48,6 @@ public class LoginControlador {
         }
     }
     
-    /**
-     * Cierra la sesión actual
-     */
     public void cerrarSesion() {
         try {
             view.setLogueado(false);
@@ -76,21 +61,11 @@ public class LoginControlador {
             view.mostrarError(ex.getMessage());
         }
     }
-    
-    /**
-     * Verifica si hay una sesión activa
-     * @return true si hay un servicio activo
-     */
+   
     public boolean tieneServicioActivo() {
         return servicioActual != null;
     }
     
-
-    
-    /**
-     * Obtiene el servicio actual
-     * @return Servicio actual o null si no hay sesión activa
-     */
     public Servicio getServicioActual() {
         return view.getDispositivo().getServicioActivo();
     }

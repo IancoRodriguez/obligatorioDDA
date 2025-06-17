@@ -23,12 +23,12 @@ public class Procesando implements EstadoPedido {
         throw new ServicioException("Pedido en proceso");
     }
 
-    public void entregar() {
-        pedido.setEstado(new Entregado(pedido));
+    public void entregar() throws ServicioException {
+        throw new ServicioException("No se puede entregar sin finalizar.");
     }
 
     public void finalizar() throws ServicioException {
-        throw new ServicioException("No se puede finalizar sin entregar.");
+        pedido.setEstado(new Finalizado(pedido));
     }
 
     public void validarEliminacion() throws ServicioException {

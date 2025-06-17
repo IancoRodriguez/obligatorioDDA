@@ -9,7 +9,6 @@ public class Insumo extends Observable{
     private int stock;
     private int stockMinimo;
 
-    // Constructor con validaciones
     public Insumo(String nombre, int stock, int stockMinimo) {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre no puede estar vacío");
@@ -39,7 +38,7 @@ public class Insumo extends Observable{
         return stockMinimo;
     }
 
-    // Setters con validaciones
+    // Setters
     public void setStock(int stock) {
         if (stock < 0) {
             throw new IllegalArgumentException("El stock no puede ser negativo");
@@ -54,7 +53,6 @@ public class Insumo extends Observable{
         this.stockMinimo = stockMinimo;
     }
 
-    // Método para agregar stock
     public void agregarStock(int cantidad) {
         if (cantidad < 0) {
             throw new IllegalArgumentException("La cantidad no puede ser negativa");
@@ -63,7 +61,6 @@ public class Insumo extends Observable{
         notificar(Evento.STOCK_ACTUALIZADO);
     }
 
-    // Método para consumir stock (con validación de stock mínimo)
     public void consumirStock(int cantidad) throws StockException {
         if (cantidad < 0) {
             throw new StockException("La cantidad no puede ser negativa");

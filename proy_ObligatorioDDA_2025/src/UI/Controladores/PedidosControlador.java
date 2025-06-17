@@ -1,13 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package UI.Controladores;
 
 import Dominio.Categoria;
 import Dominio.Excepciones.PedidoException;
 import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
+import Dominio.Ingrediente;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Observer.Observable;
@@ -18,10 +16,7 @@ import Servicios.Fachada;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author ianco
- */
+
 public class PedidosControlador implements Observador {
 
     private ClienteView vista;
@@ -35,17 +30,13 @@ public class PedidosControlador implements Observador {
         this.menu = Menu.getInstancia();
     }
 
-    /**
-     * Inicializa la vista cargando las categorías
-     */
+    
     public void inicializar() {
         cargarCategorias();
-        vista.limpiarMensajesError();        
+        vista.limpiarMensajesError();
     }
 
-    /**
-     * Carga todas las categorías disponibles en la vista
-     */
+    
     public void cargarCategorias() {
         try {
             List<Categoria> categorias = menu.getCategorias();
@@ -55,10 +46,6 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    /**
-     * Carga los items de la categoría seleccionada Solo muestra items con stock
-     * disponible
-     */
     public void cargarItemsPorCategoria() {
         try {
             Categoria categoriaSeleccionada = vista.getCategoriaSeleccionada();
@@ -83,12 +70,9 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    /**
-     * Procesa el registro de un nuevo pedido
-     */
+    
     public void registrarPedido() {
         try {
-            // Validaciones previas
             Servicio servicioActual = vista.getServicioActual();
             if (servicioActual == null) {
                 throw new ServicioException("Debe identificarse antes de agregar un pedido");
@@ -124,9 +108,7 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    /**
-     * Procesa la eliminación de un pedido seleccionado
-     */
+    
     public void eliminarPedido() {
         try {
             Servicio servicioActual = vista.getServicioActual();
@@ -175,32 +157,31 @@ public class PedidosControlador implements Observador {
                 return;
             }
 
-            // Guardar estado inicial
-            int pedidosIniciales = servicioActual.getPedidos().size();
+            // Verificar si hay pedidos pendientes
+            List<Pedido> pedidosPendientes = new ArrayList<>();
+            for (Pedido p : servicioActual.getPedidos()) {
+                if (!servicioActual.estaPedidoConfirmado(p)) {
+                    pedidosPendientes.add(p);
+                }
+            }
 
-            // Llamar al método confirmar del servicio
-            servicioActual.confirmar();
-            
+            if (pedidosPendientes.isEmpty()) {
+                vista.mostrarError("No hay pedidos pendientes para confirmar");
+                return;
+            }
+
+            // Confirma el servicio 
+            Servicio.ConfirmacionResult resultado = servicioActual.confirmar();
             this.servicioActual.subscribir(this);
 
-            // CRÍTICO: SIEMPRE actualizar la vista después de confirmar
-            // independientemente de si hubo eliminaciones o no
+            // Actualizar vista 
             actualizarVistaPedidos(servicioActual);
             cargarItemsPorCategoria();
 
-            // Verificar resultado y mostrar mensaje apropiado
-            int pedidosFinales = servicioActual.getPedidos().size();
-
-            if (pedidosFinales > 0) {
-                // Hay pedidos confirmados exitosamente
-                vista.mostrarMensajeExito("Pedidos confirmados exitosamente");
-            } else if (pedidosIniciales > pedidosFinales) {
-                // Solo había pedidos que se eliminaron por falta de stock
-                vista.mostrarError("No se pudieron confirmar los pedidos por falta de stock");
-            }
+            // Mostrar mensaje 
+            mostrarResultadoConfirmacion(resultado);
 
         } catch (StockException ex) {
-            // Este caso ya no debería ocurrir con la nueva lógica
             vista.mostrarError("Error de stock: " + ex.getMessage());
             cargarItemsPorCategoria();
             Servicio servicioActual = vista.getServicioActual();
@@ -214,31 +195,14 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void handlePedidosEliminados(Observable origen, Object evento) {
-        if (origen == vista.getServicioActual()) {
-            // Mostrar mensajes de eliminación
-            if (evento instanceof List) {
-                List<String> mensajes = (List<String>) evento;
-                for (String mensaje : mensajes) {
-                    vista.mostrarError(mensaje); // Estos son los mensajes de "nos quedamos sin stock"
-                }
-            }
-
-            // CRÍTICO: Actualizar la tabla inmediatamente
-            actualizarVistaPedidos(vista.getServicioActual());
-            cargarItemsPorCategoria(); // Recargar items por si cambió disponibilidad
-        }
-    }
-
-    /**
-     * Muestra los mensajes apropiados según el resultado de la confirmación
-     */
+    
     private void mostrarResultadoConfirmacion(Servicio.ConfirmacionResult resultado) {
         StringBuilder mensaje = new StringBuilder();
+        boolean hayEliminados = resultado.hayPedidosEliminados();
+        boolean hayConfirmados = resultado.hayPedidosConfirmados();
 
-        // Mostrar pedidos eliminados por falta de stock
-        if (resultado.hayPedidosEliminados()) {
+        // Mostrar pedidos eliminados
+        if (hayEliminados) {
             mensaje.append("Pedidos eliminados por falta de stock:\n");
             for (Pedido pedido : resultado.getPedidosEliminados()) {
                 mensaje.append("• Nos hemos quedado sin stock de ")
@@ -248,27 +212,103 @@ public class PedidosControlador implements Observador {
             mensaje.append("\n");
         }
 
-        // Mostrar resultado de confirmación
-        if (resultado.isConfirmacionExitosa()) {
-            if (resultado.hayPedidosEliminados()) {
-                mensaje.append("Los pedidos restantes fueron confirmados exitosamente.");
-            } else {
-                mensaje.append("Pedidos confirmados exitosamente.");
+        // Mostrar pedidos confirmados
+        if (hayConfirmados) {
+            mensaje.append(" Pedidos confirmados exitosamente:\n");
+            for (Pedido pedido : resultado.getPedidosConfirmados()) {
+                mensaje.append("• ").append(pedido.getItem().getNombre()).append("\n");
             }
+        }
 
-            // Mostrar como mensaje de éxito si hay confirmaciones
+        // Mostrar mensaje apropiado
+        if (hayConfirmados && hayEliminados) {
+            vista.mostrarMensajeExito("Confirmación parcial:\n\n" + mensaje.toString());
+        } else if (hayConfirmados && !hayEliminados) {
             vista.mostrarMensajeExito(mensaje.toString());
-        } else {
-            if (resultado.hayPedidosEliminados()) {
-                mensaje.append("No quedaron pedidos para confirmar después de eliminar los que no tenían stock.");
-                vista.mostrarError(mensaje.toString());
-            }
+        } else if (hayEliminados && !hayConfirmados) {
+            vista.mostrarError("No se pudieron confirmar los pedidos:\n\n" + mensaje.toString());
         }
     }
 
-    /**
-     * Actualiza la vista con los pedidos y monto del servicio actual
-     */
+    
+    private void analizarYMostrarResultadoConfirmacion(List<String> nombresIniciales, Servicio servicio) {
+        // Obtener estado final
+        List<Pedido> pedidosFinales = servicio.getPedidos();
+        List<String> nombresFinales = new ArrayList<>();
+        List<String> nombresConfirmados = new ArrayList<>();
+
+        for (Pedido p : pedidosFinales) {
+            String nombre = p.getItem().getNombre();
+            nombresFinales.add(nombre);
+
+            // Verificar si fue confirmado usando el método del servicio
+            if (servicio.estaPedidoConfirmado(p)) {
+                // Solo agregar si estaba en la lista inicial (es decir, fue recién confirmado)
+                if (nombresIniciales.contains(nombre)) {
+                    nombresConfirmados.add(nombre);
+                }
+            }
+        }
+
+        // Determinar cuáles fueron eliminados
+        List<String> nombresEliminados = new ArrayList<>(nombresIniciales);
+        nombresEliminados.removeAll(nombresFinales);
+
+        // Construir y mostrar mensaje
+        StringBuilder mensaje = new StringBuilder();
+        boolean hayEliminados = !nombresEliminados.isEmpty();
+        boolean hayConfirmados = !nombresConfirmados.isEmpty();
+
+        if (hayEliminados) {
+            mensaje.append("Pedidos eliminados por falta de stock:\n");
+            for (String nombre : nombresEliminados) {
+                mensaje.append("• Nos hemos quedado sin stock de ").append(nombre)
+                        .append(" y no pudimos avisarte antes!\n");
+            }
+            mensaje.append("\n");
+        }
+
+        if (hayConfirmados) {
+            mensaje.append("Pedidos confirmados exitosamente:\n");
+            for (String nombre : nombresConfirmados) {
+                mensaje.append("• ").append(nombre).append("\n");
+            }
+        }
+
+        // Mostrar mensaje 
+        if (hayConfirmados && hayEliminados) {
+            // Caso mixto: algunos confirmados, algunos eliminados
+            vista.mostrarMensajeExito("Confirmación parcial:\n\n" + mensaje.toString());
+        } else if (hayConfirmados && !hayEliminados) {
+            // Solo confirmaciones exitosas
+            vista.mostrarMensajeExito(mensaje.toString());
+        } else if (hayEliminados && !hayConfirmados) {
+            // Solo eliminaciones
+            vista.mostrarError("No se pudieron confirmar los pedidos:\n\n" + mensaje.toString());
+        }
+    }
+
+    private void handlePedidosEliminadosConMensajes(Observable origen, List<String> mensajes) {
+        if (origen == vista.getServicioActual()) {
+            
+            StringBuilder mensajeCompleto = new StringBuilder();
+            mensajeCompleto.append("Pedidos eliminados automáticamente:\n\n");
+
+            for (String mensaje : mensajes) {
+                mensajeCompleto.append("• ").append(mensaje).append("\n");
+            }
+
+            mensajeCompleto.append(
+                    "\nEstos pedidos fueron eliminados porque otros clientes consumieron el stock mientras navegabas.");
+
+            vista.mostrarError(mensajeCompleto.toString());
+
+            // Actualizar la tabla inmediatamente
+            actualizarVistaPedidos(vista.getServicioActual());
+            cargarItemsPorCategoria();
+        }
+    }
+    
     private void actualizarVistaPedidos(Servicio servicio) {
         if (servicio != null) {
             vista.actualizarTablaPedidos(servicio.getPedidos());
@@ -278,7 +318,7 @@ public class PedidosControlador implements Observador {
 
     public void cerrarSesion() {
         if (this.servicioActual != null) {
-            this.servicioActual.desuscribirseDeInsumos(); // NUEVO
+            this.servicioActual.desuscribirseDeInsumos();
             this.servicioActual.desuscribir(this);
         }
 
@@ -294,10 +334,7 @@ public class PedidosControlador implements Observador {
         vista.limpiarMensajesError();
     }
 
-    /**
-     * Maneja el cambio de categoría seleccionada MODIFICADO: Ahora incluye
-     * suscripción a observers
-     */
+    
     public void onCategoriaSeleccionada() {
         Categoria categoria = vista.getCategoriaSeleccionada();
 
@@ -320,10 +357,7 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    /**
-     * Actualiza la vista cuando el servicio cambia (por ejemplo, después del
-     * login) CORREGIDO: Solo un método onServicioActualizado
-     */
+   
     public void onServicioActualizado() {
         // Limpiar suscripciones del servicio anterior
         if (this.servicioActual != null) {
@@ -347,9 +381,7 @@ public class PedidosControlador implements Observador {
         cargarCategorias();
     }
 
-    /**
-     * AGREGADO: Método para suscribirse a una lista de items
-     */
+    
     public void suscribirseAItems(List<Item> items) {
         for (Item item : items) {
             item.desuscribir(this); // Evitar duplicados
@@ -359,7 +391,6 @@ public class PedidosControlador implements Observador {
 
     @Override
     public void notificar(Observable origen, Object evento) {
-        // CASO 1: Evento es del tipo Observable.Evento
         if (evento instanceof Observable.Evento) {
             Observable.Evento tipoEvento = (Observable.Evento) evento;
 
@@ -377,7 +408,7 @@ public class PedidosControlador implements Observador {
                     actualizarVistaPedidos(servicioActual);
                     break;
             }
-        } // CASO 2: El evento es una lista de mensajes (viene del método procesarEliminacionesAutomaticas)
+        } // Si el evento es una lista de mensajes 
         else if (evento instanceof List) {
             try {
                 @SuppressWarnings("unchecked")
@@ -387,22 +418,20 @@ public class PedidosControlador implements Observador {
                 // Si no es una lista de strings, manejo genérico
                 handlePedidosEliminadosSinMensajes(origen);
             }
-        } // CASO 3: Evento de pedidos confirmados (string)
+        } //  Evento de pedidos confirmados (string)
         else if (evento instanceof String) {
             String eventoStr = (String) evento;
             if ("PEDIDOS_CONFIRMADOS".equals(eventoStr)) {
                 handlePedidosConfirmados(origen);
             }
-        } // CASO 4: Cualquier otro tipo de evento relacionado con pedidos eliminados
+        } // Cualquier otro tipo de evento relacionado con pedidos eliminados
         else {
             handlePedidosEliminadosSinMensajes(origen);
         }
     }
 
-    /**
-     * Maneja la confirmación de pedidos - actualiza la tabla para mostrar
-     * estados
-     */
+    
+     //Maneja la confirmación de pedidos y actualiza la tabla para mostrar estados
     private void handlePedidosConfirmados(Observable origen) {
         if (origen == vista.getServicioActual()) {
             // Actualizar la tabla para mostrar los nuevos estados
@@ -411,25 +440,7 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    /**
-     * Maneja eliminaciones cuando tenemos los mensajes específicos
-     */
-    private void handlePedidosEliminadosConMensajes(Observable origen, List<String> mensajes) {
-        if (origen == vista.getServicioActual()) {
-            // Mostrar cada mensaje de eliminación
-            for (String mensaje : mensajes) {
-                vista.mostrarError(mensaje);
-            }
-
-            // CRÍTICO: Actualizar la tabla inmediatamente
-            actualizarVistaPedidos(vista.getServicioActual());
-            cargarItemsPorCategoria();
-        }
-    }
-
-    /**
-     * Maneja eliminaciones cuando NO tenemos mensajes específicos
-     */
+    
     private void handlePedidosEliminadosSinMensajes(Observable origen) {
         if (origen == vista.getServicioActual()) {
             // Actualizar la tabla sin mostrar mensajes específicos
@@ -457,6 +468,5 @@ public class PedidosControlador implements Observador {
         // Redirigir al método notificar
         notificar(origen, evento);
     }
-    
-   
+
 }

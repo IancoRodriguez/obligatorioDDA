@@ -1,17 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package Dominio.Tipos;
 
 import Dominio.Pedido;
-import Dominio.Tipos.TipoCliente;
 import java.util.List;
 
-/**
- *
- * @author usuar
- */
 public class Preferencial extends TipoCliente {
 
     public Preferencial(String nombre) {
@@ -30,7 +22,7 @@ public class Preferencial extends TipoCliente {
             }
         }
 
-        // Aplicar 5% sobre el total original si supera $2000
+        // Aplicar 5% sobre el total original si supera 2000
         if (montoTotal > 2000) {
             descuentoTotal = montoTotal * 0.05;
         }
