@@ -15,6 +15,7 @@ import Dominio.Ingrediente;
 import Dominio.Insumo;
 import Dominio.Item;
 import Dominio.Menu;
+import Dominio.Tipos.Preferencial;
 import Dominio.Tipos.TipoCliente;
 import Dominio.UnidadProcesadora;
 import Servicios.Fachada;
@@ -54,24 +55,29 @@ public class ObligatorioDDA2025 {
         // ======================
         TipoCliente comun = new Comun("comun");
         TipoCliente frecuente = new Frecuente("frecuente");
-        TipoCliente deLaCasa = new DeLaCasa("deLaCasa");
+        TipoCliente deLaCasa = new DeLaCasa("deLaCasa");        
+        TipoCliente preferencial = new Preferencial("preferencial");
+
 
         // ======================
         // 3. CLIENTES
         // ======================
         Cliente usuario1 = new Cliente("Bruno", "123", "444", comun);
-        Cliente usuario2 = new Cliente("Ricardo", "321", "555", frecuente);
-        Cliente usuario3 = new Cliente("María", "456", "666", deLaCasa);
-        Cliente usuario4 = new Cliente("Carlos", "789", "777", comun);
-        Cliente usuario5 = new Cliente("Ana", "012", "888", frecuente);
-        Cliente usuario6 = new Cliente("Pedro", "345", "999", comun);
+        Cliente usuario2 = new Cliente("Ricardo", "123", "555", frecuente);
+        Cliente usuario3 = new Cliente("María", "123", "666", deLaCasa);
+        Cliente usuario4 = new Cliente("Carlos", "123", "777", comun);
+        Cliente usuario5 = new Cliente("Ana", "123", "888", frecuente);
+        Cliente usuario6 = new Cliente("Pedro", "123", "999", comun);
+        Cliente usuario7 = new Cliente("Cacho", "123", "120", preferencial);
 
         f.agregar(usuario1);
         f.agregar(usuario2);
         f.agregar(usuario3);
         f.agregar(usuario4);
         f.agregar(usuario5);
-        f.agregar(usuario6);
+        f.agregar(usuario6);       
+        f.agregar(usuario7);
+
 
         // ======================
         // 4. UNIDADES PROCESADORAS
@@ -84,7 +90,7 @@ public class ObligatorioDDA2025 {
         // ======================
         // 5. GESTORES
         // ======================
-        Gestor diegoAdmin = new Gestor("diego", "123", "Diego Gregoraz", cocina);
+        Gestor diegoAdmin = new Gestor("juan", "123", "Juan Lopez", cocina);
         Gestor admin1 = new Gestor("admin", "123", "Administrador General", barra);
         Gestor parrillero = new Gestor("parrilla", "456", "Jefe de Parrilla", parrilla);
         Gestor heladero = new Gestor("helados", "789", "Maestro Heladero", heladeria);
@@ -105,7 +111,7 @@ public class ObligatorioDDA2025 {
         // Carnes y proteínas
         Insumo jamon = new Insumo("Jamón", 2, 6);          // Solo para 2 sándwiches (1 jamón c/u)
         Insumo pollo = new Insumo("Pollo", 3, 8);          // Solo para 3 pollos grillados
-        Insumo carne = new Insumo("Carne", 1, 5);          // Solo para 1 asado
+        Insumo carne = new Insumo("Carne", 10, 5);          // Solo para 1 asado
         Insumo pescado = new Insumo("Pescado", 6, 1);
 
         // Lácteos

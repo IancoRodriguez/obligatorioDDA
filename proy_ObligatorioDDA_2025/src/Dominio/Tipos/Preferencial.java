@@ -24,10 +24,11 @@ public class Preferencial extends TipoCliente {
 
         // Aplicar 5% sobre el total original si supera 2000
         if (montoTotal > 2000) {
+            montoTotal -= descuentoAguas;
             descuentoTotal = montoTotal * 0.05;
         }
 
-        return (montoTotal - descuentoAguas) - descuentoTotal;
+        return montoTotal - descuentoTotal;
     }
 
     @Override
