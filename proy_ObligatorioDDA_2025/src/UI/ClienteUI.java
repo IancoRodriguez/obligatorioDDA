@@ -600,7 +600,7 @@ public class ClienteUI extends javax.swing.JFrame implements ClienteView {
                 pedido.getComentario(),
                 pedido.getEstado(),
                 pedido.getItem().getUnidadProcesadora(),
-                pedido.getGestor(),
+                pedido.getGestor() == null ? "" : pedido.getGestor().getNombreCompleto(),
                 pedido.getItem().getPrecioUnitario()
             });
         }

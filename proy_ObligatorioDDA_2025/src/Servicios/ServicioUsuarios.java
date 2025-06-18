@@ -88,6 +88,7 @@ public class ServicioUsuarios extends Observable{
     //metodos gestores
     public void tomarPedido(Gestor gestor, Pedido p) throws ServicioException {
         p.procesar();
+        p.setGestor(gestor);
         p.getServicio().notificar(Evento.PEDIDO_CAMBIO_ESTADO);
         gestor.setPedidosTomados(p);
     }
