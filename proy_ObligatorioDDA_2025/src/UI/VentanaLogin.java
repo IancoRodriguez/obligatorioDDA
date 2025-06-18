@@ -1,10 +1,13 @@
-
 package UI;
 
 import Dominio.Excepciones.UsuarioException;
 import Dominio.Usuario;
+import UI.Controladores.LoginGestorControlador;
+import UI.Controladores.LoginGestorView;
 
-public abstract class VentanaLogin extends javax.swing.JFrame {
+public abstract class VentanaLogin extends javax.swing.JFrame implements LoginGestorView {
+
+    protected LoginGestorControlador controlador;
 
     public VentanaLogin() {
         initComponents();
@@ -98,7 +101,9 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
     }//GEN-LAST:event_tNombreActionPerformed
 
     private void jButtonLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginActionPerformed
-        ingresar();
+        if (controlador != null) {
+            controlador.manejarLogin();
+        }
     }//GEN-LAST:event_jButtonLoginActionPerformed
 
 
@@ -111,28 +116,53 @@ public abstract class VentanaLogin extends javax.swing.JFrame {
     private javax.swing.JTextField tNombre;
     // End of variables declaration//GEN-END:variables
 
-    private void ingresar() {
-        String usuario = tNombre.getText();
-        String contrasena = new String(tContrasena.getPassword());
+    public abstract Usuario login(String usuario, String contrasena) throws UsuarioException;
 
-        try{
-            Usuario usuarioLogueado = login(usuario, contrasena);
-
-            if (usuarioLogueado == null) {
-                msgError.setText("Usuario o contrasena invalidas.");
-                return;
-            }
-
-            this.abrirSiguienteVentana(usuarioLogueado);
-            setVisible(false);
-        }catch(UsuarioException ex){
-            msgError.setText(ex.getMessage());
-        }
-        
-        
+    @Override
+    public String getUsuario() {
+        return tNombre.getText();
     }
 
-    public abstract void abrirSiguienteVentana(Usuario usuarioLogueado);
+    @Override
+    public String getContrasena() {
+        return new String(tContrasena.getPassword());
+    }
 
-    public abstract Usuario login(String usuario, String contrasena) throws UsuarioException;
+    @Override
+    public void mostrarError(String mensaje) {
+        msgError.setText(mensaje);
+    }
+
+    @Override
+    public void limpiarError() {
+        msgError.setText("");
+    }
+
+    @Override
+    public void limpiarCampos() {
+        tNombre.setText("");
+        tContrasena.setText("");
+        limpiarError();
+    }
+
+    @Override
+    public void mostrarVentana() {
+        setVisible(true);
+    }
+
+    @Override
+    public void cerrarVentana() {
+        setVisible(false);
+    }
+
+    @Override
+    public void habilitarFormulario(boolean habilitar) {
+        tNombre.setEnabled(habilitar);
+        tContrasena.setEnabled(habilitar);
+        jButtonLogin.setEnabled(habilitar);
+    }
+
+    // Método abstracto que implementarán las clases hijas
+    @Override
+    public abstract void abrirSiguienteVentana(Usuario usuario);
 }
