@@ -8,26 +8,21 @@ import UI.Controladores.LoginGestorControlador;
 
 
 
-public class VentanaLoginGestor extends VentanaLogin{
+public class VentanaLoginGestor extends VentanaLogin {
     
-    private LoginGestorControlador controlador;
-    
-    public VentanaLoginGestor(){
-        this.controlador = new LoginGestorControlador();
+    public VentanaLoginGestor() {
+        super();
+        // Inicializar el controlador pasando esta vista
+        this.controlador = new LoginGestorControlador(this);
     }
 
     @Override
     public void abrirSiguienteVentana(Usuario gestor) {
-        new GestorUI( (Gestor) gestor).setVisible(true);
+        new GestorUI((Gestor) gestor).setVisible(true);
     }
 
     @Override
     public Usuario login(String usuario, String contrasena) throws UsuarioException {
-        try {
-            return controlador.loginGestor(usuario, contrasena);
-        } catch (UsuarioException ex) {
-            throw ex;
-        } 
-
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

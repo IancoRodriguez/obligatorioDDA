@@ -1,4 +1,3 @@
-
 package UI.Controladores;
 
 import Dominio.Categoria;
@@ -16,7 +15,6 @@ import Servicios.Fachada;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class PedidosControlador implements Observador {
 
     private ClienteView vista;
@@ -30,13 +28,11 @@ public class PedidosControlador implements Observador {
         this.menu = Menu.getInstancia();
     }
 
-    
     public void inicializar() {
         cargarCategorias();
         vista.limpiarMensajesError();
     }
 
-    
     public void cargarCategorias() {
         try {
             List<Categoria> categorias = menu.getCategorias();
@@ -70,33 +66,48 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    
+//    public void registrarPedido() {
+//        try {
+//            Servicio servicioActual = vista.getServicioActual();
+//            if (servicioActual == null) {
+//                throw new ServicioException("Debe identificarse antes de agregar un pedido");
+//            }
+//
+//            Item itemSeleccionado = vista.getItemSeleccionado();
+//            if (itemSeleccionado == null) {
+//                throw new PedidoException("Debe seleccionar un item");
+//            }
+//
+//            String comentario = vista.getComentario();
+//
+//            // Crear y agregar el pedido
+//            Pedido nuevoPedido = new Pedido(itemSeleccionado, comentario, servicioActual);
+//            servicioActual.agregarPedido(nuevoPedido);
+//
+//            // Actualizar la vista
+//            actualizarVistaPedidos(servicioActual);
+//            vista.limpiarComentario();
+//            vista.limpiarMensajesError();
+//
+//            // Recargar items por si cambió el stock
+//            cargarItemsPorCategoria();
+//
+//        } catch (StockException ex) {
+//            vista.mostrarError("Sin stock disponible: " + ex.getMessage());
+//        } catch (ServicioException ex) {
+//            vista.mostrarError("Error de servicio: " + ex.getMessage());
+//        } catch (PedidoException ex) {
+//            vista.mostrarError("Error en pedido: " + ex.getMessage());
+//        } catch (Exception ex) {
+//            vista.mostrarError("Error inesperado: " + ex.getMessage());
+//        }
+//    }
     public void registrarPedido() {
         try {
-            Servicio servicioActual = vista.getServicioActual();
-            if (servicioActual == null) {
-                throw new ServicioException("Debe identificarse antes de agregar un pedido");
-            }
-
-            Item itemSeleccionado = vista.getItemSeleccionado();
-            if (itemSeleccionado == null) {
-                throw new PedidoException("Debe seleccionar un item");
-            }
-
-            String comentario = vista.getComentario();
-
-            // Crear y agregar el pedido
-            Pedido nuevoPedido = new Pedido(itemSeleccionado, comentario, servicioActual);
-            servicioActual.agregarPedido(nuevoPedido);
-
-            // Actualizar la vista
-            actualizarVistaPedidos(servicioActual);
-            vista.limpiarComentario();
-            vista.limpiarMensajesError();
-
-            // Recargar items por si cambió el stock
-            cargarItemsPorCategoria();
-
+            DatosPedido datos = validarYObtenerDatos();
+            Pedido nuevoPedido = crearPedido(datos);
+            procesarNuevoPedido(nuevoPedido, datos.servicioActual);
+            actualizarInterfazDespuesDeRegistro(datos.servicioActual);
         } catch (StockException ex) {
             vista.mostrarError("Sin stock disponible: " + ex.getMessage());
         } catch (ServicioException ex) {
@@ -108,7 +119,51 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    
+// Métodos auxiliares para registrarPedido()
+    private DatosPedido validarYObtenerDatos() throws ServicioException, PedidoException {
+        Servicio servicioActual = vista.getServicioActual();
+        if (servicioActual == null) {
+            throw new ServicioException("Debe identificarse antes de agregar un pedido");
+        }
+
+        Item itemSeleccionado = vista.getItemSeleccionado();
+        if (itemSeleccionado == null) {
+            throw new PedidoException("Debe seleccionar un item");
+        }
+
+        String comentario = vista.getComentario();
+        return new DatosPedido(servicioActual, itemSeleccionado, comentario);
+    }
+
+    private Pedido crearPedido(DatosPedido datos) throws StockException {
+        return new Pedido(datos.itemSeleccionado, datos.comentario, datos.servicioActual);
+    }
+
+    private void procesarNuevoPedido(Pedido nuevoPedido, Servicio servicioActual) throws ServicioException {
+        servicioActual.agregarPedido(nuevoPedido);
+    }
+
+    private void actualizarInterfazDespuesDeRegistro(Servicio servicioActual) {
+        actualizarVistaPedidos(servicioActual);
+        vista.limpiarComentario();
+        vista.limpiarMensajesError();
+        cargarItemsPorCategoria();
+    }
+
+    // Clase auxiliar para encapsular datos
+    private static class DatosPedido {
+
+        final Servicio servicioActual;
+        final Item itemSeleccionado;
+        final String comentario;
+
+        DatosPedido(Servicio servicioActual, Item itemSeleccionado, String comentario) {
+            this.servicioActual = servicioActual;
+            this.itemSeleccionado = itemSeleccionado;
+            this.comentario = comentario;
+        }
+    }
+
     public void eliminarPedido() {
         try {
             Servicio servicioActual = vista.getServicioActual();
@@ -195,7 +250,6 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    
     private void mostrarResultadoConfirmacion(Servicio.ConfirmacionResult resultado) {
         StringBuilder mensaje = new StringBuilder();
         boolean hayEliminados = resultado.hayPedidosEliminados();
@@ -230,7 +284,6 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    
     private void analizarYMostrarResultadoConfirmacion(List<String> nombresIniciales, Servicio servicio) {
         // Obtener estado final
         List<Pedido> pedidosFinales = servicio.getPedidos();
@@ -290,7 +343,7 @@ public class PedidosControlador implements Observador {
 
     private void handlePedidosEliminadosConMensajes(Observable origen, List<String> mensajes) {
         if (origen == vista.getServicioActual()) {
-            
+
             StringBuilder mensajeCompleto = new StringBuilder();
             mensajeCompleto.append("Pedidos eliminados automáticamente:\n\n");
 
@@ -308,7 +361,7 @@ public class PedidosControlador implements Observador {
             cargarItemsPorCategoria();
         }
     }
-    
+
     private void actualizarVistaPedidos(Servicio servicio) {
         if (servicio != null) {
             vista.actualizarTablaPedidos(servicio.getPedidos());
@@ -334,7 +387,6 @@ public class PedidosControlador implements Observador {
         vista.limpiarMensajesError();
     }
 
-    
     public void onCategoriaSeleccionada() {
         Categoria categoria = vista.getCategoriaSeleccionada();
 
@@ -357,7 +409,6 @@ public class PedidosControlador implements Observador {
         }
     }
 
-   
     public void onServicioActualizado() {
         // Limpiar suscripciones del servicio anterior
         if (this.servicioActual != null) {
@@ -381,7 +432,6 @@ public class PedidosControlador implements Observador {
         cargarCategorias();
     }
 
-    
     public void suscribirseAItems(List<Item> items) {
         for (Item item : items) {
             item.desuscribir(this); // Evitar duplicados
@@ -430,8 +480,7 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    
-     //Maneja la confirmación de pedidos y actualiza la tabla para mostrar estados
+    //Maneja la confirmación de pedidos y actualiza la tabla para mostrar estados
     private void handlePedidosConfirmados(Observable origen) {
         if (origen == vista.getServicioActual()) {
             // Actualizar la tabla para mostrar los nuevos estados
@@ -440,7 +489,6 @@ public class PedidosControlador implements Observador {
         }
     }
 
-    
     private void handlePedidosEliminadosSinMensajes(Observable origen) {
         if (origen == vista.getServicioActual()) {
             // Actualizar la tabla sin mostrar mensajes específicos
