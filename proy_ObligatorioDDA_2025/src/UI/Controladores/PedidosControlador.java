@@ -4,7 +4,6 @@ import Dominio.Categoria;
 import Dominio.Excepciones.PedidoException;
 import Dominio.Excepciones.ServicioException;
 import Dominio.Excepciones.StockException;
-import Dominio.Ingrediente;
 import Dominio.Item;
 import Dominio.Menu;
 import Dominio.Observer.Observable;
@@ -66,42 +65,6 @@ public class PedidosControlador implements Observador {
         }
     }
 
-//    public void registrarPedido() {
-//        try {
-//            Servicio servicioActual = vista.getServicioActual();
-//            if (servicioActual == null) {
-//                throw new ServicioException("Debe identificarse antes de agregar un pedido");
-//            }
-//
-//            Item itemSeleccionado = vista.getItemSeleccionado();
-//            if (itemSeleccionado == null) {
-//                throw new PedidoException("Debe seleccionar un item");
-//            }
-//
-//            String comentario = vista.getComentario();
-//
-//            // Crear y agregar el pedido
-//            Pedido nuevoPedido = new Pedido(itemSeleccionado, comentario, servicioActual);
-//            servicioActual.agregarPedido(nuevoPedido);
-//
-//            // Actualizar la vista
-//            actualizarVistaPedidos(servicioActual);
-//            vista.limpiarComentario();
-//            vista.limpiarMensajesError();
-//
-//            // Recargar items por si cambió el stock
-//            cargarItemsPorCategoria();
-//
-//        } catch (StockException ex) {
-//            vista.mostrarError("Sin stock disponible: " + ex.getMessage());
-//        } catch (ServicioException ex) {
-//            vista.mostrarError("Error de servicio: " + ex.getMessage());
-//        } catch (PedidoException ex) {
-//            vista.mostrarError("Error en pedido: " + ex.getMessage());
-//        } catch (Exception ex) {
-//            vista.mostrarError("Error inesperado: " + ex.getMessage());
-//        }
-//    }
     public void registrarPedido() {
         try {
             DatosPedido datos = validarYObtenerDatos();
