@@ -39,12 +39,14 @@ public class LoginControlador {
             view.setLogueado(true);
             view.mostrarError("");
             
-        } catch (UsuarioException | DispositivoException ex) {
+        } catch (UsuarioException ex) {
             // Manejar errores y actualizar vista
             view.mostrarError(ex.getMessage());
-            view.setLogueado(false);
             view.limpiarCampos();
             servicioActual = null;
+        }
+        catch(DispositivoException ex){
+            view.mostrarError(ex.getMessage());
         }
     }
     
